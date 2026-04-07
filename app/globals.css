@@ -111,6 +111,20 @@ body:has(#nav-open:checked) {
 }
 
 /* ─────────────────────────────────────────────────────────
+   FADE IN (opacity only, no movement)
+   ───────────────────────────────────────────────────────── */
+@media (scripting: enabled) {
+  .fade-in {
+    opacity: 0;
+    transition: opacity 1s ease-out var(--delay, 0s);
+  }
+
+  .fade-in.is-visible {
+    opacity: 1;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────
    REDUCED MOTION — respect the user's system preference
    ───────────────────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
@@ -135,6 +149,11 @@ body:has(#nav-open:checked) {
   .word-span {
     opacity: 1 !important;
     transform: none !important;
+    transition: none !important;
+  }
+
+  .fade-in {
+    opacity: 1 !important;
     transition: none !important;
   }
 }
