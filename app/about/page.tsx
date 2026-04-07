@@ -27,20 +27,19 @@ export default function AboutPage() {
 
   return (
     <>
-      {/* ── SECTION 1: PAGE HEADER ─────────────────────────── */}
-      <section className="bg-[#F7F5F2] px-6 md:px-16 pt-40 pb-12 md:pb-16 fade-up">
-        <div className="max-w-7xl mx-auto">
-          <p className="text-[#A8B2A1] text-[10px] tracking-widest uppercase mb-8">
-            About
-          </p>
-          <h1 className="font-serif text-[#1F1F1F] text-5xl md:text-6xl font-light leading-tight tracking-wide max-w-3xl text-center md:text-left mx-auto md:mx-0">
-            Behind every well-run life is someone who made it that way.
-          </h1>
+      {/* ── HERO HEADER ────────────────────────────────────── */}
+      <section className="bg-[#1F1F1F] flex flex-col items-center justify-center text-center px-6 py-40 fade-up">
+        <div className="w-12 h-16 border border-[#F7F5F2] rounded-full flex flex-col items-center justify-center mb-10">
+          <span className="font-serif text-[#F7F5F2] text-sm leading-none">T</span>
+          <span className="font-serif text-[#F7F5F2] text-sm leading-none">L</span>
         </div>
+        <h1 className="font-serif text-[#F7F5F2] text-5xl md:text-6xl font-light tracking-wide">
+          About Megan
+        </h1>
       </section>
 
       {/* ── SECTION 2: SPLIT CONTENT ───────────────────────── */}
-      <section className="bg-[#F7F5F2] px-6 md:px-16 pb-24 md:pb-32">
+      <section className="bg-[#F7F5F2] px-6 md:px-16 pt-20 md:pt-24 pb-24 md:pb-32">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-[3fr_2fr] gap-16 md:gap-20 items-start">
 
           {/* Left column: body copy */}
