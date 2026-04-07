@@ -14,6 +14,7 @@
   --color-sage: var(--sage);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-serif: var(--font-playfair);
 }
 
 html {
@@ -24,4 +25,116 @@ body {
   background: var(--charcoal);
   color: var(--warm-white);
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+}
+
+/* Lock scroll when mobile nav is open */
+body:has(#nav-open:checked) {
+  overflow: hidden;
+}
+
+/* ─────────────────────────────────────────────────────────
+   HERO IMAGE ZOOM
+   ───────────────────────────────────────────────────────── */
+@keyframes hero-zoom {
+  from { transform: scale(1); }
+  to   { transform: scale(1.08); }
+}
+
+.hero-image {
+  animation: hero-zoom 15s ease-out infinite alternate;
+}
+
+/* ─────────────────────────────────────────────────────────
+   NAV SCROLL SOLIDIFY  (scroll-driven animation)
+   ───────────────────────────────────────────────────────── */
+@keyframes nav-solidify {
+  from {
+    background-color: rgba(31, 31, 31, 0);
+    backdrop-filter: blur(0px);
+    border-bottom-color: rgba(168, 178, 161, 0);
+  }
+  to {
+    background-color: rgba(31, 31, 31, 0.97);
+    backdrop-filter: blur(16px);
+    border-bottom-color: rgba(168, 178, 161, 0.2);
+  }
+}
+
+/* Fallback for browsers without scroll-driven animation support */
+.site-nav {
+  background-color: rgba(31, 31, 31, 0.97);
+}
+
+@supports (animation-timeline: scroll()) {
+  .site-nav {
+    background-color: transparent;
+    border-bottom-color: transparent;
+    animation: nav-solidify linear both;
+    animation-timeline: scroll(root);
+    animation-range: 0px 80px;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────
+   FADE UP ON SCROLL
+   ───────────────────────────────────────────────────────── */
+@media (scripting: enabled) {
+  .fade-up {
+    opacity: 0;
+    transform: translateY(20px);
+    transition:
+      opacity  0.8s ease-out var(--delay, 0s),
+      transform 0.8s ease-out var(--delay, 0s);
+  }
+
+  .fade-up.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ─────────────────────────────────────────────────────────
+   WORD-BY-WORD TEXT REVEAL
+   ───────────────────────────────────────────────────────── */
+.word-span {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(10px);
+  transition:
+    opacity   0.6s ease-out calc(var(--i, 0) * 0.08s),
+    transform 0.6s ease-out calc(var(--i, 0) * 0.08s);
+}
+
+.word-reveal.is-visible .word-span {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ─────────────────────────────────────────────────────────
+   REDUCED MOTION — respect the user's system preference
+   ───────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .hero-image {
+    animation: none;
+  }
+
+  @supports (animation-timeline: scroll()) {
+    .site-nav {
+      animation: none;
+      background-color: rgba(31, 31, 31, 0.97);
+      border-bottom-color: rgba(168, 178, 161, 0.2);
+    }
+  }
+
+  .fade-up {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  .word-span {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
 }
