@@ -172,115 +172,37 @@ export default function Home() {
         </p>
       </div>
 
-      {/* WHAT WE DELIVER */}
-      <section id="what-we-deliver">
+      {/* THE QUIET STRUCTURE */}
+      <section className="bg-[#F7F5F2] px-6 md:px-16 py-32">
+        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-16 md:gap-24">
 
-        {/* Row 1 — The Quiet Structure — odd: title left, description right */}
-        <div className="grid grid-cols-1 md:grid-cols-2">
-          <div className="bg-[#1F1F1F] flex flex-col justify-center px-6 py-10 md:px-14 lg:px-20 md:py-20">
-            <p className="text-[#A8B2A1] text-xs tracking-widest uppercase mb-6 fade-up">
-              What we deliver
-            </p>
-            <h3
-              className="word-reveal font-serif text-[#F7F5F2] text-2xl md:text-4xl lg:text-5xl font-light leading-tight"
-            >
+          {/* Left column */}
+          <div className="fade-up">
+            <p className="text-[#A8B2A1] text-[10px] tracking-widest uppercase mb-8">
               The Quiet Structure
-            </h3>
-          </div>
-          <div className="bg-[#F7F5F2] flex items-center px-6 py-10 md:px-14 lg:px-20 md:py-20">
-            <p
-              className="font-serif italic text-[#1F1F1F] text-lg md:text-2xl lg:text-3xl font-light leading-relaxed fade-up"
-            >
-              Beneath every effortless life is an invisible architecture. We build it, maintain it, and ensure it never falters.
             </p>
+            <h2 className="font-serif italic text-[#1F1F1F] text-4xl md:text-5xl font-light leading-tight">
+              Beneath every effortless life is an invisible architecture.
+            </h2>
           </div>
-        </div>
 
-        {/* Row 2 — Personal Affairs — even: description left, title right */}
-        <div className="grid grid-cols-1 md:grid-cols-2">
-          <div className="order-1 md:order-2 bg-[#1F1F1F] flex flex-col justify-center px-6 py-10 md:px-14 lg:px-20 md:py-20">
-            <h3
-              className="word-reveal font-serif text-[#F7F5F2] text-2xl md:text-4xl lg:text-5xl font-light leading-tight"
-            >
-              Personal Affairs
-            </h3>
-          </div>
-          <div className="order-2 md:order-1 bg-[#F7F5F2] flex items-center px-6 py-10 md:px-14 lg:px-20 md:py-20">
-            <p
-              className="font-serif italic text-[#1F1F1F] text-lg md:text-2xl lg:text-3xl font-light leading-relaxed fade-up"
-            >
-              Every appointment, commitment and detail attended to before you think to ask. Quietly. Precisely. Without fail.
+          {/* Right column */}
+          <div
+            className="flex flex-col justify-center fade-up"
+            style={{ "--delay": "0.15s" } as React.CSSProperties}
+          >
+            <p className="text-[#1F1F1F] text-lg font-light leading-relaxed mb-10">
+              We build it, maintain it, and ensure it never falters. Not because you asked. Because it should never need to be asked.
             </p>
-          </div>
-        </div>
-
-        {/* Row 3 — Professional Support — odd: title left, description right */}
-        <div className="grid grid-cols-1 md:grid-cols-2">
-          <div className="bg-[#1F1F1F] flex flex-col justify-center px-6 py-10 md:px-14 lg:px-20 md:py-20">
-            <h3
-              className="word-reveal font-serif text-[#F7F5F2] text-2xl md:text-4xl lg:text-5xl font-light leading-tight"
+            <hr className="border-none h-px bg-[#A8B2A1] w-12 mb-10" />
+            <a
+              href="/services"
+              className="text-[#A8B2A1] text-xs tracking-widest uppercase no-underline hover:underline underline-offset-4 transition-all w-fit"
             >
-              Professional Support
-            </h3>
+              Discover more →
+            </a>
           </div>
-          <div className="bg-[#F7F5F2] flex items-center px-6 py-10 md:px-14 lg:px-20 md:py-20">
-            <p
-              className="font-serif italic text-[#1F1F1F] text-lg md:text-2xl lg:text-3xl font-light leading-relaxed fade-up"
-            >
-              Your diary protected. Your correspondence immaculate. Your professional world running exactly as it should.
-            </p>
-          </div>
-        </div>
 
-        {/* Row 4 — Occasions — even: description left, title right */}
-        <div className="grid grid-cols-1 md:grid-cols-2">
-          <div className="order-1 md:order-2 bg-[#1F1F1F] flex flex-col justify-center px-6 py-10 md:px-14 lg:px-20 md:py-20">
-            <h3
-              className="word-reveal font-serif text-[#F7F5F2] text-2xl md:text-4xl lg:text-5xl font-light leading-tight"
-            >
-              Occasions
-            </h3>
-          </div>
-          <div className="order-2 md:order-1 bg-[#F7F5F2] flex items-center px-6 py-10 md:px-14 lg:px-20 md:py-20">
-            <p
-              className="font-serif italic text-[#1F1F1F] text-lg md:text-2xl lg:text-3xl font-light leading-relaxed fade-up"
-            >
-              From the most intimate gathering to the grandest occasion — conceived, curated and delivered without a single detail overlooked.
-            </p>
-          </div>
-        </div>
-
-      </section>
-
-      {/* WHO WE WORK WITH */}
-      <section className="bg-[#1F1F1F] px-6 md:px-16 py-20 md:py-32">
-        <div className="max-w-4xl mx-auto">
-          <p className="text-[#A8B2A1] text-xs tracking-widest uppercase mb-16 md:mb-20 fade-up">
-            Who we work with
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-[#A8B2A1]/40">
-            <div className="flex items-center justify-center text-center py-12 md:py-8 md:pr-12 lg:pr-16">
-              <p
-                className="word-reveal font-serif italic text-[#F7F5F2] text-xl lg:text-2xl font-light leading-relaxed"
-              >
-                Those who have built enough to know their time is irreplaceable.
-              </p>
-            </div>
-            <div className="flex items-center justify-center text-center py-12 md:py-8 md:px-12 lg:px-16">
-              <p
-                className="word-reveal font-serif italic text-[#F7F5F2] text-xl lg:text-2xl font-light leading-relaxed"
-              >
-                Those who understand that true luxury is never having to think about the details.
-              </p>
-            </div>
-            <div className="flex items-center justify-center text-center py-12 md:py-8 md:pl-12 lg:pl-16">
-              <p
-                className="word-reveal font-serif italic text-[#F7F5F2] text-xl lg:text-2xl font-light leading-relaxed"
-              >
-                Those who want their life to feel as exceptional as the one they have worked for.
-              </p>
-            </div>
-          </div>
         </div>
       </section>
 
