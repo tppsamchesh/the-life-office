@@ -39,6 +39,7 @@ function TLMonogram({ size = "sm", color = "warm-white" }: { size?: "sm" | "lg";
 }
 
 const navLinks = [
+  { label: "About", href: "/about" },
   { label: "Services", href: "/services" },
   { label: "How it works", href: "/how-it-works" },
   { label: "The Journal", href: "/the-journal" },

@@ -28,7 +28,7 @@ export default function AboutPage() {
   return (
     <>
       {/* ── SECTION 1: PAGE HEADER ─────────────────────────── */}
-      <section className="bg-[#F7F5F2] px-6 md:px-16 pt-40 pb-24 md:pb-32 fade-up">
+      <section className="bg-[#F7F5F2] px-6 md:px-16 pt-40 pb-12 md:pb-16 fade-up">
         <div className="max-w-7xl mx-auto">
           <p className="text-[#A8B2A1] text-[10px] tracking-widest uppercase mb-8">
             About
@@ -116,7 +116,7 @@ export default function AboutPage() {
             >
               <Link
                 href="/work-with-us"
-                className="inline-block bg-[#A8B2A1] text-[#1F1F1F] text-xs tracking-widest uppercase px-8 py-4 hover:bg-[#96a08f] transition-colors w-full md:w-auto text-center"
+                className="inline-block bg-[#A8B2A1] text-[#1F1F1F] text-xs tracking-widest uppercase px-8 py-4 hover:bg-[#96a08f] transition-colors w-full md:w-auto text-center rounded-none"
               >
                 Work with us
               </Link>
@@ -136,7 +136,7 @@ export default function AboutPage() {
             </div>
 
             {/* Desktop: tall sticky panel */}
-            <div className="hidden md:block relative h-[calc(100vh-6rem)] fade-in">
+            <div className="hidden md:block relative h-full min-h-[600px] fade-in">
               <Image
                 src="/meg.jpeg"
                 alt="Meg"
