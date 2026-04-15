@@ -127,7 +127,7 @@ export default function AboutPage() {
             {/* Mobile: full width with aspect ratio */}
             <div className="relative aspect-[3/4] md:hidden fade-in">
               <Image
-                src="/meg.jpeg"
+                src="/images/meg-profile.jpg"
                 alt="Meg"
                 fill
                 className="object-cover object-top"
@@ -137,7 +137,7 @@ export default function AboutPage() {
             {/* Desktop: tall sticky panel */}
             <div className="hidden md:block relative h-full min-h-[600px] fade-in">
               <Image
-                src="/meg.jpeg"
+                src="/images/meg-profile.jpg"
                 alt="Meg"
                 fill
                 className="object-cover object-top"
