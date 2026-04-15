@@ -72,9 +72,9 @@ export default function ServicesPage() {
       </section>
 
       {/* THIS IS FOR YOU IF */}
-      <section className="bg-[#F7F5F2] px-6 md:px-16 py-32">
+      <section className="bg-[#F7F5F2] px-6 md:px-16 py-20 md:py-32">
         <div className="max-w-3xl mx-auto">
-          <h2 className="font-serif text-[#1F1F1F] text-4xl md:text-5xl font-light leading-tight tracking-wide text-center mb-20 md:mb-24 fade-up">
+          <h2 className="font-serif text-[#1F1F1F] text-4xl md:text-5xl font-light leading-tight tracking-wide text-center mb-14 md:mb-24 fade-up">
             This is for you if&hellip;
           </h2>
 
@@ -89,7 +89,7 @@ export default function ServicesPage() {
             ].map((line, i) => (
               <li
                 key={i}
-                className="fade-up border-b border-[#A8B2A1] last:border-b-0 py-10 md:py-12"
+                className="fade-up border-b border-[#A8B2A1] last:border-b-0 py-8 md:py-12"
                 style={{ "--delay": `${0.1 + i * 0.08}s` } as React.CSSProperties}
               >
                 <p className="font-serif italic text-[#1F1F1F] text-xl md:text-2xl font-light leading-relaxed text-center">
@@ -102,7 +102,7 @@ export default function ServicesPage() {
       </section>
 
       {/* HOW IT WORKS */}
-      <section className="bg-[#1F1F1F] px-6 md:px-16 py-32">
+      <section className="bg-[#1F1F1F] px-6 md:px-16 py-20 md:py-32">
         <div className="max-w-3xl mx-auto text-center">
           <p
             className="text-[#A8B2A1] text-xs tracking-widest uppercase mb-8 md:mb-12 fade-up"
@@ -137,13 +137,13 @@ export default function ServicesPage() {
       </section>
 
       {/* THE OUTCOME */}
-      <section className="bg-[#F7F5F2] px-6 md:px-16 py-32">
+      <section className="bg-[#F7F5F2] px-6 md:px-16 py-20 md:py-32">
         <div className="max-w-3xl mx-auto">
           <p className="text-[#A8B2A1] text-xs tracking-widest uppercase text-center fade-up">
             The Outcome
           </p>
           <h2
-            className="font-serif text-[#1F1F1F] text-4xl md:text-5xl font-light leading-tight tracking-wide text-center mt-8 mb-20 md:mb-24 fade-up"
+            className="font-serif text-[#1F1F1F] text-4xl md:text-5xl font-light leading-tight tracking-wide text-center mt-8 mb-14 md:mb-24 fade-up"
             style={{ "--delay": "0.1s" } as React.CSSProperties}
           >
             This is what changes.
@@ -159,7 +159,7 @@ export default function ServicesPage() {
             ].map((line, i) => (
               <li
                 key={i}
-                className="fade-up border-b border-[#A8B2A1] last:border-b-0 py-10 md:py-12"
+                className="fade-up border-b border-[#A8B2A1] last:border-b-0 py-8 md:py-12"
                 style={{ "--delay": `${0.2 + i * 0.08}s` } as React.CSSProperties}
               >
                 <p className="font-serif italic text-[#1F1F1F] text-xl md:text-2xl font-light leading-relaxed text-center">
@@ -172,7 +172,7 @@ export default function ServicesPage() {
       </section>
 
       {/* THE DIFFERENCE */}
-      <section className="bg-[#1F1F1F] px-6 md:px-16 py-32">
+      <section className="bg-[#1F1F1F] px-6 md:px-16 py-20 md:py-32">
         <div className="max-w-3xl mx-auto text-center">
           <p className="text-[#A8B2A1] text-xs tracking-widest uppercase fade-up">
             The Difference
@@ -199,7 +199,7 @@ export default function ServicesPage() {
       </section>
 
       {/* GET YOUR TIME BACK */}
-      <section className="bg-[#A8B2A1] px-6 md:px-16 py-32">
+      <section className="bg-[#A8B2A1] px-6 md:px-16 py-20 md:py-32">
         <div className="max-w-3xl mx-auto text-center">
           <h2 className="font-serif text-[#1F1F1F] text-4xl md:text-5xl font-light leading-tight tracking-wide fade-up">
             Get your time back.
@@ -216,7 +216,7 @@ export default function ServicesPage() {
           >
             <a
               href="#contact"
-              className="inline-block bg-[#1F1F1F] text-[#F7F5F2] text-xs tracking-widest uppercase px-10 py-4 hover:opacity-80 transition-opacity"
+              className="inline-block w-full sm:w-auto text-center bg-[#1F1F1F] text-[#F7F5F2] text-xs tracking-widest uppercase px-10 py-4 hover:opacity-80 transition-opacity"
             >
               Start offloading
             </a>
