@@ -1,4 +1,8 @@
+import { draftMode } from "next/headers";
 import Link from "next/link";
+import { VisualEditing } from "next-sanity/visual-editing";
+
+import { SanityLive } from "@/sanity/live";
 
 function TLMonogram() {
   return (
@@ -15,11 +19,13 @@ const navLinks = [
   { label: "Pricing", href: "#pricing" },
 ];
 
-export default function SiteLayout({
+export default async function SiteLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const { isEnabled: isPreview } = await draftMode();
+
   return (
     <div className="min-h-full flex flex-col">
       {/* Hidden checkbox — powers the mobile nav overlay via CSS peer */}
@@ -138,6 +144,22 @@ export default function SiteLayout({
           </p>
         </div>
       </footer>
+
+      {/* Live content updates (near-instant publishing) */}
+      <SanityLive />
+
+      {/* Visual editing overlays — only active inside the Studio's preview */}
+      {isPreview && (
+        <>
+          <VisualEditing />
+          <a
+            href="/api/draft-mode/disable"
+            className="fixed bottom-4 left-4 z-[100] bg-[#A8B2A1] text-[#1F1F1F] text-[10px] tracking-widest uppercase px-4 py-2"
+          >
+            Exit preview
+          </a>
+        </>
+      )}
     </div>
   );
 }

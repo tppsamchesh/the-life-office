@@ -1,6 +1,5 @@
 import { type SanityImageSource } from "@sanity/image-url";
 
-import { client } from "./client";
 import {
   defaultContent,
   type LandingContent,
@@ -9,6 +8,7 @@ import {
   type Step,
 } from "./defaultContent";
 import { urlFor } from "./image";
+import { sanityFetch } from "./live";
 
 // Loose shape of the projected document — every field may be missing or null
 // (the resolver below coalesces each one to a verbatim default).
@@ -80,7 +80,8 @@ const FALLBACK_HERO_IMAGE = "/Hero image 1.avif";
 export async function getLandingData(): Promise<LandingData> {
   let raw: RawLanding | null = null;
   try {
-    raw = await client.fetch<RawLanding | null>(LANDING_QUERY, {}, { next: { revalidate: 60 } });
+    const { data } = await sanityFetch({ query: LANDING_QUERY });
+    raw = (data as RawLanding | null) ?? null;
   } catch {
     raw = null; // Sanity unreachable — render defaults so the page never breaks.
   }

@@ -2,10 +2,14 @@ import { createClient } from "next-sanity";
 
 import { apiVersion, dataset, projectId } from "./env";
 
-// Read-only client for fetching published content on the public site.
 export const client = createClient({
   projectId,
   dataset,
   apiVersion,
-  useCdn: true, // published, public content — served from Sanity's edge cache
+  useCdn: false, // live content + drafts need fresh data; Next + SanityLive handle caching
+  stega: {
+    // Lets the Presentation tool map text on the page back to the right field
+    // (click-to-edit). studioUrl is the embedded Studio route on this same site.
+    studioUrl: "/studio",
+  },
 });
