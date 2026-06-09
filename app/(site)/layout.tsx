@@ -1,0 +1,143 @@
+import Link from "next/link";
+
+function TLMonogram() {
+  return (
+    <div className="w-6 h-8 border border-[#F7F5F2] rounded-full flex flex-col items-center justify-center shrink-0">
+      <span className="font-serif text-[#F7F5F2] text-[8px] leading-none">T</span>
+      <span className="font-serif text-[#F7F5F2] text-[8px] leading-none">L</span>
+    </div>
+  );
+}
+
+const navLinks = [
+  { label: "The Offer", href: "#the-offer" },
+  { label: "How It Works", href: "#how-it-works" },
+  { label: "Pricing", href: "#pricing" },
+];
+
+export default function SiteLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <div className="min-h-full flex flex-col">
+      {/* Hidden checkbox — powers the mobile nav overlay via CSS peer */}
+      <input
+        type="checkbox"
+        id="nav-open"
+        className="peer absolute opacity-0 w-0 h-0 pointer-events-none"
+      />
+
+      {/* Mobile nav overlay — slides down when checkbox is checked */}
+      <div className="fixed inset-0 z-[60] bg-[#1F1F1F] flex flex-col items-center justify-center
+                      -translate-y-full peer-checked:translate-y-0
+                      transition-transform duration-300 ease-in-out
+                      md:hidden">
+
+        {/* Close button */}
+        <label
+          htmlFor="nav-open"
+          className="absolute top-6 right-5 cursor-pointer w-10 h-10 flex items-center justify-center"
+          aria-label="Close menu"
+        >
+          <span className="absolute h-px w-5 bg-[#F7F5F2] rotate-45"></span>
+          <span className="absolute h-px w-5 bg-[#F7F5F2] -rotate-45"></span>
+        </label>
+
+        {/* Nav links */}
+        <nav className="flex flex-col items-center gap-8 mb-12">
+          {navLinks.map(({ label, href }) => (
+            <label key={href} htmlFor="nav-open" className="cursor-pointer">
+              <a
+                href={href}
+                className="font-serif text-[#F7F5F2] text-3xl font-light tracking-wide hover:text-[#A8B2A1] transition-colors"
+              >
+                {label}
+              </a>
+            </label>
+          ))}
+        </nav>
+
+        {/* Book a Discovery Call CTA */}
+        <label htmlFor="nav-open" className="cursor-pointer">
+          <a
+            href="#contact"
+            className="inline-block bg-[#A8B2A1] text-[#1F1F1F] text-xs tracking-widest uppercase px-10 py-4 hover:bg-[#96a08f] transition-colors"
+          >
+            Book a Discovery Call
+          </a>
+        </label>
+
+      </div>
+
+      {/* NAV */}
+      <nav className="site-nav sticky top-0 z-50 border-b border-[#A8B2A1]/20">
+        <div className="max-w-7xl mx-auto px-5 sm:px-8 md:px-16 py-4 md:py-5 flex items-center justify-between gap-6">
+
+          {/* Logo + wordmark */}
+          <Link href="/" className="flex items-center gap-3 text-[#F7F5F2] hover:text-[#A8B2A1] transition-colors shrink-0">
+            <TLMonogram />
+            <span className="hidden sm:block text-xs tracking-widest uppercase leading-none">The Life Office</span>
+          </Link>
+
+          {/* Centre nav links — desktop only */}
+          <div className="hidden md:flex items-center gap-8 lg:gap-12">
+            {navLinks.map(({ label, href }) => (
+              <a
+                key={href}
+                href={href}
+                className="text-[#D8D2C8] text-[10px] tracking-widest uppercase hover:text-[#A8B2A1] transition-colors whitespace-nowrap"
+              >
+                {label}
+              </a>
+            ))}
+          </div>
+
+          {/* Right side */}
+          <div className="flex items-center gap-4 shrink-0">
+
+            {/* Hamburger — mobile only */}
+            <label
+              htmlFor="nav-open"
+              className="md:hidden cursor-pointer flex flex-col gap-[5px] w-5 py-1"
+              aria-label="Open menu"
+            >
+              <span className="block h-px w-full bg-[#F7F5F2]"></span>
+              <span className="block h-px w-full bg-[#F7F5F2]"></span>
+              <span className="block h-px w-full bg-[#F7F5F2]"></span>
+            </label>
+
+            {/* CTA — desktop only */}
+            <a
+              href="#contact"
+              className="hidden md:inline-block bg-[#A8B2A1] text-[#1F1F1F] text-xs tracking-widest uppercase px-6 py-3 hover:bg-[#96a08f] transition-colors whitespace-nowrap"
+            >
+              Book a Discovery Call
+            </a>
+
+          </div>
+
+        </div>
+      </nav>
+
+      {/* PAGE CONTENT */}
+      <main className="flex-1 flex flex-col">
+        {children}
+      </main>
+
+      {/* FOOTER */}
+      <footer className="bg-[#1F1F1F] border-t border-[#A8B2A1]/30 px-6 md:px-16 py-16 md:py-20">
+        <div className="max-w-7xl mx-auto flex flex-col items-center gap-6 text-center">
+          <div className="flex items-center gap-3">
+            <TLMonogram />
+            <span className="text-[#F7F5F2] text-xs tracking-widest uppercase">The Life Office</span>
+          </div>
+          <p className="text-[#D8D2C8] text-xs font-light tracking-wide">
+            &copy; 2026 The Life Office. All rights reserved.
+          </p>
+        </div>
+      </footer>
+    </div>
+  );
+}
