@@ -39,11 +39,9 @@ function TLMonogram({ size = "sm", color = "warm-white" }: { size?: "sm" | "lg";
 }
 
 const navLinks = [
-  { label: "About", href: "/about" },
-  { label: "Services", href: "/services" },
-  { label: "How it works", href: "/how-it-works" },
-  { label: "The Journal", href: "/the-journal" },
-  { label: "The Edit", href: "/the-edit" },
+  { label: "The Offer", href: "#the-offer" },
+  { label: "How It Works", href: "#how-it-works" },
+  { label: "Pricing", href: "#pricing" },
 ];
 
 export default function RootLayout({
@@ -85,24 +83,24 @@ export default function RootLayout({
           <nav className="flex flex-col items-center gap-8 mb-12">
             {navLinks.map(({ label, href }) => (
               <label key={href} htmlFor="nav-open" className="cursor-pointer">
-                <Link
+                <a
                   href={href}
                   className="font-serif text-[#F7F5F2] text-3xl font-light tracking-wide hover:text-[#A8B2A1] transition-colors"
                 >
                   {label}
-                </Link>
+                </a>
               </label>
             ))}
           </nav>
 
-          {/* Work with us CTA */}
+          {/* Book a Discovery Call CTA */}
           <label htmlFor="nav-open" className="cursor-pointer">
-            <Link
-              href="/#work-with-us"
+            <a
+              href="#contact"
               className="inline-block bg-[#A8B2A1] text-[#1F1F1F] text-xs tracking-widest uppercase px-10 py-4 hover:bg-[#96a08f] transition-colors"
             >
-              Work with us
-            </Link>
+              Book a Discovery Call
+            </a>
           </label>
 
         </div>
@@ -114,22 +112,19 @@ export default function RootLayout({
             {/* Logo + wordmark */}
             <Link href="/" className="flex items-center gap-3 text-[#F7F5F2] hover:text-[#A8B2A1] transition-colors shrink-0">
               <TLMonogram size="sm" color="warm-white" />
-              <div className="hidden sm:flex flex-col leading-none">
-                <span className="text-xs tracking-widest uppercase">The Life Office</span>
-                <span className="text-[8px] tracking-wider text-[#D8D2C8] mt-0.5">We handle it. You live it.</span>
-              </div>
+              <span className="hidden sm:block text-xs tracking-widest uppercase leading-none">The Life Office</span>
             </Link>
 
             {/* Centre nav links — desktop only */}
-            <div className="hidden lg:flex items-center gap-8 xl:gap-12">
+            <div className="hidden md:flex items-center gap-8 lg:gap-12">
               {navLinks.map(({ label, href }) => (
-                <Link
+                <a
                   key={href}
                   href={href}
                   className="text-[#D8D2C8] text-[10px] tracking-widest uppercase hover:text-[#A8B2A1] transition-colors whitespace-nowrap"
                 >
                   {label}
-                </Link>
+                </a>
               ))}
             </div>
 
@@ -148,12 +143,12 @@ export default function RootLayout({
               </label>
 
               {/* CTA — desktop only */}
-              <Link
-                href="/#work-with-us"
+              <a
+                href="#contact"
                 className="hidden md:inline-block bg-[#A8B2A1] text-[#1F1F1F] text-xs tracking-widest uppercase px-6 py-3 hover:bg-[#96a08f] transition-colors whitespace-nowrap"
               >
-                Work with us
-              </Link>
+                Book a Discovery Call
+              </a>
 
             </div>
 
@@ -166,56 +161,15 @@ export default function RootLayout({
         </main>
 
         {/* FOOTER */}
-        <footer id="work-with-us" className="bg-[#1F1F1F] border-t border-[#A8B2A1]/20 px-6 md:px-16 pt-14 md:pt-20 pb-10">
-          <div className="max-w-7xl mx-auto">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-8 mb-12 md:mb-16 text-center md:text-left">
-
-              {/* Left: monogram + wordmark */}
-              <div className="flex flex-col items-center md:items-start gap-3">
-                <div className="flex items-center gap-3">
-                  <TLMonogram size="sm" color="warm-white" />
-                  <span className="text-[#F7F5F2] text-xs tracking-widest uppercase">The Life Office</span>
-                </div>
-              </div>
-
-              {/* Centre: tagline */}
-              <div className="flex items-start justify-center">
-                <p className="text-[#D8D2C8] text-sm font-light">We handle it. You live it.</p>
-              </div>
-
-              {/* Right: nav links */}
-              <div className="md:text-right">
-                <nav className="flex flex-col items-center md:items-end gap-3">
-                  {navLinks.map(({ label, href }) => (
-                    <Link
-                      key={href}
-                      href={href}
-                      className="text-[#D8D2C8] text-xs tracking-widest uppercase hover:text-[#A8B2A1] transition-colors"
-                    >
-                      {label}
-                    </Link>
-                  ))}
-                  <Link
-                    href="/#work-with-us"
-                    className="text-[#A8B2A1] text-xs tracking-widest uppercase hover:text-[#F7F5F2] transition-colors"
-                  >
-                    Work with us
-                  </Link>
-                </nav>
-              </div>
-
+        <footer className="bg-[#1F1F1F] border-t border-[#A8B2A1]/30 px-6 md:px-16 py-16 md:py-20">
+          <div className="max-w-7xl mx-auto flex flex-col items-center gap-6 text-center">
+            <div className="flex items-center gap-3">
+              <TLMonogram size="sm" color="warm-white" />
+              <span className="text-[#F7F5F2] text-xs tracking-widest uppercase">The Life Office</span>
             </div>
-
-            {/* Copyright */}
-            <div className="border-t border-[#A8B2A1]/20 pt-8 text-center md:text-left">
-              <p className="font-serif italic text-[#D8D2C8] text-sm mb-3">
-                Quietly accepting a select number of new clients.
-              </p>
-              <p className="text-[#D8D2C8] text-xs font-light">
-                &copy; {new Date().getFullYear()} The Life Office. All rights reserved.
-              </p>
-            </div>
-
+            <p className="text-[#D8D2C8] text-xs font-light tracking-wide">
+              &copy; 2026 The Life Office. All rights reserved.
+            </p>
           </div>
         </footer>
 
