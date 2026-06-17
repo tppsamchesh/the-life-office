@@ -39,16 +39,16 @@ export function TaskActions({
             Approve
           </button>
         </form>
-        <button className={BTN} onClick={() => setPanel(panel === "edit" ? "none" : "edit")}>
+        <button type="button" className={BTN} onClick={() => setPanel(panel === "edit" ? "none" : "edit")}>
           Edit &amp; Approve
         </button>
-        <button className={BTN} onClick={() => setPanel(panel === "dismiss" ? "none" : "dismiss")}>
+        <button type="button" className={BTN} onClick={() => setPanel(panel === "dismiss" ? "none" : "dismiss")}>
           Dismiss
         </button>
-        <button className={BTN} onClick={() => setPanel(panel === "snooze" ? "none" : "snooze")}>
+        <button type="button" className={BTN} onClick={() => setPanel(panel === "snooze" ? "none" : "snooze")}>
           Snooze
         </button>
-        <button className={BTN} onClick={() => setPanel(panel === "note" ? "none" : "note")}>
+        <button type="button" className={BTN} onClick={() => setPanel(panel === "note" ? "none" : "note")}>
           Note
         </button>
       </div>
@@ -56,7 +56,7 @@ export function TaskActions({
       {panel === "edit" ? (
         <form action={editApproveTask} className="mt-4 flex flex-col gap-2">
           <input type="hidden" name="taskId" value={taskId} />
-          <textarea name="message" rows={5} defaultValue={draftMessage} className={FIELD} />
+          <textarea name="message" rows={5} defaultValue={draftMessage} aria-label="Edited reply" className={FIELD} />
           <button
             type="submit"
             className="self-start rounded-md bg-[#A8B2A1] px-4 py-2 text-sm font-medium text-[#1F1F1F] hover:bg-[#96a08f]"
@@ -69,7 +69,7 @@ export function TaskActions({
       {panel === "dismiss" ? (
         <form action={dismissTask} className="mt-4 flex flex-col gap-2">
           <input type="hidden" name="taskId" value={taskId} />
-          <input name="reason" placeholder="Reason (optional)" className={FIELD} />
+          <input name="reason" placeholder="Reason (optional)" aria-label="Dismiss reason" className={FIELD} />
           <button type="submit" className={`${BTN} self-start`}>Confirm dismiss</button>
         </form>
       ) : null}
@@ -77,7 +77,7 @@ export function TaskActions({
       {panel === "snooze" ? (
         <form action={snoozeTask} className="mt-4 flex flex-col gap-2">
           <input type="hidden" name="taskId" value={taskId} />
-          <input type="date" name="until" required className={`${FIELD} max-w-xs`} />
+          <input type="date" name="until" required aria-label="Snooze until" className={`${FIELD} max-w-xs`} />
           <button type="submit" className={`${BTN} self-start`}>Confirm snooze</button>
         </form>
       ) : null}
@@ -90,6 +90,7 @@ export function TaskActions({
             rows={3}
             defaultValue={notes ?? ""}
             placeholder="Private note for this task"
+            aria-label="Private note"
             className={FIELD}
           />
           <button type="submit" className={`${BTN} self-start`}>Save note</button>

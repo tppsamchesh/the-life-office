@@ -76,9 +76,13 @@ export async function dismissTask(formData: FormData) {
 export async function snoozeTask(formData: FormData) {
   const id = String(formData.get("taskId"));
   const until = String(formData.get("until") ?? "");
+  const untilDate = new Date(until);
+  if (Number.isNaN(untilDate.getTime())) {
+    redirect("/dashboard/triage");
+  }
   await updateTask(
     id,
-    { status: "snoozed", snoozed_until: new Date(until).toISOString() },
+    { status: "snoozed", snoozed_until: untilDate.toISOString() },
     { type: "task_snoozed", description: `Snoozed until ${until}` },
   );
   redirect("/dashboard/triage");
