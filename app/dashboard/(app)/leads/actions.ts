@@ -74,7 +74,7 @@ export async function convertLead(formData: FormData) {
     .single();
   if (clientErr || !client) throw new Error(`Failed to create client: ${clientErr?.message}`);
 
-  await supabase
+  const { error: convertErr } = await supabase
     .from("leads")
     .update({
       stage: "converted",
@@ -82,6 +82,7 @@ export async function convertLead(formData: FormData) {
       converted_client_id: client.id,
     })
     .eq("id", id);
+  if (convertErr) throw new Error(`Failed to convert lead: ${convertErr.message}`);
 
   revalidatePath("/dashboard/leads");
   revalidatePath("/dashboard/clients");
