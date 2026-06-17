@@ -102,10 +102,12 @@ Warm Admin shell. Top to bottom:
 
 1. **Triage** — default landing screen
 2. **Clients** — list → client (household) → family-member pages
-3. **Calendar** — all important dates/renewals across clients, plus birthdays
-4. **Finances** — stub
-5. **Agents** — stub
-6. (pinned bottom) **Account / logout**
+3. **Leads** — stub. Where an (future) lead-finding agent surfaces prospective clients
+   for review. No data model yet; designed in its own later cycle.
+4. **Calendar** — all important dates/renewals across clients, plus birthdays
+5. **Finances** — stub
+6. **Agents** — stub
+7. (pinned bottom) **Account / logout**
 
 ## Visual Direction
 
@@ -182,10 +184,12 @@ All `lifecycle_dates` across every client, plus birthdays derived from
 `family_members.date_of_birth`. Honours `trigger_days_before` to highlight what's coming
 due. Each entry links back to its client or person.
 
-## Finances & Agents (stubs)
+## Leads, Finances & Agents (stubs)
 
 Real nav entries with placeholder pages describing what will live there, so the full
-structure is visible. No data model yet; designed in a later cycle.
+structure is visible. No data model yet; each designed in its own later cycle. **Leads**
+is where a future lead-finding agent will surface prospective clients for Meg to review
+(a pipeline that feeds into Clients).
 
 ## Testing Strategy
 
