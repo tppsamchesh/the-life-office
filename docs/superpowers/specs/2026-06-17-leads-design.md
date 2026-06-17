@@ -107,6 +107,7 @@ Stage-appropriate rendering: Needs Reviewing shows approve/reject/note; New show
 ## Out of scope / future
 
 - Lead audit trail (would need `activity_log` schema changes or a `lead_events` table).
+- AI summary snippet on the board cards (v2 — currently shown only on the detail page).
 - Board drag-and-drop; lead filtering/search; bulk actions.
 - Reopening converted/rejected leads.
 - The lead-finding agent and its richer analysis payload (the schema can gain a flexible `brief` JSONB later if needed).
