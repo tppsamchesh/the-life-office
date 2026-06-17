@@ -35,12 +35,16 @@ export async function proxy(request: NextRequest) {
 
   // Not signed in + hitting a protected dashboard route → send to login.
   if (!user && !isLogin) {
-    return NextResponse.redirect(new URL("/dashboard/login", request.url));
+    const redirect = NextResponse.redirect(new URL("/dashboard/login", request.url));
+    response.cookies.getAll().forEach((cookie) => redirect.cookies.set(cookie));
+    return redirect;
   }
 
   // Already signed in + on the login page → send to the inbox.
   if (user && isLogin) {
-    return NextResponse.redirect(new URL("/dashboard/triage", request.url));
+    const redirect = NextResponse.redirect(new URL("/dashboard/triage", request.url));
+    response.cookies.getAll().forEach((cookie) => redirect.cookies.set(cookie));
+    return redirect;
   }
 
   return response;
