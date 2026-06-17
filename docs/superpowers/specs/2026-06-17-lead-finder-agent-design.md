@@ -93,3 +93,4 @@ Every run logs to LangFuse: each model message, each tool call (params + result)
 - VPS stack (n8n, LangFuse, OpenClaw) — **confirmed present**.
 - API keys: Anthropic, Brave Search (in blueprint stack), Firecrawl, Supabase service role.
 - Decision deferred to build: final search provider mix (Brave + Firecrawl assumed) and the nightly schedule time.
+- **Agent knowledge docs (`SOUL` / `CONTEXT` / `USER` / `PLAYBOOK`) are produced via TLO discovery — NOT authored by the assistant** (they hold the business's real voice/knowledge; inventing them would be drift). Being created separately. Required before the agent runs. `TOOLS.md` and `IDENTITY.md` are technical and can be drafted here from this spec.
