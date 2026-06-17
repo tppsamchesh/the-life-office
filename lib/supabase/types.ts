@@ -232,6 +232,7 @@ export type Database = {
       }
       leads: {
         Row: {
+          ai_summary: string | null
           contacted_at: string | null
           converted_at: string | null
           converted_client_id: string | null
@@ -251,6 +252,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          ai_summary?: string | null
           contacted_at?: string | null
           converted_at?: string | null
           converted_client_id?: string | null
@@ -270,6 +272,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          ai_summary?: string | null
           contacted_at?: string | null
           converted_at?: string | null
           converted_client_id?: string | null

@@ -5,6 +5,7 @@ import { useState } from "react";
 import type { LeadStage } from "@/lib/leads/stages";
 
 import {
+  approveLead,
   approveOutreach,
   convertLead,
   editApproveOutreach,
@@ -42,6 +43,13 @@ export function LeadActions({
   return (
     <div className="mt-5">
       <div className="flex flex-wrap gap-2.5">
+        {stage === "needs_reviewing" ? (
+          <form action={approveLead}>
+            <Hidden leadId={leadId} />
+            <button type="submit" className={PRIMARY}>Approve</button>
+          </form>
+        ) : null}
+
         {stage === "new" ? (
           <>
             <form action={approveOutreach}>

@@ -27,9 +27,10 @@ Build the **Leads** section: a lightweight CRM pipeline for prospective private 
 
 A lead is a **prospective private client**. Stages:
 
-`new → contacted → qualified → converted` (with `rejected` as a dead-end reachable from any active stage).
+`needs_reviewing → new → contacted → qualified → converted` (with `rejected` as a dead-end reachable from any active stage).
 
-- **New** — agent has created the lead and drafted outreach, awaiting Meg's review.
+- **Needs Reviewing** — agent has just surfaced the lead with an `ai_summary`; awaiting Meg's first call: approve the lead (→ New) or reject it. The default landing stage.
+- **New** — approved lead with drafted outreach, awaiting Meg's outreach review.
 - **Contacted** — Meg approved/sent the outreach (agent backend sends).
 - **Qualified** — Meg judged the lead worth pursuing as a client.
 - **Converted** — became a client (a `clients` record was created and linked).
@@ -44,8 +45,9 @@ last_name           text
 email               text
 phone               text
 source              text          -- where/why the agent found them (free text)
-stage               text not null default 'new'
-                      check (stage in ('new','contacted','qualified','converted','rejected'))
+ai_summary          text          -- agent's summary, shown for the Needs Reviewing decision
+stage               text not null default 'needs_reviewing'
+                      check (stage in ('needs_reviewing','new','contacted','qualified','converted','rejected'))
 draft_message       text          -- agent's proposed outreach
 draft_channel       text          -- e.g. whatsapp/email/imessage/sms
 meg_edited_message  text          -- Meg's edited outreach, if any
@@ -69,13 +71,14 @@ updated_at          timestamptz not null default now()
 
 ## Layout & Components
 
-- **`/dashboard/leads`** — Kanban board. Five columns (New, Contacted, Qualified, Converted, Rejected), each with a count and the lead cards in that stage (name + source + short outreach/notes snippet). Cards link to the detail page. A realtime subscriber refreshes the board when leads change. No drag-drop.
-- **`/dashboard/leads/[id]`** — lead detail (async `params`; `notFound()` if missing): header (name, stage badge, source), contact (email/phone), outreach draft (`meg_edited_message ?? draft_message` + channel), Meg's notes, and **stage-appropriate actions** + a back link to the board.
+- **`/dashboard/leads`** — Kanban board. Six columns (Needs Reviewing, New, Contacted, Qualified, Converted, Rejected), each with a count and the lead cards in that stage (name + source). Cards link to the detail page. A realtime subscriber refreshes the board when leads change. No drag-drop.
+- **`/dashboard/leads/[id]`** — lead detail (async `params`; `notFound()` if missing): header (name, stage badge, source), contact (email/phone), the `ai_summary` panel (when present), outreach draft (`meg_edited_message ?? draft_message` + channel), Meg's notes, and **stage-appropriate actions** + a back link to the board.
 
 ## Actions (Server Actions)
 
 Each updates the lead, `revalidatePath`s, and (except Note) redirects sensibly. Mirrors the Triage action style (hidden `leadId` in a form).
 
+- **approveLead** (Needs Reviewing → New): set `stage='new'`. Accepts the lead for outreach.
 - **approveOutreach** (New → Contacted): set `stage='contacted'`, `contacted_at=now()`. Agent backend sends.
 - **editApproveOutreach** (New → Contacted): also store `meg_edited_message`.
 - **markQualified** (Contacted → Qualified): set `stage='qualified'`.
@@ -83,7 +86,7 @@ Each updates the lead, `revalidatePath`s, and (except Note) redirects sensibly. 
 - **convertLead** (Qualified → Converted): insert a `clients` row (`first_name`, `last_name ?? ''`, `email`, `phone`, `status='active'`, `onboarding_date=today`), set lead `stage='converted'`, `converted_at=now()`, `converted_client_id`; redirect to `/dashboard/clients/<newId>`.
 - **noteLead**: update `notes`.
 
-Stage-appropriate rendering: New shows approve/edit/reject/note; Contacted shows qualify/reject/note; Qualified shows convert/reject/note; Converted/Rejected show note only (terminal).
+Stage-appropriate rendering: Needs Reviewing shows approve/reject/note; New shows approve-outreach/edit/reject/note; Contacted shows qualify/reject/note; Qualified shows convert/reject/note; Converted/Rejected show note only (terminal).
 
 ## Data Layer
 

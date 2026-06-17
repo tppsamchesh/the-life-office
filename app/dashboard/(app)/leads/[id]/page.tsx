@@ -52,6 +52,13 @@ export default async function LeadPage({ params }: { params: Promise<{ id: strin
           ) : null}
         </dl>
 
+        {lead.ai_summary ? (
+          <div className="mb-5 rounded-r-lg border-l-[3px] border-[#A8B2A1] bg-[#F7F5F2] px-4 py-3">
+            <div className={LABEL}>AI summary</div>
+            <p className="mt-1.5 text-[15px] leading-relaxed">{lead.ai_summary}</p>
+          </div>
+        ) : null}
+
         {outreach ? (
           <div className="mb-5 rounded-lg border border-[#E4DFD6] p-4">
             <div className="mb-2 flex items-center justify-between">

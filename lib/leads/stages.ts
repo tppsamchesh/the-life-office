@@ -1,6 +1,13 @@
-export type LeadStage = "new" | "contacted" | "qualified" | "converted" | "rejected";
+export type LeadStage =
+  | "needs_reviewing"
+  | "new"
+  | "contacted"
+  | "qualified"
+  | "converted"
+  | "rejected";
 
 export const STAGES: { key: LeadStage; label: string }[] = [
+  { key: "needs_reviewing", label: "Needs Reviewing" },
   { key: "new", label: "New" },
   { key: "contacted", label: "Contacted" },
   { key: "qualified", label: "Qualified" },

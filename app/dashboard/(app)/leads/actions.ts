@@ -19,6 +19,12 @@ export async function approveOutreach(formData: FormData) {
   redirect(`/dashboard/leads/${id}`);
 }
 
+export async function approveLead(formData: FormData) {
+  const id = String(formData.get("leadId"));
+  await updateLead(id, { stage: "new" });
+  redirect(`/dashboard/leads/${id}`);
+}
+
 export async function editApproveOutreach(formData: FormData) {
   const id = String(formData.get("leadId"));
   const message = String(formData.get("message") ?? "");

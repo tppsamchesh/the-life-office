@@ -3,8 +3,9 @@ import { describe, expect, it } from "vitest";
 import { groupByStage, leadName, STAGES } from "./stages";
 
 describe("STAGES", () => {
-  it("are the five pipeline stages in order", () => {
+  it("are the six pipeline stages in order", () => {
     expect(STAGES.map((s) => s.key)).toEqual([
+      "needs_reviewing",
       "new",
       "contacted",
       "qualified",
