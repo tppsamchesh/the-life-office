@@ -115,20 +115,42 @@ tool used daily and needs density and fast scanning.
 - Canvas: warm-white `#F7F5F2`; sidebar slightly deeper `#EFEBE4` with a `#D8D2C8`
   divider; cards white with `#E7E2D9` borders; charcoal `#1F1F1F` text.
 - Accent: sage `#A8B2A1` for active nav, pills, markers.
-- Sans-serif for UI; dense rows and compact cards; calm, brand-aligned, efficient.
+- For UI labels and dense rows, sans-serif. For entity names and card/section headings,
+  **Playfair serif** — confirmed by the original task-detail screenshot, which pairs a
+  light editorial canvas with serif headings and sage accents. So the dashboard is Warm
+  Admin density *with* the brand's serif headings, not a flat admin look.
 
 ## Triage Inbox (centrepiece)
 
 - **List:** pending tasks, urgent first then newest. Each row: client (and the specific
   family member if the task is pinned), request-type pill, reactive/proactive indicator,
   one-line `request_summary`. New/changed tasks appear live via realtime.
-- **Task detail** (opens alongside the list): the client's actual message
-  (`raw_message`), the AI analysis (`ai_brief`), and the agent's proposed reply
-  (`draft_message` + `draft_channel`).
-- **Decisions:**
-  - **Approve** — optionally edit the draft first (stored in `meg_edited_message`); sets
-    status to `approved` and stamps `approved_at`. The agent backend picks up approved
-    tasks, executes them, and writes back `client_response` / `outcome` / `completed_at`.
+- **Task detail** (opens alongside the list). Canonical layout, confirmed by the original
+  screenshot, top to bottom:
+  1. **Header** — source badge (`PROACTIVE` / `REACTIVE`), relative timestamp; the
+     person/household name in serif; the `request_type` label beneath.
+  2. **AI Spotted / brief** — `request_summary` plus the contextual fields from
+     `ai_brief` (e.g. trigger, due date, current provider, holiday + dates, children).
+     For proactive tasks this is the "here's what's coming up" panel, including the
+     `lifecycle_dates` trigger context where relevant.
+  3. **Research findings** (only when `ai_brief.options` is present) — a comparison list
+     of options, each with name, summary, estimated cost (and saving/delta where the
+     agent provides it). The recommended option is highlighted; `ai_brief.recommendation`
+     is a **1-indexed** pointer into `options` (`1` = first option). Shows
+     `recommendation_reasoning` and `notes_for_meg` when present. Collapsible.
+  4. **Draft message** — the agent's proposed reply (`draft_message`) with the
+     `draft_channel` shown as a pill and a character count.
+- **`ai_brief` is heterogeneous** — its shape varies by `request_type` and will evolve
+  (proactive renewal/childcare carry trigger context; reactive research/travel carry an
+  `options` array). The renderer must be **schema-tolerant**: render the known sections
+  when their keys exist, and fall back to a simple key/value display for any unrecognised
+  fields rather than assuming a fixed structure.
+- **Decisions** (action row at the bottom of the detail):
+  - **Approve** — accept the draft as-is; sets status `approved` and stamps
+    `approved_at`. The agent backend picks up approved tasks, executes them, and writes
+    back `client_response` / `outcome` / `completed_at`.
+  - **Edit & Approve** — open the draft for editing first (stored in
+    `meg_edited_message`), then approve. A distinct action from Approve.
   - **Dismiss** — with `dismissed_reason`; status `dismissed`.
   - **Snooze** — until a chosen time (`snoozed_until`); drops out of the inbox and
     resurfaces when due.
@@ -173,8 +195,12 @@ structure is visible. No data model yet; designed in a later cycle.
   authenticated session can read/write all of them.
 - **Auth:** unauthenticated `/dashboard/*` redirects to login; authenticated access
   works; logout clears the session.
-- **Triage actions:** approve/dismiss/snooze/note each transition status correctly,
-  write the right fields, and create an `activity_log` entry.
+- **Triage actions:** approve / edit & approve / dismiss / snooze / note each transition
+  status correctly, write the right fields, and create an `activity_log` entry.
+- **`ai_brief` rendering:** all four existing task shapes (renewal, childcare, research,
+  travel) render correctly — options highlight the 1-indexed recommendation, proactive
+  triggers show their context, and an unrecognised field falls back to key/value without
+  breaking the page.
 - **Realtime:** a task inserted directly in Supabase appears in the inbox without a
   manual refresh.
 - **Pages:** client and family-member pages render real data; clicking a member opens
