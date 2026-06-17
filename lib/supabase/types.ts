@@ -230,6 +230,74 @@ export type Database = {
           },
         ]
       }
+      leads: {
+        Row: {
+          contacted_at: string | null
+          converted_at: string | null
+          converted_client_id: string | null
+          created_at: string
+          draft_channel: string | null
+          draft_message: string | null
+          email: string | null
+          first_name: string
+          id: string
+          last_name: string | null
+          meg_edited_message: string | null
+          notes: string | null
+          phone: string | null
+          rejected_reason: string | null
+          source: string | null
+          stage: string
+          updated_at: string
+        }
+        Insert: {
+          contacted_at?: string | null
+          converted_at?: string | null
+          converted_client_id?: string | null
+          created_at?: string
+          draft_channel?: string | null
+          draft_message?: string | null
+          email?: string | null
+          first_name: string
+          id?: string
+          last_name?: string | null
+          meg_edited_message?: string | null
+          notes?: string | null
+          phone?: string | null
+          rejected_reason?: string | null
+          source?: string | null
+          stage?: string
+          updated_at?: string
+        }
+        Update: {
+          contacted_at?: string | null
+          converted_at?: string | null
+          converted_client_id?: string | null
+          created_at?: string
+          draft_channel?: string | null
+          draft_message?: string | null
+          email?: string | null
+          first_name?: string
+          id?: string
+          last_name?: string | null
+          meg_edited_message?: string | null
+          notes?: string | null
+          phone?: string | null
+          rejected_reason?: string | null
+          source?: string | null
+          stage?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "leads_converted_client_id_fkey"
+            columns: ["converted_client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lifecycle_dates: {
         Row: {
           category: string | null
