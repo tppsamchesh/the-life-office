@@ -69,6 +69,158 @@ export type Database = {
           },
         ]
       }
+      agent_learnings: {
+        Row: {
+          agent: string
+          category: string | null
+          confidence: string
+          confirmation_count: number
+          created_at: string
+          evidence: string | null
+          id: string
+          insight: string
+          lead_type: string | null
+          updated_at: string
+        }
+        Insert: {
+          agent?: string
+          category?: string | null
+          confidence?: string
+          confirmation_count?: number
+          created_at?: string
+          evidence?: string | null
+          id?: string
+          insight: string
+          lead_type?: string | null
+          updated_at?: string
+        }
+        Update: {
+          agent?: string
+          category?: string | null
+          confidence?: string
+          confirmation_count?: number
+          created_at?: string
+          evidence?: string | null
+          id?: string
+          insight?: string
+          lead_type?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      agent_run_events: {
+        Row: {
+          created_at: string
+          decision: string | null
+          event_type: string
+          fit_score: number | null
+          id: string
+          identifier: string | null
+          payload: Json | null
+          reasoning: string | null
+          retries: number | null
+          run_id: string
+          seq: number
+          source: string | null
+          tool_name: string | null
+          tool_status: string | null
+        }
+        Insert: {
+          created_at?: string
+          decision?: string | null
+          event_type: string
+          fit_score?: number | null
+          id?: string
+          identifier?: string | null
+          payload?: Json | null
+          reasoning?: string | null
+          retries?: number | null
+          run_id: string
+          seq: number
+          source?: string | null
+          tool_name?: string | null
+          tool_status?: string | null
+        }
+        Update: {
+          created_at?: string
+          decision?: string | null
+          event_type?: string
+          fit_score?: number | null
+          id?: string
+          identifier?: string | null
+          payload?: Json | null
+          reasoning?: string | null
+          retries?: number | null
+          run_id?: string
+          seq?: number
+          source?: string | null
+          tool_name?: string | null
+          tool_status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_run_events_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "agent_runs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agent_runs: {
+        Row: {
+          agent_name: string
+          candidates_found: number | null
+          candidates_skipped: number | null
+          created_at: string
+          duplicates_caught: number | null
+          duration_seconds: number | null
+          enrichments_spent: number
+          error_summary: string | null
+          finished_at: string | null
+          id: string
+          leads_written: number | null
+          sources_searched: Json | null
+          started_at: string
+          status: string
+          token_usage: Json | null
+        }
+        Insert: {
+          agent_name?: string
+          candidates_found?: number | null
+          candidates_skipped?: number | null
+          created_at?: string
+          duplicates_caught?: number | null
+          duration_seconds?: number | null
+          enrichments_spent?: number
+          error_summary?: string | null
+          finished_at?: string | null
+          id?: string
+          leads_written?: number | null
+          sources_searched?: Json | null
+          started_at?: string
+          status?: string
+          token_usage?: Json | null
+        }
+        Update: {
+          agent_name?: string
+          candidates_found?: number | null
+          candidates_skipped?: number | null
+          created_at?: string
+          duplicates_caught?: number | null
+          duration_seconds?: number | null
+          enrichments_spent?: number
+          error_summary?: string | null
+          finished_at?: string | null
+          id?: string
+          leads_written?: number | null
+          sources_searched?: Json | null
+          started_at?: string
+          status?: string
+          token_usage?: Json | null
+        }
+        Relationships: []
+      }
       clients: {
         Row: {
           accommodation_style: string | null
@@ -232,7 +384,9 @@ export type Database = {
       }
       leads: {
         Row: {
+          agent_run_id: string | null
           ai_summary: string | null
+          brief: Json | null
           contacted_at: string | null
           converted_at: string | null
           converted_client_id: string | null
@@ -241,18 +395,25 @@ export type Database = {
           draft_message: string | null
           email: string | null
           first_name: string
+          fit_score: number | null
           id: string
           last_name: string | null
+          lead_type: string
           meg_edited_message: string | null
           notes: string | null
           phone: string | null
           rejected_reason: string | null
           source: string | null
+          source_subreddit: string | null
+          source_type: string | null
+          source_url: string | null
           stage: string
           updated_at: string
         }
         Insert: {
+          agent_run_id?: string | null
           ai_summary?: string | null
+          brief?: Json | null
           contacted_at?: string | null
           converted_at?: string | null
           converted_client_id?: string | null
@@ -261,18 +422,25 @@ export type Database = {
           draft_message?: string | null
           email?: string | null
           first_name: string
+          fit_score?: number | null
           id?: string
           last_name?: string | null
+          lead_type?: string
           meg_edited_message?: string | null
           notes?: string | null
           phone?: string | null
           rejected_reason?: string | null
           source?: string | null
+          source_subreddit?: string | null
+          source_type?: string | null
+          source_url?: string | null
           stage?: string
           updated_at?: string
         }
         Update: {
+          agent_run_id?: string | null
           ai_summary?: string | null
+          brief?: Json | null
           contacted_at?: string | null
           converted_at?: string | null
           converted_client_id?: string | null
@@ -281,17 +449,29 @@ export type Database = {
           draft_message?: string | null
           email?: string | null
           first_name?: string
+          fit_score?: number | null
           id?: string
           last_name?: string | null
+          lead_type?: string
           meg_edited_message?: string | null
           notes?: string | null
           phone?: string | null
           rejected_reason?: string | null
           source?: string | null
+          source_subreddit?: string | null
+          source_type?: string | null
+          source_url?: string | null
           stage?: string
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "leads_agent_run_id_fkey"
+            columns: ["agent_run_id"]
+            isOneToOne: false
+            referencedRelation: "agent_runs"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "leads_converted_client_id_fkey"
             columns: ["converted_client_id"]
