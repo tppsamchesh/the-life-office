@@ -10,6 +10,7 @@ from lead_finder.tool_schemas import TOOLS
 from lead_finder.tools.assess_ideal_client import assess_ideal_client
 from lead_finder.tools.create_lead import create_lead
 from lead_finder.tools.discover_candidates import discover_candidates
+from lead_finder.tools.lookup_person import lookup_person
 
 KICKOFF = (
     "Run one discovery session for The Life Office.\n"
@@ -18,8 +19,11 @@ KICKOFF = (
     "(wealth managers/IFAs, then EA/VA agencies, then maternity & nanny concierges) in the "
     "target UK areas; you may also use published_prospect mode for individuals.\n"
     "3. Judge each candidate's fit 0-100 from the evidence and CONTEXT. Skip weak ones.\n"
-    "4. For each good candidate, call create_lead at needs_reviewing with a 2-line why and the "
-    "scoring reasoning in ai_summary. Surface up to {cap} leads.\n"
+    "4. For a good candidate, read the evidence to name a real decision-maker (name + role), "
+    "call lookup_person to find their LinkedIn, and prefer a personal email over a generic info@.\n"
+    "5. Call create_lead at needs_reviewing: the person in first_name/last_name, a 2-line why + "
+    "scoring reasoning in ai_summary, and role/person_linkedin/company_linkedin/email_type in "
+    "brief. Surface up to {cap} leads.\n"
     "When you've surfaced the best available leads or run dry, stop and give a one-line summary."
 )
 
@@ -75,6 +79,9 @@ def run_loop(config, db, search, crawl, seen, knowledge_dir) -> dict:
 def _dispatch(name, args, config, db, search, crawl, seen, counts) -> dict:
     if name == "assess_ideal_client":
         return assess_ideal_client(db=db)
+
+    if name == "lookup_person":
+        return lookup_person(args.get("name", ""), args.get("firm", ""), search=search)
 
     if name == "discover_candidates":
         out = discover_candidates(

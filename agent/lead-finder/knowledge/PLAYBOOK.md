@@ -30,6 +30,18 @@ Meg's conversation. Lead with the relationship and the fit.
 Soft, conversational invite to a short **discovery call or coffee** — the same warm,
 observational voice as a partner message. Never a hard pitch.
 
+## Contact quality — give Meg a real person
+A faceless `info@` gives Meg nothing to act on. For every lead, try to surface:
+- **A named decision-maker** (founder / partner / managing director / principal) — read the
+  firm's team/about pages in the discovery evidence and name them with their role.
+- **Their LinkedIn** (via `lookup_person`) and the **company LinkedIn** — so Meg can verify
+  who she's approaching before she reaches out.
+- **The best email**: prefer a personal address (`jane.smith@`) over a role inbox
+  (`partnerships@`) over a generic one (`info@`). If only a generic inbox exists, still surface
+  the lead but say so plainly in the summary — and lean on the named person + LinkedIn instead.
+
+Never invent a name, email, or profile. If you can't find a person, surface the firm and say so.
+
 ## Fit scoring
 Score each candidate on:
 - The four signals ([[CONTEXT]]): disposable income, high mental load, operational chaos,

@@ -21,13 +21,21 @@ class WebSearch:
         self.serpapi_key = serpapi_key
         self.count = count
 
-    def web(self, query: str) -> list[str]:
+    def _results(self, query: str) -> list[str]:
         urls = []
         if self.brave_key:
             urls = self._brave(query)
         if not urls and self.serpapi_key:
             urls = self._serpapi(query)
-        return filter_search_hits(urls)
+        return urls
+
+    def web(self, query: str) -> list[str]:
+        # Firm sites only — social/aggregator hosts dropped.
+        return filter_search_hits(self._results(query))
+
+    def raw(self, query: str) -> list[str]:
+        # Unfiltered — needed for LinkedIn company/person lookups (web() drops linkedin).
+        return self._results(query)
 
     def _brave(self, query: str) -> list[str]:
         qs = urllib.parse.urlencode({"q": query, "count": self.count})

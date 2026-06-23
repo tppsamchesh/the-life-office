@@ -21,12 +21,21 @@ class HttpCrawl:
         self.timeout = timeout
         self.max_chars = max_chars
 
-    def read(self, url: str) -> str:
+    def _get(self, url: str) -> str:
         req = urllib.request.Request(url, headers={"User-Agent": _UA})
         with urllib.request.urlopen(req, timeout=self.timeout) as resp:
-            raw = resp.read().decode("utf-8", errors="ignore")
+            return resp.read().decode("utf-8", errors="ignore")
+
+    def _to_text(self, raw: str) -> str:
         text = _SCRIPT_STYLE.sub(" ", raw)
         text = _TAG.sub(" ", text)
         text = html.unescape(text)
-        text = _WS.sub(" ", text).strip()
-        return text[: self.max_chars]
+        return _WS.sub(" ", text).strip()[: self.max_chars]
+
+    def read(self, url: str) -> str:
+        return self._to_text(self._get(url))
+
+    def fetch(self, url: str) -> dict:
+        # Raw HTML (for link-following to team/contact pages) + visible text.
+        raw = self._get(url)
+        return {"html": raw[:80000], "text": self._to_text(raw)}

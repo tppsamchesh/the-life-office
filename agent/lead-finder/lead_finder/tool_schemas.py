@@ -17,13 +17,15 @@ TOOLS = [
     {
         "name": "discover_candidates",
         "description": (
-            "Search the web and read candidate pages for a PUBLISHED contact. Use "
-            "mode='partner_directory' to find referral partners (wealth managers/IFAs, EA/VA "
+            "Find candidate firms and ENRICH each from free public pages. Use "
+            "mode='partner_directory' for referral partners (wealth managers/IFAs, EA/VA "
             "agencies, maternity & nanny concierges) — primary. Use mode='published_prospect' "
-            "for individual prospects whose company site lists a contact email. Provide focused "
-            "`queries` (e.g. 'wealth managers Surrey', 'nanny agency Berkshire'). Returns "
-            "candidates with source_url, any published contact_emails, and page evidence. It does "
-            "NOT judge fit or enrich — you judge fit from the evidence. No paid enrichment exists."
+            "for individual prospects whose site publishes a contact. Give focused `queries` "
+            "(e.g. 'wealth managers Surrey'). For each firm it crawls the homepage + its "
+            "team/about/contact pages and returns: contact_emails, best_email + best_email_type "
+            "(personal | role | generic), company_linkedin, and page `evidence` text. Read the "
+            "evidence to name a real decision-maker (name + role); prefer a personal email over a "
+            "generic info@ one. It does NOT judge fit or enrich paid data — you judge fit."
         ),
         "input_schema": {
             "type": "object",
@@ -35,27 +37,52 @@ TOOLS = [
         },
     },
     {
-        "name": "create_lead",
+        "name": "lookup_person",
         "description": (
-            "Surface ONE qualified candidate to Meg as a lead at needs_reviewing. Only call for "
-            "candidates that clear the fit bar. Put a 2-line 'why' AND the reasoning behind the "
-            "fit score in ai_summary (this is all Meg sees). Do NOT write an outreach draft. The "
-            "tool dedupes and is hard-locked to needs_reviewing; it returns success/duplicate/"
-            "skipped/blocked/error."
+            "Find a named decision-maker's public LinkedIn profile via search. Call this once "
+            "you've identified a specific person at a firm (from discover_candidates evidence), "
+            "to give Meg a real human to verify and reach. Returns the LinkedIn URL or no_results. "
+            "Never crawls LinkedIn — it only finds the public profile URL."
         ),
         "input_schema": {
             "type": "object",
             "properties": {
-                "first_name": {"type": "string", "description": "Contact person, or the firm name for a partner."},
+                "name": {"type": "string", "description": "The person's full name."},
+                "firm": {"type": "string", "description": "Their company, to disambiguate."},
+            },
+            "required": ["name", "firm"],
+        },
+    },
+    {
+        "name": "create_lead",
+        "description": (
+            "Surface ONE qualified candidate to Meg as a lead at needs_reviewing. Prefer a NAMED "
+            "decision-maker over a faceless firm: put the person in first_name/last_name and their "
+            "role, LinkedIn, the company LinkedIn and the email type in `brief`. Use a personal "
+            "email when found; a generic info@ alone is weak — still surface it but say so in "
+            "ai_summary. Put a 2-line 'why' AND the reasoning behind the fit score in ai_summary "
+            "(all Meg sees). Do NOT write an outreach draft. The tool dedupes and is hard-locked "
+            "to needs_reviewing; it returns success/duplicate/skipped/blocked/error."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "first_name": {"type": "string", "description": "Decision-maker's first name, or the firm name if no person found."},
                 "last_name": {"type": "string"},
-                "email": {"type": "string", "description": "Published email if found, else omit."},
+                "email": {"type": "string", "description": "Best published email (prefer personal)."},
                 "phone": {"type": "string"},
                 "lead_type": {"type": "string", "enum": ["prospect", "partner"]},
                 "source_type": {"type": "string", "enum": ["partner_directory", "signal", "reddit"]},
-                "source_url": {"type": "string"},
+                "source_url": {"type": "string", "description": "The firm's website."},
                 "fit_score": {"type": "integer", "description": "0-100 fit against CONTEXT."},
                 "ai_summary": {"type": "string", "description": "2-line why + why scored that way."},
-                "brief": {"type": "object", "description": "Structured evidence/signals (optional)."},
+                "brief": {
+                    "type": "object",
+                    "description": (
+                        "Structured detail for Meg: { role, firm, person_linkedin, "
+                        "company_linkedin, email_type, signals }."
+                    ),
+                },
             },
             "required": ["first_name", "lead_type", "source_type", "fit_score", "ai_summary"],
         },
