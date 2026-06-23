@@ -36,7 +36,9 @@ Businesses that sit next to the ICP and can refer repeatedly. Priority order:
 2. EA / VA agencies (EAs refer well)
 3. Maternity & nanny concierges
 Existing warm relationships: `[CONFIRM WITH MEG — none recorded]`.
-Do-not-approach list: `[CONFIRM WITH MEG — none recorded]`.
+Do-not-approach list: `[CONFIRM WITH MEG — none recorded]`. Always exclude **competitors** —
+firms offering done-for-you lifestyle management / personal concierge / "run your life and
+business" operations (the same outcome TLO sells). They are never partners (see PLAYBOOK).
 
 ## What a win is
 A booked **discovery call or coffee** — for a prospect *or* a partner. That is the

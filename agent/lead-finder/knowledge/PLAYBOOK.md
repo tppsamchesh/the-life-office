@@ -12,6 +12,14 @@
 nanny concierges. Find them via Google Places + directories (VouchedFor, Unbiased, FCA
 register), read the firm's own site for published contact + fit evidence.
 
+**Complementary vs competitor — decisive:** a partner serves TLO's ICP in a *different*
+lane and would *refer* clients who need full operations support. A firm that itself offers
+done-for-you **lifestyle management, personal concierge, "virtual PA who runs your life", or
+"we run your life/business" operations is a COMPETITOR — do NOT surface it as a partner.**
+Test: if it sells the same outcome TLO sells (running someone's life/business backend), it
+competes — skip it. A narrow, task-based VA/EA agency that would refer overflow is a partner;
+a firm marketing "lifestyle management" is not. When unsure, treat it as a competitor and skip.
+
 **The proposition (internal context only):** there is a TLO Partner Programme with a revenue
 share. **The agent must NEVER mention the percentage, or any money, anywhere** — that's
 Meg's conversation. Lead with the relationship and the fit.
