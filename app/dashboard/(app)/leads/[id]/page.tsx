@@ -2,9 +2,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { getLead } from "@/lib/leads/queries";
-import { leadName, STAGES, type LeadStage } from "@/lib/leads/stages";
+import { STAGES, type LeadStage } from "@/lib/leads/stages";
 
 import { LeadActions } from "../_components/LeadActions";
+import { LeadDossier } from "../_components/LeadDossier";
 
 const LABEL = "text-[10px] tracking-[0.14em] uppercase text-[#A39E94]";
 
@@ -15,52 +16,25 @@ export default async function LeadPage({ params }: { params: Promise<{ id: strin
 
   const stage = (lead.stage ?? "new") as LeadStage;
   const stageLabel = STAGES.find((s) => s.key === stage)?.label ?? stage;
+  // Drafting is a post-approval step — only show outreach once one actually exists.
   const outreach = lead.meg_edited_message ?? lead.draft_message;
 
   return (
     <div>
-      <Link href="/dashboard/leads" className="text-xs text-[#8A857B] hover:underline">
-        ← Leads
-      </Link>
-
-      <div className="mt-2 mb-5 flex items-center gap-3">
-        <h1 className="font-serif text-2xl">{leadName(lead)}</h1>
+      <div className="mb-4 flex items-center justify-between">
+        <Link href="/dashboard/leads" className="text-xs text-[#8A857B] hover:underline">
+          ← Leads
+        </Link>
         <span className="rounded-full border border-[#C9C2B5] px-2.5 py-0.5 text-[10px] uppercase tracking-[0.08em] text-[#6B665D]">
           {stageLabel}
         </span>
       </div>
 
-      <div className="rounded-xl border border-[#E4DFD6] bg-white p-6 shadow-sm">
-        <dl className="mb-5 flex flex-col gap-1.5 text-[13px]">
-          {lead.source ? (
-            <div className="flex justify-between gap-3">
-              <dt className="text-[#8A857B]">Source</dt>
-              <dd className="text-right">{lead.source}</dd>
-            </div>
-          ) : null}
-          {lead.email ? (
-            <div className="flex justify-between gap-3">
-              <dt className="text-[#8A857B]">Email</dt>
-              <dd className="truncate">{lead.email}</dd>
-            </div>
-          ) : null}
-          {lead.phone ? (
-            <div className="flex justify-between gap-3">
-              <dt className="text-[#8A857B]">Phone</dt>
-              <dd>{lead.phone}</dd>
-            </div>
-          ) : null}
-        </dl>
-
-        {lead.ai_summary ? (
-          <div className="mb-5 rounded-r-lg border-l-[3px] border-[#A8B2A1] bg-[#F7F5F2] px-4 py-3">
-            <div className={LABEL}>AI summary</div>
-            <p className="mt-1.5 text-[15px] leading-relaxed">{lead.ai_summary}</p>
-          </div>
-        ) : null}
+      <div className="rounded-2xl border border-[#E4DFD6] bg-white p-6 shadow-sm">
+        <LeadDossier lead={lead} />
 
         {outreach ? (
-          <div className="mb-5 rounded-lg border border-[#E4DFD6] p-4">
+          <div className="mt-5 rounded-lg border border-[#E4DFD6] p-4">
             <div className="mb-2 flex items-center justify-between">
               <span className={LABEL}>Draft outreach</span>
               {lead.draft_channel ? (
@@ -69,19 +43,19 @@ export default async function LeadPage({ params }: { params: Promise<{ id: strin
                 </span>
               ) : null}
             </div>
-            <p className="font-mono text-[13px] leading-relaxed text-[#3A372F] whitespace-pre-wrap">
+            <p className="whitespace-pre-wrap font-mono text-[13px] leading-relaxed text-[#3A372F]">
               {outreach}
             </p>
           </div>
         ) : null}
 
         {lead.rejected_reason ? (
-          <p className="mb-3 text-[12.5px] text-[#8A857B]">
+          <p className="mt-5 text-[12.5px] text-[#8A857B]">
             <span className={LABEL}>Rejected</span> — {lead.rejected_reason}
           </p>
         ) : null}
         {lead.notes ? (
-          <p className="mb-1 text-[13px] text-[#3A372F]">
+          <p className="mt-5 text-[13px] text-[#3A372F]">
             <span className={LABEL}>Notes</span>
             <br />
             {lead.notes}

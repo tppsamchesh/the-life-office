@@ -56,6 +56,20 @@ export async function noteLead(formData: FormData) {
   redirect(`/dashboard/leads/${id}`);
 }
 
+// Inline variants for the Review Deck: update + revalidate, but DON'T redirect,
+// so the deck can animate the card away and advance to the next in place.
+export async function approveLeadInline(id: string) {
+  await updateLead(id, { stage: "new" });
+}
+
+export async function rejectLeadInline(id: string, reason: string) {
+  await updateLead(id, { stage: "rejected", rejected_reason: reason || null });
+}
+
+export async function noteLeadInline(id: string, note: string) {
+  await updateLead(id, { notes: note });
+}
+
 // Creates a prefilled client from the lead, links + converts the lead, opens the client.
 export async function convertLead(formData: FormData) {
   const id = String(formData.get("leadId"));

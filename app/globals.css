@@ -157,3 +157,33 @@ body:has(#nav-open:checked) {
     transition: none !important;
   }
 }
+
+/* ─────────────────────────────────────────────────────────
+   LEADS — REVIEW DECK
+   ───────────────────────────────────────────────────────── */
+@keyframes deck-in {
+  from { opacity: 0; transform: translateY(8px) scale(0.99); }
+  to   { opacity: 1; transform: none; }
+}
+.deck-card {
+  animation: deck-in 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes deck-approve {
+  to { opacity: 0; transform: translateX(64px) rotate(1.5deg); }
+}
+.deck-approve {
+  animation: deck-approve 0.38s ease forwards;
+}
+@keyframes deck-reject {
+  to { opacity: 0; transform: translateY(36px); filter: grayscale(1); }
+}
+.deck-reject {
+  animation: deck-reject 0.38s ease forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .deck-card,
+  .deck-approve,
+  .deck-reject {
+    animation: none !important;
+  }
+}
