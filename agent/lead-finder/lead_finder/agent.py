@@ -25,7 +25,8 @@ KICKOFF = (
 
 
 def run_loop(config, db, search, crawl, seen, knowledge_dir) -> dict:
-    client = Anthropic(api_key=config.anthropic_key)
+    # Extra retries ride out transient 500/529 (overloaded) blips on the API.
+    client = Anthropic(api_key=config.anthropic_key, max_retries=5)
     system = build_system_prompt(knowledge_dir)
     messages = [{"role": "user", "content": KICKOFF.format(cap=config.per_run_lead_cap)}]
     counts = {
