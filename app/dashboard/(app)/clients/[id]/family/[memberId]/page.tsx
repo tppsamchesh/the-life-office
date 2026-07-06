@@ -6,6 +6,7 @@ import { jsonbToFacts } from "@/lib/clients/preferences";
 import { getFamilyMember, householdName } from "@/lib/clients/queries";
 
 import { Card, Empty } from "../../../_components/ui";
+import { HouseholdThreads } from "../../../_components/HouseholdThreads";
 
 export default async function FamilyMemberPage({
   params,
@@ -130,6 +131,8 @@ export default async function FamilyMemberPage({
           </Card>
         </div>
       </div>
+
+      <HouseholdThreads clientId={id} familyMemberId={memberId} />
     </div>
   );
 }

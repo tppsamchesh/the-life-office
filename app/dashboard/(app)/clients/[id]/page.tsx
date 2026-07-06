@@ -6,6 +6,7 @@ import { jsonbToFacts } from "@/lib/clients/preferences";
 import { getClient, householdName } from "@/lib/clients/queries";
 
 import { Card, Chip, Empty } from "../_components/ui";
+import { HouseholdThreads } from "../_components/HouseholdThreads";
 
 const PREF_FIELDS = [
   { key: "travel_preferences", label: "Travel" },
@@ -186,6 +187,8 @@ export default async function ClientPage({ params }: { params: Promise<{ id: str
           </Card>
         </div>
       </div>
+
+      <HouseholdThreads clientId={id} />
     </div>
   );
 }
