@@ -15,8 +15,12 @@ Spec: `docs/superpowers/specs/2026-07-06-concierge-agent-design.md`
     export SUPABASE_URL=... SUPABASE_SERVICE_KEY=... \
            TWILIO_ACCOUNT_SID=... TWILIO_AUTH_TOKEN=... \
            TWILIO_WHATSAPP_FROM='whatsapp:+44...' TWILIO_SMS_FROM='+1...' \
-           PUBLIC_BASE_URL=https://tlo-concierge.sitbacksystems.com
+           PUBLIC_BASE_URL=https://tlo-concierge.sitbacksystems.com \
+           VAPID_PRIVATE_KEY=... VAPID_SUBJECT=mailto:sam@theprocesspartners.com
     python -m concierge.run
+
+Push notifications are disabled when `VAPID_PRIVATE_KEY` is unset; everything
+else runs normally.
 
 ## Tests
 

@@ -63,7 +63,7 @@ Controller-style task using the Supabase MCP tools (like Plan 1 Task 1).
 **Interfaces:**
 - Produces: `client_channels.family_member_id`, `conversations.client_channel_id` (unique, replacing the per-client-channel uniqueness), `tasks.conversation_id`, new `push_subscriptions` table, plus the two RLS policies Plan 1 lacked (insert on conversations, delete on quarantined_messages). Every later task assumes these.
 
-- [ ] **Step 1: Verify the old constraint name**
+- [x] **Step 1: Verify the old constraint name**
 
 Call the Supabase MCP `execute_sql` tool, project_id `qwuuzcuferetdacqihrg`:
 
@@ -74,7 +74,7 @@ where conrelid = 'public.conversations'::regclass and contype = 'u';
 
 Expected: one row, `conversations_client_id_channel_key`. If it differs, use the actual name in Step 2.
 
-- [ ] **Step 2: Apply the migration**
+- [x] **Step 2: Apply the migration**
 
 Call `apply_migration` with name `conversations_dashboard_plan2` and query:
 
@@ -113,15 +113,15 @@ create policy "authenticated delete quarantined" on public.quarantined_messages
   for delete to authenticated using (true);
 ```
 
-- [ ] **Step 3: Verify** with `list_tables` (expect `push_subscriptions` present).
+- [x] **Step 3: Verify** with `list_tables` (expect `push_subscriptions` present).
 
-- [ ] **Step 4: Regenerate types** with `generate_typescript_types`; overwrite `lib/supabase/types.ts` entirely with the output.
+- [x] **Step 4: Regenerate types** with `generate_typescript_types`; overwrite `lib/supabase/types.ts` entirely with the output.
 
-- [ ] **Step 5: Typecheck**
+- [x] **Step 5: Typecheck**
 
 Run: `npx tsc --noEmit` (repo root). Expected: exit 0.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add lib/supabase/types.ts
@@ -146,7 +146,7 @@ git commit -m "Add Plan 2 schema: channel ownership, per-number threads, push su
 - Also produces FakeDB test-setup upgrades (backward compatible): `add_client(client_id, first_name="Client", last_name="")` stores names; new `add_family_member(member_id, client_id, first_name)`; `add_channel(..., family_member_id=None)` now RETURNS the created row dict.
 - The old `get_or_create_conversation(client_id, channel)` remains untouched in this task (removed in Task 3).
 
-- [ ] **Step 1: Write the failing tests** (append to `agent/concierge/tests/test_fakes.py`)
+- [x] **Step 1: Write the failing tests** (append to `agent/concierge/tests/test_fakes.py`)
 
 ```python
 def test_get_or_create_conversation_for_channel_is_idempotent_and_links_channel():
@@ -200,12 +200,12 @@ def test_conversation_label_without_last_name():
     assert db.conversation_label(conv) == "Priya"
 ```
 
-- [ ] **Step 2: Run to verify failure**
+- [x] **Step 2: Run to verify failure**
 
 Run: `python -m pytest tests/test_fakes.py -v`
 Expected: new tests FAIL (`AttributeError`/`TypeError`); all pre-existing tests still PASS.
 
-- [ ] **Step 3: Implement in `tests/fakes.py`**
+- [x] **Step 3: Implement in `tests/fakes.py`**
 
 Replace `add_client` and `add_channel`, and add the new methods to `FakeDB`:
 
@@ -277,12 +277,12 @@ Add the three contract methods to `FakeDB`:
 
 Note: the legacy `get_or_create_conversation` in FakeDB must set `"client_channel_id": None` in the rows it creates (add that key to its conv dict so `conversation_address` fallback works).
 
-- [ ] **Step 4: Run to verify FakeDB passes**
+- [x] **Step 4: Run to verify FakeDB passes**
 
 Run: `python -m pytest tests/test_fakes.py -v`
 Expected: all PASS.
 
-- [ ] **Step 5: Implement the same three methods on `ConciergeDB` in `concierge/db.py`**
+- [x] **Step 5: Implement the same three methods on `ConciergeDB` in `concierge/db.py`**
 
 ```python
     def get_or_create_conversation_for_channel(self, channel_row: dict) -> dict:
@@ -333,12 +333,12 @@ Expected: all PASS.
         return f"{person} ({last})" if last else person
 ```
 
-- [ ] **Step 6: Full suite + import check**
+- [x] **Step 6: Full suite + import check**
 
 Run: `python -m pytest tests/ -v && python -c "import concierge.db"`
 Expected: all PASS.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add agent/concierge/concierge/db.py agent/concierge/tests/fakes.py agent/concierge/tests/test_fakes.py
@@ -360,7 +360,7 @@ git commit -m "Add channel-keyed conversation methods to concierge DB layer"
 - Consumes: Task 2's `get_or_create_conversation_for_channel`, `conversation_address`.
 - Produces: webhook and reconcile resolve inbound to the channel row's own conversation; sender sends to `conversation_address(conv)`. The legacy `get_or_create_conversation(client_id, channel)` no longer exists anywhere.
 
-- [ ] **Step 1: Write the new behavioural test first** (append to `agent/concierge/tests/test_sender.py`)
+- [x] **Step 1: Write the new behavioural test first** (append to `agent/concierge/tests/test_sender.py`)
 
 ```python
 def test_reply_goes_to_the_threads_own_number_not_primary():
@@ -379,7 +379,7 @@ def test_reply_goes_to_the_threads_own_number_not_primary():
 Run: `python -m pytest tests/test_sender.py::test_reply_goes_to_the_threads_own_number_not_primary -v`
 Expected: FAIL (sender still uses `primary_address`, so it sends to `+447700900111`).
 
-- [ ] **Step 2: Switch `sender.py`**
+- [x] **Step 2: Switch `sender.py`**
 
 In `process_queued_once`, replace the address lookup line:
 
@@ -389,7 +389,7 @@ In `process_queued_once`, replace the address lookup line:
 
 (delete the old `address = db.primary_address(conv["client_id"], conv["channel"])` line; everything else in the function is unchanged).
 
-- [ ] **Step 3: Switch `webhook.py`**
+- [x] **Step 3: Switch `webhook.py`**
 
 In the `inbound` route, replace:
 
@@ -403,13 +403,13 @@ with:
         conv = db.get_or_create_conversation_for_channel(channel_row)
 ```
 
-- [ ] **Step 4: Switch `reconcile.py`** (same one-line replacement in `reconcile_once`).
+- [x] **Step 4: Switch `reconcile.py`** (same one-line replacement in `reconcile_once`).
 
-- [ ] **Step 5: Remove the legacy method**
+- [x] **Step 5: Remove the legacy method**
 
 Delete `get_or_create_conversation` from BOTH `concierge/db.py` and `tests/fakes.py`.
 
-- [ ] **Step 6: Update every remaining call site in tests**
+- [x] **Step 6: Update every remaining call site in tests**
 
 Search: `grep -rn "get_or_create_conversation(" tests/` and replace each with the channel-row pattern. The affected helpers become:
 
@@ -485,12 +485,12 @@ def test_conversation_address_falls_back_to_primary_for_legacy_rows():
     assert db.conversation_address(legacy) == "+447700900111"
 ```
 
-- [ ] **Step 7: Full suite**
+- [x] **Step 7: Full suite**
 
 Run: `python -m pytest tests/ -v`
 Expected: all PASS (including the Step 1 test).
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add agent/concierge/concierge/ agent/concierge/tests/
@@ -516,7 +516,7 @@ git commit -m "Switch concierge threads to one conversation per phone number"
   - `concierge/push.py`: class `Pusher(db, private_key: str, subject: str)` with `enabled: bool` property (False when key empty), `notify_inbound(conversation: dict, body: str) -> None`, `notify_send_failure(conversation: dict) -> None`. Payload shape `{"title", "body", "url"}`; url is `/dashboard/conversations?conversation=<id>`. Subscriptions returning WebPushException with response status 404/410 are deleted. Nothing ever raises out of Pusher methods.
   - `tests/fakes.py` gains `FakePusher` with `.inbound: list[tuple[dict, str]]`, `.failures: list[dict]`, methods `notify_inbound(conversation, body)` and `notify_send_failure(conversation)` that append. Used by Task 5's wiring tests.
 
-- [ ] **Step 1: Install the dependency**
+- [x] **Step 1: Install the dependency**
 
 Append `pywebpush>=2,<3` to `agent/concierge/requirements.txt`, then:
 
@@ -524,7 +524,7 @@ Append `pywebpush>=2,<3` to `agent/concierge/requirements.txt`, then:
 source .venv/bin/activate && pip install -r requirements.txt
 ```
 
-- [ ] **Step 2: Write the failing tests** (`agent/concierge/tests/test_push.py`)
+- [x] **Step 2: Write the failing tests** (`agent/concierge/tests/test_push.py`)
 
 ```python
 from types import SimpleNamespace
@@ -604,7 +604,7 @@ def test_other_push_errors_never_raise(monkeypatch):
 Run: `python -m pytest tests/test_push.py -v`
 Expected: FAIL with `ModuleNotFoundError: No module named 'concierge.push'`.
 
-- [ ] **Step 3: Implement**
+- [x] **Step 3: Implement**
 
 `concierge/config.py`: add to the dataclass
 
@@ -731,12 +731,12 @@ class Pusher:
         })
 ```
 
-- [ ] **Step 4: Run to verify**
+- [x] **Step 4: Run to verify**
 
 Run: `python -m pytest tests/test_push.py tests/test_fakes.py -v`
 Expected: all PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add agent/concierge/concierge/push.py agent/concierge/concierge/config.py \
@@ -760,7 +760,7 @@ git commit -m "Add web push module with VAPID config and dead-subscription pruni
 - Consumes: `Pusher` contract / `FakePusher` (Task 4).
 - Produces: push fires on (1) webhook inbound stored, (2) reconcile-recovered inbound at most once per conversation per run, (3) terminal send failure, (4) status-callback failure. NO push on grace expiry. `pusher=None` disables all push (keeps old tests valid without edits).
 
-- [ ] **Step 1: Failing tests**
+- [x] **Step 1: Failing tests**
 
 Append to `tests/test_webhook.py` (note `make_client` gains an optional pusher: change its signature to `def make_client(db=None, gateway=None, pusher=None)` and pass through to `create_app(db, gateway, CFG, pusher)`):
 
@@ -838,7 +838,7 @@ def test_terminal_failure_triggers_failure_push():
 Run: `python -m pytest tests/test_webhook.py tests/test_reconcile.py tests/test_sender.py -v`
 Expected: new tests FAIL (`TypeError: unexpected keyword argument 'pusher'` or missing behaviour).
 
-- [ ] **Step 2: Implement the wiring**
+- [x] **Step 2: Implement the wiring**
 
 `webhook.py`: signature `def create_app(db, gateway, cfg: Config, pusher=None) -> FastAPI:`. In `inbound`, immediately after `db.apply_state(...)`:
 
@@ -882,12 +882,12 @@ In `status`, inside the failure branch after `db.flag_conversation_for_meg(...)`
 
 (put the import at the top with the others, not inline), pass `pusher` to `reconcile_once(...)`, `create_app(db, gateway, cfg, pusher)`, and `sender_loop(db, gateway, cfg, stop, pusher)`.
 
-- [ ] **Step 3: Full suite**
+- [x] **Step 3: Full suite**
 
 Run: `python -m pytest tests/ -v && python -c "import concierge.run"`
 Expected: all PASS.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add agent/concierge/concierge/ agent/concierge/tests/
@@ -920,7 +920,7 @@ export function relativeTime(iso: string, now?: Date): string;      // "2m", "3h
 export function graceCountdown(deadlineIso: string | null, now?: Date): string | null; // "3m 12s", "45s", "now", null
 ```
 
-- [ ] **Step 1: Failing tests**
+- [x] **Step 1: Failing tests**
 
 `lib/conversations/state.test.ts` (mirrors `agent/concierge/tests/test_state.py` case-for-case for the transitions the dashboard owns):
 
@@ -1016,7 +1016,7 @@ describe("relativeTime", () => {
 Run: `npx vitest run lib/conversations/`
 Expected: FAIL (modules not found).
 
-- [ ] **Step 2: Implement**
+- [x] **Step 2: Implement**
 
 `lib/conversations/state.ts`:
 
@@ -1083,12 +1083,12 @@ export function graceCountdown(deadlineIso: string | null, now: Date = new Date(
 }
 ```
 
-- [ ] **Step 3: Run to verify**
+- [x] **Step 3: Run to verify**
 
 Run: `npx vitest run lib/conversations/`
 Expected: all PASS.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add lib/conversations/state.ts lib/conversations/state.test.ts \
@@ -1129,7 +1129,7 @@ export async function getThread(id: string): Promise<{ conversation: Conversatio
 export async function getQuarantined(): Promise<QuarantinedRow[]>;
 ```
 
-- [ ] **Step 1: Failing tests** (`lib/conversations/derive.test.ts`)
+- [x] **Step 1: Failing tests** (`lib/conversations/derive.test.ts`)
 
 ```ts
 import { describe, expect, it } from "vitest";
@@ -1189,7 +1189,7 @@ describe("isUnread", () => {
 Run: `npx vitest run lib/conversations/derive.test.ts`
 Expected: FAIL (module not found).
 
-- [ ] **Step 2: Implement `lib/conversations/derive.ts`**
+- [x] **Step 2: Implement `lib/conversations/derive.ts`**
 
 ```ts
 export type LiteMessage = {
@@ -1224,9 +1224,9 @@ export function isUnread(messagesDesc: LiteMessage[], conversationId: string): b
 }
 ```
 
-- [ ] **Step 3: Run to verify** (`npx vitest run lib/conversations/derive.test.ts`, all PASS)
+- [x] **Step 3: Run to verify** (`npx vitest run lib/conversations/derive.test.ts`, all PASS)
 
-- [ ] **Step 4: Implement `lib/conversations/queries.ts`** (no unit test; typechecked)
+- [x] **Step 4: Implement `lib/conversations/queries.ts`** (no unit test; typechecked)
 
 ```ts
 import { createClient } from "@/lib/supabase/server";
@@ -1320,12 +1320,12 @@ export async function getQuarantined(): Promise<QuarantinedRow[]> {
 }
 ```
 
-- [ ] **Step 5: Typecheck + tests**
+- [x] **Step 5: Typecheck + tests**
 
 Run: `npx tsc --noEmit && npx vitest run lib/conversations/`
 Expected: exit 0, all PASS.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add lib/conversations/derive.ts lib/conversations/derive.test.ts lib/conversations/queries.ts
@@ -1348,7 +1348,7 @@ git commit -m "Add conversation queries with unread and last-message derivation"
 - Consumes: `getThreads`, `getThread` (Task 7); `onMegSend`, `takeOver`, `onHandBack` (Task 6); `relativeTime`, `graceCountdown` (Task 6).
 - Produces: `/dashboard/conversations?conversation=<id>&view=summary|transcript` route; server actions `sendReply`, `takeOverConversation`, `handBackConversation` (Tasks 9-10 reuse the actions file's patterns but not these functions).
 
-- [ ] **Step 1: Sidebar entry**
+- [x] **Step 1: Sidebar entry**
 
 In `app/dashboard/(app)/_components/Sidebar.tsx`, add to the `NAV` array directly after the Triage entry:
 
@@ -1356,7 +1356,7 @@ In `app/dashboard/(app)/_components/Sidebar.tsx`, add to the `NAV` array directl
   { href: "/dashboard/conversations", label: "Conversations" },
 ```
 
-- [ ] **Step 2: Server actions** (`app/dashboard/(app)/conversations/actions.ts`)
+- [x] **Step 2: Server actions** (`app/dashboard/(app)/conversations/actions.ts`)
 
 ```ts
 "use server";
@@ -1401,7 +1401,7 @@ export async function handBackConversation(formData: FormData) {
 }
 ```
 
-- [ ] **Step 3: Realtime component** (`_components/RealtimeConversations.tsx`)
+- [x] **Step 3: Realtime component** (`_components/RealtimeConversations.tsx`)
 
 ```tsx
 "use client";
@@ -1434,7 +1434,7 @@ export function RealtimeConversations() {
 }
 ```
 
-- [ ] **Step 4: Grace countdown chip** (`_components/GraceChip.tsx`)
+- [x] **Step 4: Grace countdown chip** (`_components/GraceChip.tsx`)
 
 ```tsx
 "use client";
@@ -1464,7 +1464,7 @@ export function GraceChip({ deadline }: { deadline: string | null }) {
 }
 ```
 
-- [ ] **Step 5: Thread view** (`_components/ThreadView.tsx`)
+- [x] **Step 5: Thread view** (`_components/ThreadView.tsx`)
 
 ```tsx
 import Link from "next/link";
@@ -1584,7 +1584,7 @@ export function ThreadView({
 }
 ```
 
-- [ ] **Step 6: The page** (`app/dashboard/(app)/conversations/page.tsx`)
+- [x] **Step 6: The page** (`app/dashboard/(app)/conversations/page.tsx`)
 
 ```tsx
 import Link from "next/link";
@@ -1704,14 +1704,14 @@ export default async function ConversationsPage({
 }
 ```
 
-- [ ] **Step 7: Verify**
+- [x] **Step 7: Verify**
 
 Run: `npx tsc --noEmit && npx vitest run`
 Expected: exit 0, all tests PASS.
 
 Then run the app and check visually with the preview tooling: start the dev server, insert a test conversation + message via Supabase MCP `execute_sql` (a client, a channel, a conversation linked to it, one inbound message), and confirm: thread appears titled "Henderson · Sarah" style, chip shows, selecting it renders the transcript, submitting the reply box inserts a `queued` message row and flips the conversation to `meg_active`.
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add app/dashboard/\(app\)/conversations app/dashboard/\(app\)/_components/Sidebar.tsx
@@ -1730,7 +1730,7 @@ git commit -m "Add the Conversations view with reply, takeover, and live refresh
 - Consumes: `getQuarantined` (Task 7), `onInbound` (Task 6).
 - Produces: claim flow that registers the number, creates/finds its conversation, re-homes the message, arms the grace state, deletes the quarantine row.
 
-- [ ] **Step 1: Actions** (`quarantine/actions.ts`)
+- [x] **Step 1: Actions** (`quarantine/actions.ts`)
 
 ```ts
 "use server";
@@ -1817,7 +1817,7 @@ export async function ignoreQuarantined(formData: FormData) {
 }
 ```
 
-- [ ] **Step 2: Page** (`quarantine/page.tsx`)
+- [x] **Step 2: Page** (`quarantine/page.tsx`)
 
 ```tsx
 import Link from "next/link";
@@ -1910,12 +1910,12 @@ export default async function QuarantinePage() {
 
 Note the family-member select is not filtered by chosen client (server-rendered form, no client JS); options carry the family name for disambiguation. Acceptable for a single-operator tool; a Plan 3 polish item if it annoys Meg.
 
-- [ ] **Step 3: Verify**
+- [x] **Step 3: Verify**
 
 Run: `npx tsc --noEmit`
 Expected: exit 0. Then manual check: insert a quarantined row via `execute_sql`, claim it in the UI, verify the channel + conversation + message rows appear and the quarantine row is gone.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add app/dashboard/\(app\)/conversations/quarantine
@@ -1936,7 +1936,7 @@ git commit -m "Add quarantine claiming for unknown numbers"
 - Consumes: `threadTitle`, `relativeTime` (Task 6).
 - Produces: `<HouseholdThreads clientId={...} familyMemberId={...} />` server component; `addChannel` server action.
 
-- [ ] **Step 1: The action** (append to or create `app/dashboard/(app)/clients/actions.ts`)
+- [x] **Step 1: The action** (append to or create `app/dashboard/(app)/clients/actions.ts`)
 
 ```ts
 "use server";
@@ -1968,7 +1968,7 @@ export async function addChannel(formData: FormData) {
 
 (If `clients/actions.ts` already exists with other actions, append `addChannel` without touching them; keep the single `"use server"` directive at the top.)
 
-- [ ] **Step 2: The component** (`clients/_components/HouseholdThreads.tsx`)
+- [x] **Step 2: The component** (`clients/_components/HouseholdThreads.tsx`)
 
 ```tsx
 import Link from "next/link";
@@ -2061,16 +2061,16 @@ export async function HouseholdThreads({
 }
 ```
 
-- [ ] **Step 3: Render on both pages**
+- [x] **Step 3: Render on both pages**
 
 Read `app/dashboard/(app)/clients/[id]/page.tsx`; import `HouseholdThreads` from `../_components/HouseholdThreads` and render `<HouseholdThreads clientId={id} />` as the LAST child inside the page's outermost returned container (after the existing sections). Do the same in `family/[memberId]/page.tsx` with `<HouseholdThreads clientId={id} familyMemberId={memberId} />` (adjust import depth: `../../../_components/HouseholdThreads`). Use whatever variable names those pages already bind their awaited params to.
 
-- [ ] **Step 4: Verify**
+- [x] **Step 4: Verify**
 
 Run: `npx tsc --noEmit`
 Expected: exit 0. Manual check via preview: client page shows the section; adding a number creates the row; family page shows only that person's numbers.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add app/dashboard/\(app\)/clients
@@ -2094,7 +2094,7 @@ git commit -m "Show household conversations on client and family pages"
 - Consumes: `push_subscriptions` table (Task 1).
 - Produces: installable PWA; browser subscribes and stores `{endpoint, p256dh, auth}`; daemon (Task 4) reads the same rows.
 
-- [ ] **Step 1: Service worker** (`public/sw.js`)
+- [x] **Step 1: Service worker** (`public/sw.js`)
 
 ```js
 self.addEventListener("push", (event) => {
@@ -2129,7 +2129,7 @@ self.addEventListener("notificationclick", (event) => {
 });
 ```
 
-- [ ] **Step 2: Manifest** (`app/manifest.ts`)
+- [x] **Step 2: Manifest** (`app/manifest.ts`)
 
 ```ts
 import type { MetadataRoute } from "next";
@@ -2150,7 +2150,7 @@ export default function manifest(): MetadataRoute.Manifest {
 }
 ```
 
-- [ ] **Step 3: Icons** (macOS `sips`, from the existing favicon)
+- [x] **Step 3: Icons** (macOS `sips`, from the existing favicon)
 
 ```bash
 sips -s format png app/favicon.ico --out public/icon-512.png --resampleHeightWidth 512 512
@@ -2176,7 +2176,7 @@ png("public/icon-512.png", 512)
 EOF
 ```
 
-- [ ] **Step 4: Subscription actions** (`push-actions.ts`)
+- [x] **Step 4: Subscription actions** (`push-actions.ts`)
 
 ```ts
 "use server";
@@ -2203,7 +2203,7 @@ export async function removePushSubscription(endpoint: string) {
 }
 ```
 
-- [ ] **Step 5: The banner** (`_components/PushBanner.tsx`)
+- [x] **Step 5: The banner** (`_components/PushBanner.tsx`)
 
 ```tsx
 "use client";
@@ -2322,7 +2322,7 @@ export function PushBanner() {
 }
 ```
 
-- [ ] **Step 6: Render the banner** in `conversations/page.tsx`, directly under `<RealtimeConversations />`:
+- [x] **Step 6: Render the banner** in `conversations/page.tsx`, directly under `<RealtimeConversations />`:
 
 ```tsx
       <PushBanner />
@@ -2330,7 +2330,7 @@ export function PushBanner() {
 
 with the import `import { PushBanner } from "./_components/PushBanner";`.
 
-- [ ] **Step 7: Env placeholder**
+- [x] **Step 7: Env placeholder**
 
 Append to `.env.local` (which is gitignored; never commit it):
 
@@ -2338,12 +2338,12 @@ Append to `.env.local` (which is gitignored; never commit it):
 NEXT_PUBLIC_VAPID_PUBLIC_KEY=REPLACE_WITH_REAL_KEY
 ```
 
-- [ ] **Step 8: Verify**
+- [x] **Step 8: Verify**
 
 Run: `npx tsc --noEmit && npx vitest run`
 Expected: exit 0, all PASS. Manual: load the page in the preview browser, banner renders in "ready" state (or unsupported in headless, in which case it renders nothing and that is correct).
 
-- [ ] **Step 9: Commit**
+- [x] **Step 9: Commit**
 
 ```bash
 git add public/sw.js app/manifest.ts public/icon-192.png public/icon-512.png \
@@ -2366,7 +2366,7 @@ git commit -m "Add PWA manifest, service worker, and push subscription banner"
 - Consumes: `tasks.conversation_id` (Task 1), `service_heartbeats` (Plan 1).
 - Produces: chips on typed tasks; concierge status card.
 
-- [ ] **Step 1: Chips component** (`triage/_components/ConversationChips.tsx`)
+- [x] **Step 1: Chips component** (`triage/_components/ConversationChips.tsx`)
 
 ```tsx
 import Link from "next/link";
@@ -2399,7 +2399,7 @@ export function ConversationChips({
 }
 ```
 
-- [ ] **Step 2: Render in TaskCard**
+- [x] **Step 2: Render in TaskCard**
 
 Read `app/dashboard/(app)/triage/_components/TaskCard.tsx`. Import `ConversationChips` and render
 
@@ -2409,7 +2409,7 @@ Read `app/dashboard/(app)/triage/_components/TaskCard.tsx`. Import `Conversation
 
 as the first element inside the card's main container (immediately before whatever currently renders the title/summary block). The `task` prop already carries the full row (`select *` in `getInboxTasks`), so `conversation_id` is available after Task 1's type regen.
 
-- [ ] **Step 3: Concierge status queries** (`lib/agents/concierge.ts`)
+- [x] **Step 3: Concierge status queries** (`lib/agents/concierge.ts`)
 
 ```ts
 import { createClient } from "@/lib/supabase/server";
@@ -2450,7 +2450,7 @@ export async function getConciergeStatus(): Promise<ConciergeStatus> {
 }
 ```
 
-- [ ] **Step 4: The card** (`agents/_components/ConciergeCard.tsx`)
+- [x] **Step 4: The card** (`agents/_components/ConciergeCard.tsx`)
 
 ```tsx
 import { getConciergeStatus } from "@/lib/agents/concierge";
@@ -2488,7 +2488,7 @@ export async function ConciergeCard() {
 }
 ```
 
-- [ ] **Step 5: Render on the agents page**
+- [x] **Step 5: Render on the agents page**
 
 Read `app/dashboard/(app)/agents/page.tsx`. If it has a card grid/list, add `<ConciergeCard />` as a sibling of the existing agent card(s). If it is still a stub, wrap it in the page's existing container conventions:
 
@@ -2498,7 +2498,7 @@ import { ConciergeCard } from "./_components/ConciergeCard";
 
 and render the card inside the page's main content area (preserving any existing heading and lead-finder content).
 
-- [ ] **Step 6: Verify + commit**
+- [x] **Step 6: Verify + commit**
 
 Run: `npx tsc --noEmit && npx vitest run`
 Expected: exit 0, all PASS.
@@ -2516,7 +2516,7 @@ git commit -m "Add triage conversation chips and agents-page concierge card"
 - Modify: this plan file (tick checkboxes)
 - Modify: `agent/concierge/README.md` (env vars note)
 
-- [ ] **Step 1: Everything, everywhere**
+- [x] **Step 1: Everything, everywhere**
 
 ```bash
 npx tsc --noEmit && npx vitest run && npx next lint 2>/dev/null || npx eslint .
@@ -2525,11 +2525,11 @@ cd agent/concierge && source .venv/bin/activate && python -m pytest tests/ -v &&
 
 Expected: typecheck clean, all vitest suites pass, lint acceptable (pre-existing warnings tolerated, no new errors), full pytest suite passes.
 
-- [ ] **Step 2: README env note**
+- [x] **Step 2: README env note**
 
 Add `VAPID_PRIVATE_KEY` and `VAPID_SUBJECT` to the env list in `agent/concierge/README.md`'s "Run locally" section, with one line: push is disabled when `VAPID_PRIVATE_KEY` is unset.
 
-- [ ] **Step 3: Ops handoff checklist** (for Sam; the executing agent CANNOT do these, list them in the final report)
+- [x] **Step 3: Ops handoff checklist** (for Sam; the executing agent CANNOT do these, list them in the final report)
 
 1. Generate VAPID keys locally: `npx --yes web-push generate-vapid-keys`.
 2. Public key: set `NEXT_PUBLIC_VAPID_PUBLIC_KEY` in `.env.local` (replacing the placeholder) and in the Vercel project env.
@@ -2538,7 +2538,7 @@ Add `VAPID_PRIVATE_KEY` and `VAPID_SUBJECT` to the env list in `agent/concierge/
 5. On Meg's phone: open the dashboard, add to home screen (iOS), enable notifications from the banner.
 6. Test: insert an inbound `messages` row + flip its conversation to `awaiting_meg` via SQL; a push should arrive on the subscribed device.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add agent/concierge/README.md docs/superpowers/plans/2026-07-06-conversations-dashboard.md
