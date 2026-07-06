@@ -227,6 +227,7 @@ export type Database = {
           channel: string
           client_id: string
           created_at: string
+          family_member_id: string | null
           id: string
           is_primary: boolean
         }
@@ -235,6 +236,7 @@ export type Database = {
           channel: string
           client_id: string
           created_at?: string
+          family_member_id?: string | null
           id?: string
           is_primary?: boolean
         }
@@ -243,6 +245,7 @@ export type Database = {
           channel?: string
           client_id?: string
           created_at?: string
+          family_member_id?: string | null
           id?: string
           is_primary?: boolean
         }
@@ -252,6 +255,13 @@ export type Database = {
             columns: ["client_id"]
             isOneToOne: false
             referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "client_channels_family_member_id_fkey"
+            columns: ["family_member_id"]
+            isOneToOne: false
+            referencedRelation: "family_members"
             referencedColumns: ["id"]
           },
         ]
@@ -365,6 +375,7 @@ export type Database = {
         Row: {
           agent_paused: boolean
           channel: string
+          client_channel_id: string | null
           client_id: string
           created_at: string
           grace_deadline: string | null
@@ -378,6 +389,7 @@ export type Database = {
         Insert: {
           agent_paused?: boolean
           channel: string
+          client_channel_id?: string | null
           client_id: string
           created_at?: string
           grace_deadline?: string | null
@@ -391,6 +403,7 @@ export type Database = {
         Update: {
           agent_paused?: boolean
           channel?: string
+          client_channel_id?: string | null
           client_id?: string
           created_at?: string
           grace_deadline?: string | null
@@ -402,6 +415,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "conversations_client_channel_id_fkey"
+            columns: ["client_channel_id"]
+            isOneToOne: true
+            referencedRelation: "client_channels"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "conversations_client_id_fkey"
             columns: ["client_id"]
@@ -682,6 +702,30 @@ export type Database = {
           },
         ]
       }
+      push_subscriptions: {
+        Row: {
+          auth: string
+          created_at: string
+          endpoint: string
+          id: string
+          p256dh: string
+        }
+        Insert: {
+          auth: string
+          created_at?: string
+          endpoint: string
+          id?: string
+          p256dh: string
+        }
+        Update: {
+          auth?: string
+          created_at?: string
+          endpoint?: string
+          id?: string
+          p256dh?: string
+        }
+        Relationships: []
+      }
       quarantined_messages: {
         Row: {
           address: string
@@ -742,6 +786,7 @@ export type Database = {
           client_id: string | null
           client_response: string | null
           completed_at: string | null
+          conversation_id: string | null
           created_at: string | null
           dismissed_reason: string | null
           draft_channel: string | null
@@ -768,6 +813,7 @@ export type Database = {
           client_id?: string | null
           client_response?: string | null
           completed_at?: string | null
+          conversation_id?: string | null
           created_at?: string | null
           dismissed_reason?: string | null
           draft_channel?: string | null
@@ -794,6 +840,7 @@ export type Database = {
           client_id?: string | null
           client_response?: string | null
           completed_at?: string | null
+          conversation_id?: string | null
           created_at?: string | null
           dismissed_reason?: string | null
           draft_channel?: string | null
@@ -820,6 +867,13 @@ export type Database = {
             columns: ["client_id"]
             isOneToOne: false
             referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tasks_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
             referencedColumns: ["id"]
           },
           {
