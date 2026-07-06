@@ -221,6 +221,41 @@ export type Database = {
         }
         Relationships: []
       }
+      client_channels: {
+        Row: {
+          address: string
+          channel: string
+          client_id: string
+          created_at: string
+          id: string
+          is_primary: boolean
+        }
+        Insert: {
+          address: string
+          channel: string
+          client_id: string
+          created_at?: string
+          id?: string
+          is_primary?: boolean
+        }
+        Update: {
+          address?: string
+          channel?: string
+          client_id?: string
+          created_at?: string
+          id?: string
+          is_primary?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_channels_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       clients: {
         Row: {
           accommodation_style: string | null
@@ -325,6 +360,56 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      conversations: {
+        Row: {
+          agent_paused: boolean
+          channel: string
+          client_id: string
+          created_at: string
+          grace_deadline: string | null
+          grace_seconds: number
+          id: string
+          last_inbound_at: string | null
+          rolling_summary: string | null
+          state: string
+          updated_at: string
+        }
+        Insert: {
+          agent_paused?: boolean
+          channel: string
+          client_id: string
+          created_at?: string
+          grace_deadline?: string | null
+          grace_seconds?: number
+          id?: string
+          last_inbound_at?: string | null
+          rolling_summary?: string | null
+          state?: string
+          updated_at?: string
+        }
+        Update: {
+          agent_paused?: boolean
+          channel?: string
+          client_id?: string
+          created_at?: string
+          grace_deadline?: string | null
+          grace_seconds?: number
+          id?: string
+          last_inbound_at?: string | null
+          rolling_summary?: string | null
+          state?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversations_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       family_members: {
         Row: {
@@ -540,6 +625,115 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      messages: {
+        Row: {
+          author: string
+          body: string
+          conversation_id: string
+          created_at: string
+          delivered_at: string | null
+          direction: string
+          error: string | null
+          id: string
+          next_attempt_at: string | null
+          send_attempts: number
+          sent_at: string | null
+          status: string
+          twilio_sid: string | null
+        }
+        Insert: {
+          author: string
+          body: string
+          conversation_id: string
+          created_at?: string
+          delivered_at?: string | null
+          direction: string
+          error?: string | null
+          id?: string
+          next_attempt_at?: string | null
+          send_attempts?: number
+          sent_at?: string | null
+          status?: string
+          twilio_sid?: string | null
+        }
+        Update: {
+          author?: string
+          body?: string
+          conversation_id?: string
+          created_at?: string
+          delivered_at?: string | null
+          direction?: string
+          error?: string | null
+          id?: string
+          next_attempt_at?: string | null
+          send_attempts?: number
+          sent_at?: string | null
+          status?: string
+          twilio_sid?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      quarantined_messages: {
+        Row: {
+          address: string
+          body: string
+          channel: string
+          claimed_client_id: string | null
+          id: string
+          received_at: string
+          twilio_sid: string | null
+        }
+        Insert: {
+          address: string
+          body: string
+          channel: string
+          claimed_client_id?: string | null
+          id?: string
+          received_at?: string
+          twilio_sid?: string | null
+        }
+        Update: {
+          address?: string
+          body?: string
+          channel?: string
+          claimed_client_id?: string | null
+          id?: string
+          received_at?: string
+          twilio_sid?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quarantined_messages_claimed_client_id_fkey"
+            columns: ["claimed_client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      service_heartbeats: {
+        Row: {
+          beat_at: string
+          service: string
+        }
+        Insert: {
+          beat_at?: string
+          service: string
+        }
+        Update: {
+          beat_at?: string
+          service?: string
+        }
+        Relationships: []
       }
       tasks: {
         Row: {
@@ -769,9 +963,3 @@ export type CompositeTypes<
   : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
     ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never
-
-export const Constants = {
-  public: {
-    Enums: {},
-  },
-} as const
