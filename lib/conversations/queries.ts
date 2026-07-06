@@ -34,9 +34,13 @@ export async function getThreads(): Promise<ThreadListItem[]> {
     await Promise.all([
       supabase.from("conversations").select(CONVERSATION_SELECT)
         .order("updated_at", { ascending: false }),
+      // Global window across all threads: newest 2000 messages. At <25 clients this
+      // covers months of traffic. If one thread could ever crowd out the rest, move
+      // to a per-conversation lateral join; a thread outside the window degrades to
+      // lastMessage null and unread false.
       supabase.from("messages")
         .select("conversation_id,direction,author,body,created_at,status")
-        .order("created_at", { ascending: false }).limit(500),
+        .order("created_at", { ascending: false }).limit(2000),
     ]);
   if (convError) throw new Error(`Failed to load conversations: ${convError.message}`);
   if (msgError) throw new Error(`Failed to load messages: ${msgError.message}`);
