@@ -4,6 +4,7 @@ import { relativeTime } from "@/lib/conversations/format";
 import { getThread, getThreads } from "@/lib/conversations/queries";
 import { createClient } from "@/lib/supabase/server";
 
+import { PushBanner } from "./_components/PushBanner";
 import { RealtimeConversations } from "./_components/RealtimeConversations";
 import { ThreadView } from "./_components/ThreadView";
 
@@ -34,6 +35,7 @@ export default async function ConversationsPage({
   return (
     <div className="flex h-[calc(100vh-6rem)] flex-col">
       <RealtimeConversations />
+      <PushBanner />
       <div className="mb-4 flex items-baseline justify-between">
         <div>
           <h1 className="font-serif text-2xl mb-1">Conversations</h1>
