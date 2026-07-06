@@ -137,3 +137,28 @@ New tables joining existing `clients`, `family_members`, `lifecycle_dates`, `tas
 - Agent research/browsing tools (revisit later; "pull three holiday options" is arguably still information gathering, parked deliberately).
 - Multi-assistant / team inbox semantics (single Meg identity only).
 - Native mobile app.
+
+## 11. Addendum (2026-07-06): TPP agent standards mapping
+
+Reviewed against TPP's internal docs ("The 7 Principles of Production AI Agents" and the "TPP AI Agent Deployment Blueprint", both in `~/Documents/TPP/Internal/`). The following items are adopted as binding for Plan 3 (the agent brain); the rejections below are deliberate and should not be relitigated without revisiting this section.
+
+### Adopted
+
+1. **Curated frozen context with a hard character budget** (Blueprint Layer 1). Per-client prompt context is assembled as a curated document of at most ~2,000 characters (distilled from `client_memory`, not raw rows), frozen at turn start. The budget forces consolidation; freezing enables prompt caching.
+2. **Concrete memory confidence thresholds** (Blueprint Layer 4): 3+ reinforcements = medium confidence, 5+ = high. Only high-confidence memories influence agent behaviour by default; medium and below surface in briefs as "possibly relevant" rather than being asserted.
+3. **Memory-write safety gates** applied to the post-conversation extraction job before any `client_memory` write: in scope for this client, factual (not an assumption), no unresolved conflict with existing memory, within budget, and every change audit-logged (old value, new value, source).
+4. **Adversarial test battery** (Principles doc, Principle 6) merged into the golden-conversation eval suite: prompt injection attempts, contradictory requests, wrong-language messages, abusive/emotionally charged messages, 10x-length inputs, references to nonexistent prior conversations. Each defines expected behaviour AND what the agent must not do.
+5. **Production deployment checklist** (Principles doc) runs as Plan 3's launch gate alongside shadow mode; no live flip for any client until both pass.
+6. **Turn-runner loop mechanics**: terminate on API `stop_reason`, never by parsing natural language; iteration cap as a safety net only; every tool return carries a structured `status` field.
+7. **Knowledge-doc line budget**: all persona/knowledge files (SOUL.md, VOICE_EXAMPLES.md, etc.) stay under 800 lines combined. Every line costs tokens on every client message.
+
+### Model policy (decided by Sam, 2026-07-06)
+
+Customer-facing agent turns (anything that could be sent as Meg, including shadow-mode drafts) run on **Claude Sonnet** (claude-sonnet-5 or the current Sonnet tier), not Haiku. Voice fidelity is the product. Background jobs that never produce client-visible text (memory extraction, rolling summaries, nudge generation) may use Haiku.
+
+### Explicitly rejected (with reasons)
+
+- **OpenClaw/n8n runtime substitution.** Plan 1's daemon owns conversation flow: single-writer guarantee, Meg-race stand-down, grace-window state machine. Re-platforming onto the Blueprint's OpenClaw + n8n stack would discard reviewed, tested safety machinery. n8n may still be used for peripheral scheduled jobs if convenient, never in the message path.
+- **In-session self-curating memory tool** (Blueprint Layer 5). Memory writes happen post-conversation via the extraction job, never mid-turn. The live persona keeps zero write tools; that is the safety core of "conversation only".
+- **Haiku-by-default economics** for client-facing turns (superseded by the model policy above).
+- **The worker-loop philosophy** ("an agent is a worker, not a conversation") for the client-facing turn. The concierge is deliberately conversation-only; the inversion is the product's safety property. Loop mechanics adopted, philosophy not.
