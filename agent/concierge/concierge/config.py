@@ -16,6 +16,8 @@ class Config:
     grace_default_seconds: int = 240
     poll_interval_seconds: int = 5
     max_send_attempts: int = 5
+    vapid_private_key: str = ""
+    vapid_subject: str = "mailto:sam@theprocesspartners.com"
 
 
 def load_config(env: dict[str, str] | None = None) -> Config:
@@ -32,4 +34,6 @@ def load_config(env: dict[str, str] | None = None) -> Config:
         grace_default_seconds=int(e.get("GRACE_DEFAULT_SECONDS", "240")),
         poll_interval_seconds=int(e.get("POLL_INTERVAL_SECONDS", "5")),
         max_send_attempts=int(e.get("MAX_SEND_ATTEMPTS", "5")),
+        vapid_private_key=e.get("VAPID_PRIVATE_KEY", ""),
+        vapid_subject=e.get("VAPID_SUBJECT", "mailto:sam@theprocesspartners.com"),
     )

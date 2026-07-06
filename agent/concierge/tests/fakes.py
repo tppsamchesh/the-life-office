@@ -26,6 +26,7 @@ class FakeDB:
         self.quarantined: list[dict] = []
         self.heartbeats: dict[str, str] = {}
         self.family_members: dict[str, dict] = {}
+        self.push_subscriptions: list[dict] = []
 
     # test-setup conveniences (not on ConciergeDB)
     def add_client(self, client_id: str, first_name: str = "Client", last_name: str = "") -> None:
@@ -233,6 +234,29 @@ class FakeDB:
         last = client.get("last_name", "")
         person = person or first
         return f"{person} ({last})" if last else person
+
+    def add_push_subscription(self, endpoint: str, p256dh: str = "p", auth: str = "a") -> None:
+        self.push_subscriptions.append(
+            {"endpoint": endpoint, "p256dh": p256dh, "auth": auth})
+
+    def list_push_subscriptions(self) -> list[dict]:
+        return [dict(s) for s in self.push_subscriptions]
+
+    def delete_push_subscription(self, endpoint: str) -> None:
+        self.push_subscriptions = [s for s in self.push_subscriptions
+                                   if s["endpoint"] != endpoint]
+
+
+class FakePusher:
+    def __init__(self) -> None:
+        self.inbound: list[tuple[dict, str]] = []
+        self.failures: list[dict] = []
+
+    def notify_inbound(self, conversation: dict, body: str) -> None:
+        self.inbound.append((dict(conversation), body))
+
+    def notify_send_failure(self, conversation: dict) -> None:
+        self.failures.append(dict(conversation))
 
 
 class FakeGateway:

@@ -199,3 +199,11 @@ class ConciergeDB:
         last = (cl.data[0].get("last_name") or "") if cl.data else ""
         person = person or first
         return f"{person} ({last})" if last else person
+
+    def list_push_subscriptions(self) -> list[dict]:
+        res = self._client.table("push_subscriptions").select("*").execute()
+        return res.data or []
+
+    def delete_push_subscription(self, endpoint: str) -> None:
+        (self._client.table("push_subscriptions").delete()
+         .eq("endpoint", endpoint).execute())
