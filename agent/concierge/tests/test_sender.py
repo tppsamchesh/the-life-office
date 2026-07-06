@@ -91,3 +91,14 @@ def test_missing_address_is_terminal_failure():
     process_queued_once(db, gw, CFG, NOW)
     assert db.get_message(mid)["status"] == "failed"
     assert gw.sent == []
+
+
+def test_missing_conversation_is_cancelled_not_sent():
+    db, conv_id = make_db()
+    mid = db.queue_outbound(conv_id, author="meg", body="x")
+    # Simulate orphaned message: delete the conversation it points to
+    del db.conversations[conv_id]
+    gw = FakeGateway()
+    process_queued_once(db, gw, CFG, NOW)
+    assert db.get_message(mid)["status"] == "cancelled"
+    assert gw.sent == []
