@@ -17,8 +17,8 @@ CFG = Config(
 def make_db() -> tuple[FakeDB, str]:
     db = FakeDB()
     db.add_client("client-1")
-    db.add_channel("client-1", "whatsapp", "+447700900123", is_primary=True)
-    conv = db.get_or_create_conversation("client-1", "whatsapp")
+    ch = db.add_channel("client-1", "whatsapp", "+447700900123", is_primary=True)
+    conv = db.get_or_create_conversation_for_channel(ch)
     return db, conv["id"]
 
 
@@ -84,8 +84,10 @@ def test_send_failure_backs_off_then_goes_terminal():
 
 def test_missing_address_is_terminal_failure():
     db = FakeDB()
-    db.add_client("client-2")  # no channels registered
-    conv = db.get_or_create_conversation("client-2", "sms")
+    db.add_client("client-2")
+    ch = db.add_channel("client-2", "sms", "+15550001111")
+    conv = db.get_or_create_conversation_for_channel(ch)
+    db.channels.clear()  # channel deleted after the message was queued
     mid = db.queue_outbound(conv["id"], author="meg", body="x")
     gw = FakeGateway()
     process_queued_once(db, gw, CFG, NOW)
@@ -102,3 +104,16 @@ def test_missing_conversation_is_cancelled_not_sent():
     process_queued_once(db, gw, CFG, NOW)
     assert db.get_message(mid)["status"] == "cancelled"
     assert gw.sent == []
+
+
+def test_reply_goes_to_the_threads_own_number_not_primary():
+    db = FakeDB()
+    db.add_client("client-1", first_name="Sarah", last_name="Henderson")
+    db.add_channel("client-1", "whatsapp", "+447700900111", is_primary=True)
+    db.add_family_member("fm-1", "client-1", "Tom")
+    ch_tom = db.add_channel("client-1", "whatsapp", "+447700900222", family_member_id="fm-1")
+    conv = db.get_or_create_conversation_for_channel(ch_tom)
+    db.queue_outbound(conv["id"], author="meg", body="Hi Tom")
+    gw = FakeGateway()
+    process_queued_once(db, gw, CFG, NOW)
+    assert gw.sent[0]["to_address"] == "+447700900222"

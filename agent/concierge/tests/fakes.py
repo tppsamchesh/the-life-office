@@ -77,20 +77,6 @@ class FakeDB:
                 return c["address"]
         return rows[0]["address"] if rows else None
 
-    def get_or_create_conversation(self, client_id: str, channel: str) -> dict:
-        for conv in self.conversations.values():
-            if conv["client_id"] == client_id and conv["channel"] == channel:
-                return dict(conv)
-        cid = _next_id("conv")
-        conv = {
-            "id": cid, "client_id": client_id, "channel": channel, "client_channel_id": None,
-            "state": "idle", "agent_paused": False, "grace_deadline": None, "grace_seconds": 240,
-            "rolling_summary": None, "last_inbound_at": None,
-            "created_at": _now_iso(), "updated_at": _now_iso(),
-        }
-        self.conversations[cid] = conv
-        return dict(conv)
-
     def get_conversation(self, conversation_id: str) -> dict | None:
         conv = self.conversations.get(conversation_id)
         return dict(conv) if conv else None

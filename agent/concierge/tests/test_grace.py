@@ -10,8 +10,8 @@ NOW = datetime(2026, 7, 6, 12, 0, tzinfo=timezone.utc)
 def make_db_with_waiting_conversation() -> tuple[FakeDB, str]:
     db = FakeDB()
     db.add_client("client-1")
-    db.add_channel("client-1", "whatsapp", "+447700900123", is_primary=True)
-    conv = db.get_or_create_conversation("client-1", "whatsapp")
+    ch = db.add_channel("client-1", "whatsapp", "+447700900123", is_primary=True)
+    conv = db.get_or_create_conversation_for_channel(ch)
     db.apply_state(conv["id"], ConvState("awaiting_meg", False, NOW))
     return db, conv["id"]
 

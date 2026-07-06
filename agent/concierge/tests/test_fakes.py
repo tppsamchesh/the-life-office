@@ -9,45 +9,36 @@ from tests.fakes import FakeDB, FakeGateway
 NOW = datetime(2026, 7, 6, 12, 0, tzinfo=timezone.utc)
 
 
-def make_db() -> FakeDB:
+def make_db() -> tuple[FakeDB, dict]:
     db = FakeDB()
     db.add_client("client-1")
-    db.add_channel("client-1", "whatsapp", "+447700900123", is_primary=True)
-    return db
+    ch = db.add_channel("client-1", "whatsapp", "+447700900123", is_primary=True)
+    return db, ch
 
 
 def test_resolve_channel_hit_and_miss():
-    db = make_db()
+    db, _ = make_db()
     hit = db.resolve_channel("whatsapp", "+447700900123")
     assert hit is not None and hit["client_id"] == "client-1"
     assert db.resolve_channel("sms", "+447700900123") is None
 
 
 def test_primary_address():
-    db = make_db()
+    db, _ = make_db()
     assert db.primary_address("client-1", "whatsapp") == "+447700900123"
     assert db.primary_address("client-1", "sms") is None
 
 
-def test_get_or_create_conversation_is_idempotent():
-    db = make_db()
-    a = db.get_or_create_conversation("client-1", "whatsapp")
-    b = db.get_or_create_conversation("client-1", "whatsapp")
-    assert a["id"] == b["id"]
-    assert a["state"] == "idle"
-    assert a["grace_seconds"] == 240
-
-
 def test_insert_inbound_rejects_duplicate_sid():
-    db = make_db()
-    conv = db.get_or_create_conversation("client-1", "whatsapp")
+    db, ch = make_db()
+    conv = db.get_or_create_conversation_for_channel(ch)
     assert db.insert_inbound(conv["id"], "hello", "SM001") is True
     assert db.insert_inbound(conv["id"], "hello again", "SM001") is False
 
 
 def test_apply_state_persists_transition():
-    db = make_db()
-    conv = db.get_or_create_conversation("client-1", "whatsapp")
+    db, ch = make_db()
+    conv = db.get_or_create_conversation_for_channel(ch)
     new = ConvState(state="awaiting_meg", agent_paused=False, grace_deadline=NOW)
     db.apply_state(conv["id"], new, last_inbound_at=NOW)
     row = db.get_conversation(conv["id"])
@@ -57,8 +48,8 @@ def test_apply_state_persists_transition():
 
 
 def test_fetch_expired_graces_filters_correctly():
-    db = make_db()
-    conv = db.get_or_create_conversation("client-1", "whatsapp")
+    db, ch = make_db()
+    conv = db.get_or_create_conversation_for_channel(ch)
     db.apply_state(conv["id"], ConvState("awaiting_meg", False, NOW))
     assert db.fetch_expired_graces(NOW - timedelta(seconds=1)) == []
     expired = db.fetch_expired_graces(NOW + timedelta(seconds=1))
@@ -66,8 +57,8 @@ def test_fetch_expired_graces_filters_correctly():
 
 
 def test_outbound_queue_lifecycle():
-    db = make_db()
-    conv = db.get_or_create_conversation("client-1", "whatsapp")
+    db, ch = make_db()
+    conv = db.get_or_create_conversation_for_channel(ch)
     msg_id = db.queue_outbound(conv["id"], author="meg", body="On it!")
     due = db.fetch_due_outbound(NOW)
     assert [m["id"] for m in due] == [msg_id]
@@ -79,8 +70,8 @@ def test_outbound_queue_lifecycle():
 
 
 def test_record_send_failure_backoff_and_terminal():
-    db = make_db()
-    conv = db.get_or_create_conversation("client-1", "whatsapp")
+    db, ch = make_db()
+    conv = db.get_or_create_conversation_for_channel(ch)
     msg_id = db.queue_outbound(conv["id"], author="meg", body="x")
     retry_at = NOW + timedelta(seconds=20)
     db.record_send_failure(msg_id, "boom", attempts=1, next_attempt_at=retry_at, terminal=False)
@@ -93,8 +84,8 @@ def test_record_send_failure_backoff_and_terminal():
 
 
 def test_meg_activity_since():
-    db = make_db()
-    conv = db.get_or_create_conversation("client-1", "whatsapp")
+    db, ch = make_db()
+    conv = db.get_or_create_conversation_for_channel(ch)
     since = iso(NOW)
     assert db.meg_activity_since(conv["id"], since) is False
     db.queue_outbound(conv["id"], author="meg", body="I am here", created_at=NOW + timedelta(seconds=5))
@@ -102,8 +93,8 @@ def test_meg_activity_since():
 
 
 def test_set_delivery_status_and_flag_for_meg():
-    db = make_db()
-    conv = db.get_or_create_conversation("client-1", "whatsapp")
+    db, ch = make_db()
+    conv = db.get_or_create_conversation_for_channel(ch)
     msg_id = db.queue_outbound(conv["id"], author="agent", body="x")
     db.mark_sent(msg_id, "SM200", NOW)
     row = db.set_delivery_status("SM200", "failed", NOW)
@@ -115,23 +106,23 @@ def test_set_delivery_status_and_flag_for_meg():
 
 
 def test_quarantine_duplicate_sid_is_noop():
-    db = make_db()
+    db, _ = make_db()
     db.quarantine("sms", "+15550009999", "who dis", "SM300")
     db.quarantine("sms", "+15550009999", "who dis", "SM300")
     assert len(db.quarantined) == 1
 
 
 def test_latest_inbound_at():
-    db = make_db()
+    db, ch = make_db()
     assert db.latest_inbound_at() is None
-    conv = db.get_or_create_conversation("client-1", "whatsapp")
+    conv = db.get_or_create_conversation_for_channel(ch)
     db.insert_inbound(conv["id"], "hi", "SM400", created_at=NOW)
     assert db.latest_inbound_at() == NOW
 
 
 def test_reset_stranded_sending_requeues_and_counts():
-    db = make_db()
-    conv = db.get_or_create_conversation("client-1", "whatsapp")
+    db, ch = make_db()
+    conv = db.get_or_create_conversation_for_channel(ch)
     stranded_id = db.queue_outbound(conv["id"], author="meg", body="stuck mid-send")
     queued_id = db.queue_outbound(conv["id"], author="meg", body="still queued")
     sent_id = db.queue_outbound(conv["id"], author="meg", body="already sent")
@@ -185,8 +176,8 @@ def test_conversation_address_falls_back_to_primary_for_legacy_rows():
     db = FakeDB()
     db.add_client("client-1")
     db.add_channel("client-1", "whatsapp", "+447700900111", is_primary=True)
-    legacy = db.get_or_create_conversation("client-1", "whatsapp")
-    assert legacy.get("client_channel_id") is None
+    legacy = {"id": "conv-legacy", "client_id": "client-1", "channel": "whatsapp",
+              "client_channel_id": None}
     assert db.conversation_address(legacy) == "+447700900111"
 
 

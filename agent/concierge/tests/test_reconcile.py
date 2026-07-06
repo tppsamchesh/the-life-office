@@ -14,15 +14,15 @@ CFG = Config(
 )
 
 
-def make_db() -> FakeDB:
+def make_db() -> tuple[FakeDB, dict]:
     db = FakeDB()
     db.add_client("client-1")
-    db.add_channel("client-1", "whatsapp", "+447700900123", is_primary=True)
-    return db
+    ch = db.add_channel("client-1", "whatsapp", "+447700900123", is_primary=True)
+    return db, ch
 
 
 def test_recovers_missed_message_and_arms_grace():
-    db = make_db()
+    db, _ = make_db()
     gw = FakeGateway()
     gw.inbound_history = [
         InboundMessage("whatsapp", "+447700900123", "missed you", "SM900"),
@@ -35,8 +35,8 @@ def test_recovers_missed_message_and_arms_grace():
 
 
 def test_already_stored_message_is_skipped():
-    db = make_db()
-    conv = db.get_or_create_conversation("client-1", "whatsapp")
+    db, ch = make_db()
+    conv = db.get_or_create_conversation_for_channel(ch)
     db.insert_inbound(conv["id"], "already here", "SM900")
     gw = FakeGateway()
     gw.inbound_history = [
@@ -46,7 +46,7 @@ def test_already_stored_message_is_skipped():
 
 
 def test_unknown_number_goes_to_quarantine():
-    db = make_db()
+    db, _ = make_db()
     gw = FakeGateway()
     gw.inbound_history = [InboundMessage("sms", "+15550009999", "who dis", "SM901")]
     assert reconcile_once(db, gw, CFG, NOW) == 0
@@ -54,7 +54,7 @@ def test_unknown_number_goes_to_quarantine():
 
 
 def test_gateway_error_is_swallowed():
-    db = make_db()
+    db, _ = make_db()
 
     class BrokenGateway:
         def list_recent_inbound(self, since):

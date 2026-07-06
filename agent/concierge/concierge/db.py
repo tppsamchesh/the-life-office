@@ -42,22 +42,6 @@ class ConciergeDB:
                 return row["address"]
         return res.data[0]["address"]
 
-    def get_or_create_conversation(self, client_id: str, channel: str) -> dict:
-        res = (self._client.table("conversations").select("*")
-               .eq("client_id", client_id).eq("channel", channel).limit(1).execute())
-        if res.data:
-            return res.data[0]
-        try:
-            ins = (self._client.table("conversations")
-                   .insert({"client_id": client_id, "channel": channel}).execute())
-            return ins.data[0]
-        except APIError as exc:
-            if exc.code == _UNIQUE_VIOLATION:  # lost a race; fetch the winner
-                res = (self._client.table("conversations").select("*")
-                       .eq("client_id", client_id).eq("channel", channel).limit(1).execute())
-                return res.data[0]
-            raise
-
     def get_conversation(self, conversation_id: str) -> dict | None:
         res = (self._client.table("conversations").select("*")
                .eq("id", conversation_id).limit(1).execute())

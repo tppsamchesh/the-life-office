@@ -23,11 +23,11 @@ def make_client(db: FakeDB | None = None, gateway: FakeGateway | None = None):
     return TestClient(app), db, gateway
 
 
-def known_client_db() -> FakeDB:
+def known_client_db() -> tuple[FakeDB, dict]:
     db = FakeDB()
     db.add_client("client-1")
-    db.add_channel("client-1", "whatsapp", "+447700900123", is_primary=True)
-    return db
+    ch = db.add_channel("client-1", "whatsapp", "+447700900123", is_primary=True)
+    return db, ch
 
 
 INBOUND_FORM = {"From": "whatsapp:+447700900123", "Body": "Hi Meg", "MessageSid": "SM001"}
@@ -41,7 +41,8 @@ def test_health():
 
 
 def test_inbound_from_known_client_stores_message_and_arms_grace():
-    client, db, _ = make_client(known_client_db())
+    db, _ = known_client_db()
+    client, db, _ = make_client(db)
     res = client.post("/twilio/inbound", data=INBOUND_FORM)
     assert res.status_code == 200
     assert "<Response" in res.text
@@ -55,7 +56,8 @@ def test_inbound_from_known_client_stores_message_and_arms_grace():
 
 
 def test_inbound_duplicate_sid_is_idempotent():
-    client, db, _ = make_client(known_client_db())
+    db, _ = known_client_db()
+    client, db, _ = make_client(db)
     client.post("/twilio/inbound", data=INBOUND_FORM)
     res = client.post("/twilio/inbound", data=INBOUND_FORM)
     assert res.status_code == 200
@@ -73,15 +75,16 @@ def test_inbound_from_unknown_number_is_quarantined():
 
 
 def test_inbound_with_invalid_signature_is_rejected():
-    client, db, _ = make_client(known_client_db(), FakeGateway(valid_signature=False))
+    db, _ = known_client_db()
+    client, db, _ = make_client(db, FakeGateway(valid_signature=False))
     res = client.post("/twilio/inbound", data=INBOUND_FORM)
     assert res.status_code == 403
     assert db.messages == {}
 
 
 def test_inbound_while_meg_active_does_not_arm_timer():
-    db = known_client_db()
-    conv = db.get_or_create_conversation("client-1", "whatsapp")
+    db, ch = known_client_db()
+    conv = db.get_or_create_conversation_for_channel(ch)
     db.flag_conversation_for_meg(conv["id"])
     client, db, _ = make_client(db)
     client.post("/twilio/inbound", data=INBOUND_FORM)
@@ -91,8 +94,8 @@ def test_inbound_while_meg_active_does_not_arm_timer():
 
 
 def test_status_delivered_updates_message():
-    db = known_client_db()
-    conv = db.get_or_create_conversation("client-1", "whatsapp")
+    db, ch = known_client_db()
+    conv = db.get_or_create_conversation_for_channel(ch)
     mid = db.queue_outbound(conv["id"], author="meg", body="On it")
     from datetime import datetime, timezone
     db.mark_sent(mid, "SM100", datetime.now(timezone.utc))
@@ -103,8 +106,8 @@ def test_status_delivered_updates_message():
 
 
 def test_status_failed_flags_conversation_for_meg():
-    db = known_client_db()
-    conv = db.get_or_create_conversation("client-1", "whatsapp")
+    db, ch = known_client_db()
+    conv = db.get_or_create_conversation_for_channel(ch)
     mid = db.queue_outbound(conv["id"], author="agent", body="x")
     from datetime import datetime, timezone
     db.mark_sent(mid, "SM101", datetime.now(timezone.utc))
@@ -119,3 +122,11 @@ def test_status_for_unknown_sid_is_noop():
     client, db, _ = make_client()
     res = client.post("/twilio/status", data={"MessageSid": "SM404", "MessageStatus": "delivered"})
     assert res.status_code == 200
+
+
+def test_inbound_creates_conversation_linked_to_channel():
+    db, _ = known_client_db()
+    client, db, _ = make_client(db)
+    client.post("/twilio/inbound", data=INBOUND_FORM)
+    conv = list(db.conversations.values())[0]
+    assert conv["client_channel_id"] is not None

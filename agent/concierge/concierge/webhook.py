@@ -44,7 +44,7 @@ def create_app(db, gateway, cfg: Config) -> FastAPI:
             db.quarantine(msg.channel, msg.address, msg.body, msg.twilio_sid)
             logger.info("quarantined message from unknown %s number", msg.channel)
             return _twiml_empty()
-        conv = db.get_or_create_conversation(channel_row["client_id"], msg.channel)
+        conv = db.get_or_create_conversation_for_channel(channel_row)
         if not db.insert_inbound(conv["id"], msg.body, msg.twilio_sid):
             return _twiml_empty()  # duplicate webhook delivery
         now = datetime.now(timezone.utc)

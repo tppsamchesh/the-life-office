@@ -26,7 +26,7 @@ def reconcile_once(db, gateway, cfg: Config, now: datetime) -> int:
         if channel_row is None:
             db.quarantine(msg.channel, msg.address, msg.body, msg.twilio_sid)
             continue
-        conv = db.get_or_create_conversation(channel_row["client_id"], msg.channel)
+        conv = db.get_or_create_conversation_for_channel(channel_row)
         if not db.insert_inbound(conv["id"], msg.body, msg.twilio_sid):
             continue  # already stored via webhook
         current = ConvState(

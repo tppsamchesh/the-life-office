@@ -21,7 +21,7 @@ def process_queued_once(db, gateway, cfg: Config, now: datetime) -> int:
             db.mark_cancelled(row["id"])
             logger.info("agent message %s stood down (Meg is active)", row["id"])
             continue
-        address = db.primary_address(conv["client_id"], conv["channel"])
+        address = db.conversation_address(conv)
         if address is None:
             db.record_send_failure(row["id"], "no channel address for client",
                                    attempts=cfg.max_send_attempts,
