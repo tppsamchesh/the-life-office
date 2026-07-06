@@ -51,3 +51,4 @@ agent/lead-finder/.venv/
 __pycache__/
 *.pyc
 .pytest_cache/
+agent/concierge/.venv/
