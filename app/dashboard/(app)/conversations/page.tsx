@@ -28,7 +28,8 @@ export default async function ConversationsPage({
   const supabase = await createClient();
   const { count: quarantineCount } = await supabase
     .from("quarantined_messages")
-    .select("*", { count: "exact", head: true });
+    .select("*", { count: "exact", head: true })
+    .is("claimed_client_id", null);
 
   return (
     <div className="flex h-[calc(100vh-6rem)] flex-col">

@@ -22,7 +22,7 @@ export default async function QuarantinePage() {
       <h1 className="font-serif text-2xl mb-1 mt-2">Unknown numbers</h1>
       <p className="text-sm text-[#8A857B] mb-6">
         Messages from numbers not registered to any client. Claim to attach the number to a
-        person. Claiming only registers the number going forward — these historical messages
+        person. Claiming only registers the number going forward. These historical messages
         stay here for reference and are not moved into that client&apos;s conversation.
       </p>
 
