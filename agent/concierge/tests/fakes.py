@@ -25,16 +25,28 @@ class FakeDB:
         self.messages: dict[str, dict] = {}
         self.quarantined: list[dict] = []
         self.heartbeats: dict[str, str] = {}
+        self.family_members: dict[str, dict] = {}
 
     # test-setup conveniences (not on ConciergeDB)
-    def add_client(self, client_id: str) -> None:
-        self.clients[client_id] = {"id": client_id}
+    def add_client(self, client_id: str, first_name: str = "Client", last_name: str = "") -> None:
+        self.clients[client_id] = {
+            "id": client_id, "first_name": first_name, "last_name": last_name,
+        }
 
-    def add_channel(self, client_id: str, channel: str, address: str, is_primary: bool = False) -> None:
-        self.channels.append(
-            {"id": _next_id("ch"), "client_id": client_id, "channel": channel,
-             "address": address, "is_primary": is_primary}
-        )
+    def add_family_member(self, member_id: str, client_id: str, first_name: str) -> dict:
+        row = {"id": member_id, "client_id": client_id, "first_name": first_name}
+        self.family_members[member_id] = row
+        return dict(row)
+
+    def add_channel(self, client_id: str, channel: str, address: str,
+                    is_primary: bool = False, family_member_id: str | None = None) -> dict:
+        row = {
+            "id": _next_id("ch"), "client_id": client_id, "channel": channel,
+            "address": address, "is_primary": is_primary,
+            "family_member_id": family_member_id,
+        }
+        self.channels.append(row)
+        return dict(row)
 
     def queue_outbound(self, conversation_id: str, author: str, body: str,
                        created_at: datetime | None = None) -> str:
@@ -71,8 +83,8 @@ class FakeDB:
                 return dict(conv)
         cid = _next_id("conv")
         conv = {
-            "id": cid, "client_id": client_id, "channel": channel, "state": "idle",
-            "agent_paused": False, "grace_deadline": None, "grace_seconds": 240,
+            "id": cid, "client_id": client_id, "channel": channel, "client_channel_id": None,
+            "state": "idle", "agent_paused": False, "grace_deadline": None, "grace_seconds": 240,
             "rolling_summary": None, "last_inbound_at": None,
             "created_at": _now_iso(), "updated_at": _now_iso(),
         }
@@ -197,6 +209,44 @@ class FakeDB:
 
     def heartbeat(self, service: str) -> None:
         self.heartbeats[service] = _now_iso()
+
+    def get_or_create_conversation_for_channel(self, channel_row: dict) -> dict:
+        for conv in self.conversations.values():
+            if conv.get("client_channel_id") == channel_row["id"]:
+                return dict(conv)
+        cid = _next_id("conv")
+        conv = {
+            "id": cid, "client_id": channel_row["client_id"],
+            "channel": channel_row["channel"], "client_channel_id": channel_row["id"],
+            "state": "idle", "agent_paused": False, "grace_deadline": None,
+            "grace_seconds": 240, "rolling_summary": None, "last_inbound_at": None,
+            "created_at": _now_iso(), "updated_at": _now_iso(),
+        }
+        self.conversations[cid] = conv
+        return dict(conv)
+
+    def conversation_address(self, conversation: dict) -> str | None:
+        channel_id = conversation.get("client_channel_id")
+        if channel_id:
+            for ch in self.channels:
+                if ch["id"] == channel_id:
+                    return ch["address"]
+        return self.primary_address(conversation["client_id"], conversation["channel"])
+
+    def conversation_label(self, conversation: dict) -> str:
+        person: str | None = None
+        channel_id = conversation.get("client_channel_id")
+        if channel_id:
+            for ch in self.channels:
+                if ch["id"] == channel_id and ch.get("family_member_id"):
+                    member = self.family_members.get(ch["family_member_id"])
+                    if member:
+                        person = member["first_name"]
+        client = self.clients.get(conversation["client_id"], {})
+        first = client.get("first_name", "Client")
+        last = client.get("last_name", "")
+        person = person or first
+        return f"{person} ({last})" if last else person
 
 
 class FakeGateway:

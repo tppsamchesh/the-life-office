@@ -168,3 +168,50 @@ class ConciergeDB:
              .upsert({"service": service, "beat_at": _now_ts()}).execute())
         except APIError:
             logger.exception("heartbeat write failed")
+
+    def get_or_create_conversation_for_channel(self, channel_row: dict) -> dict:
+        res = (self._client.table("conversations").select("*")
+               .eq("client_channel_id", channel_row["id"]).limit(1).execute())
+        if res.data:
+            return res.data[0]
+        try:
+            ins = (self._client.table("conversations").insert({
+                "client_id": channel_row["client_id"],
+                "channel": channel_row["channel"],
+                "client_channel_id": channel_row["id"],
+            }).execute())
+            return ins.data[0]
+        except APIError as exc:
+            if exc.code == _UNIQUE_VIOLATION:
+                res = (self._client.table("conversations").select("*")
+                       .eq("client_channel_id", channel_row["id"]).limit(1).execute())
+                return res.data[0]
+            raise
+
+    def conversation_address(self, conversation: dict) -> str | None:
+        channel_id = conversation.get("client_channel_id")
+        if channel_id:
+            res = (self._client.table("client_channels").select("address")
+                   .eq("id", channel_id).limit(1).execute())
+            if res.data:
+                return res.data[0]["address"]
+        return self.primary_address(conversation["client_id"], conversation["channel"])
+
+    def conversation_label(self, conversation: dict) -> str:
+        person: str | None = None
+        channel_id = conversation.get("client_channel_id")
+        if channel_id:
+            ch = (self._client.table("client_channels").select("family_member_id")
+                  .eq("id", channel_id).limit(1).execute())
+            member_id = ch.data[0]["family_member_id"] if ch.data else None
+            if member_id:
+                fm = (self._client.table("family_members").select("first_name")
+                      .eq("id", member_id).limit(1).execute())
+                if fm.data:
+                    person = fm.data[0]["first_name"]
+        cl = (self._client.table("clients").select("first_name,last_name")
+              .eq("id", conversation["client_id"]).limit(1).execute())
+        first = cl.data[0]["first_name"] if cl.data else "Client"
+        last = (cl.data[0].get("last_name") or "") if cl.data else ""
+        person = person or first
+        return f"{person} ({last})" if last else person

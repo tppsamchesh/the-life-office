@@ -157,3 +157,54 @@ def test_fake_gateway_send_and_failure_modes():
     assert gw.validate_signature("u", {}, "s") is True
     gw.valid_signature = False
     assert gw.validate_signature("u", {}, "s") is False
+
+
+def test_get_or_create_conversation_for_channel_is_idempotent_and_links_channel():
+    db = FakeDB()
+    db.add_client("client-1", first_name="Sarah", last_name="Henderson")
+    ch = db.add_channel("client-1", "whatsapp", "+447700900123", is_primary=True)
+    a = db.get_or_create_conversation_for_channel(ch)
+    b = db.get_or_create_conversation_for_channel(ch)
+    assert a["id"] == b["id"]
+    assert a["client_channel_id"] == ch["id"]
+    assert a["client_id"] == "client-1" and a["channel"] == "whatsapp"
+
+
+def test_conversation_address_prefers_own_channel_over_primary():
+    db = FakeDB()
+    db.add_client("client-1", first_name="Sarah", last_name="Henderson")
+    db.add_channel("client-1", "whatsapp", "+447700900111", is_primary=True)
+    tom = db.add_family_member("fm-1", "client-1", "Tom")
+    ch2 = db.add_channel("client-1", "whatsapp", "+447700900222", family_member_id="fm-1")
+    conv = db.get_or_create_conversation_for_channel(ch2)
+    assert db.conversation_address(conv) == "+447700900222"
+    assert tom["first_name"] == "Tom"
+
+
+def test_conversation_address_falls_back_to_primary_for_legacy_rows():
+    db = FakeDB()
+    db.add_client("client-1")
+    db.add_channel("client-1", "whatsapp", "+447700900111", is_primary=True)
+    legacy = db.get_or_create_conversation("client-1", "whatsapp")
+    assert legacy.get("client_channel_id") is None
+    assert db.conversation_address(legacy) == "+447700900111"
+
+
+def test_conversation_label_uses_family_member_then_client():
+    db = FakeDB()
+    db.add_client("client-1", first_name="Sarah", last_name="Henderson")
+    db.add_family_member("fm-1", "client-1", "Tom")
+    ch_tom = db.add_channel("client-1", "whatsapp", "+447700900222", family_member_id="fm-1")
+    ch_sarah = db.add_channel("client-1", "sms", "+447700900111")
+    conv_tom = db.get_or_create_conversation_for_channel(ch_tom)
+    conv_sarah = db.get_or_create_conversation_for_channel(ch_sarah)
+    assert db.conversation_label(conv_tom) == "Tom (Henderson)"
+    assert db.conversation_label(conv_sarah) == "Sarah (Henderson)"
+
+
+def test_conversation_label_without_last_name():
+    db = FakeDB()
+    db.add_client("client-2", first_name="Priya")
+    ch = db.add_channel("client-2", "sms", "+15550001111")
+    conv = db.get_or_create_conversation_for_channel(ch)
+    assert db.conversation_label(conv) == "Priya"
