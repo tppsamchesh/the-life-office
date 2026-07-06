@@ -16,10 +16,10 @@ CFG = Config(
 )
 
 
-def make_client(db: FakeDB | None = None, gateway: FakeGateway | None = None):
+def make_client(db=None, gateway=None, pusher=None):
     db = db or FakeDB()
     gateway = gateway or FakeGateway()
-    app = create_app(db, gateway, CFG)
+    app = create_app(db, gateway, CFG, pusher)
     return TestClient(app), db, gateway
 
 
@@ -130,3 +130,37 @@ def test_inbound_creates_conversation_linked_to_channel():
     client.post("/twilio/inbound", data=INBOUND_FORM)
     conv = list(db.conversations.values())[0]
     assert conv["client_channel_id"] is not None
+
+
+def test_inbound_triggers_push():
+    from tests.fakes import FakePusher
+    pusher = FakePusher()
+    db, _ = known_client_db()
+    client, db, _ = make_client(db, pusher=pusher)
+    client.post("/twilio/inbound", data=INBOUND_FORM)
+    assert len(pusher.inbound) == 1
+    conv, body = pusher.inbound[0]
+    assert body == "Hi Meg"
+
+
+def test_duplicate_inbound_does_not_push_twice():
+    from tests.fakes import FakePusher
+    pusher = FakePusher()
+    db, _ = known_client_db()
+    client, db, _ = make_client(db, pusher=pusher)
+    client.post("/twilio/inbound", data=INBOUND_FORM)
+    client.post("/twilio/inbound", data=INBOUND_FORM)
+    assert len(pusher.inbound) == 1
+
+
+def test_status_failure_triggers_failure_push():
+    from datetime import datetime, timezone
+    from tests.fakes import FakePusher
+    pusher = FakePusher()
+    db, ch = known_client_db()
+    conv = db.get_or_create_conversation_for_channel(ch)
+    mid = db.queue_outbound(conv["id"], author="agent", body="x")
+    db.mark_sent(mid, "SM101", datetime.now(timezone.utc))
+    client, db, _ = make_client(db, pusher=pusher)
+    client.post("/twilio/status", data={"MessageSid": "SM101", "MessageStatus": "failed"})
+    assert len(pusher.failures) == 1

@@ -117,3 +117,21 @@ def test_reply_goes_to_the_threads_own_number_not_primary():
     gw = FakeGateway()
     process_queued_once(db, gw, CFG, NOW)
     assert gw.sent[0]["to_address"] == "+447700900222"
+
+
+def test_terminal_failure_triggers_failure_push():
+    from tests.fakes import FakePusher
+    db, conv_id = make_db()
+    mid = db.queue_outbound(conv_id, author="meg", body="x")
+    gw = FakeGateway()
+    pusher = FakePusher()
+    cfg_one = Config(
+        supabase_url="u", supabase_service_key="k", twilio_account_sid="AC",
+        twilio_auth_token="t", twilio_whatsapp_from="whatsapp:+440",
+        twilio_sms_from="+10", public_base_url="https://cb.example.com",
+        max_send_attempts=1,
+    )
+    gw.fail_next = 1
+    process_queued_once(db, gw, cfg_one, NOW, pusher=pusher)
+    assert db.get_message(mid)["status"] == "failed"
+    assert len(pusher.failures) == 1

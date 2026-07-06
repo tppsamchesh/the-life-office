@@ -12,7 +12,7 @@ _OVERLAP = timedelta(hours=1)
 _EMPTY_DB_LOOKBACK = timedelta(hours=24)
 
 
-def reconcile_once(db, gateway, cfg: Config, now: datetime) -> int:
+def reconcile_once(db, gateway, cfg: Config, now: datetime, pusher=None) -> int:
     latest = db.latest_inbound_at()
     since = (latest - _OVERLAP) if latest else (now - _EMPTY_DB_LOOKBACK)
     try:
@@ -21,6 +21,7 @@ def reconcile_once(db, gateway, cfg: Config, now: datetime) -> int:
         logger.exception("reconciliation fetch from Twilio failed; continuing without it")
         return 0
     recovered = 0
+    pushed: set[str] = set()
     for msg in recent:
         channel_row = db.resolve_channel(msg.channel, msg.address)
         if channel_row is None:
@@ -36,6 +37,9 @@ def reconcile_once(db, gateway, cfg: Config, now: datetime) -> int:
         )
         grace_seconds = conv.get("grace_seconds") or cfg.grace_default_seconds
         db.apply_state(conv["id"], on_inbound(current, now, grace_seconds), last_inbound_at=now)
+        if pusher is not None and conv["id"] not in pushed:
+            pushed.add(conv["id"])
+            pusher.notify_inbound(db.get_conversation(conv["id"]) or conv, msg.body)
         recovered += 1
         logger.info("recovered missed inbound %s for conversation %s", msg.twilio_sid, conv["id"])
     return recovered

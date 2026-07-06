@@ -9,6 +9,7 @@ import uvicorn
 from concierge.config import load_config
 from concierge.db import ConciergeDB
 from concierge.grace import grace_loop, log_agent_turn
+from concierge.push import Pusher
 from concierge.reconcile import reconcile_once
 from concierge.sender import sender_loop
 from concierge.twilio_gateway import TwilioGateway
@@ -24,20 +25,21 @@ def main() -> None:
     cfg = load_config()
     db = ConciergeDB(cfg)
     gateway = TwilioGateway(cfg)
+    pusher = Pusher(db, cfg.vapid_private_key, cfg.vapid_subject)
 
-    recovered = reconcile_once(db, gateway, cfg, datetime.now(timezone.utc))
+    recovered = reconcile_once(db, gateway, cfg, datetime.now(timezone.utc), pusher)
     logger.info("startup reconciliation recovered %d message(s)", recovered)
 
     stranded = db.reset_stranded_sending()
     logger.info("startup sweep requeued %d stranded sending message(s)", stranded)
 
-    app = create_app(db, gateway, cfg)
+    app = create_app(db, gateway, cfg, pusher)
 
     @asynccontextmanager
     async def lifespan(_app):
         stop = asyncio.Event()
         tasks = [
-            asyncio.create_task(sender_loop(db, gateway, cfg, stop)),
+            asyncio.create_task(sender_loop(db, gateway, cfg, stop, pusher)),
             asyncio.create_task(grace_loop(db, log_agent_turn, cfg, stop)),
         ]
         logger.info("background loops started")

@@ -8,7 +8,7 @@ from concierge.config import Config
 logger = logging.getLogger(__name__)
 
 
-def process_queued_once(db, gateway, cfg: Config, now: datetime) -> int:
+def process_queued_once(db, gateway, cfg: Config, now: datetime, pusher=None) -> int:
     sent_count = 0
     for row in db.fetch_due_outbound(now):
         conv = db.get_conversation(row["conversation_id"])
@@ -28,6 +28,8 @@ def process_queued_once(db, gateway, cfg: Config, now: datetime) -> int:
                                    next_attempt_at=None, terminal=True)
             db.flag_conversation_for_meg(conv["id"])
             logger.error("no %s address for client %s", conv["channel"], conv["client_id"])
+            if pusher is not None:
+                pusher.notify_send_failure(conv)
             continue
         db.mark_sending(row["id"])
         try:
@@ -45,15 +47,17 @@ def process_queued_once(db, gateway, cfg: Config, now: datetime) -> int:
             if terminal:
                 db.flag_conversation_for_meg(conv["id"])
                 logger.error("message %s failed terminally: %s", row["id"], exc)
+                if pusher is not None:
+                    pusher.notify_send_failure(conv)
             else:
                 logger.warning("send attempt %d failed for %s: %s", attempts, row["id"], exc)
     return sent_count
 
 
-async def sender_loop(db, gateway, cfg: Config, stop: asyncio.Event) -> None:
+async def sender_loop(db, gateway, cfg: Config, stop: asyncio.Event, pusher=None) -> None:
     while not stop.is_set():
         try:
-            process_queued_once(db, gateway, cfg, datetime.now(timezone.utc))
+            process_queued_once(db, gateway, cfg, datetime.now(timezone.utc), pusher)
         except Exception:
             logger.exception("sender loop iteration failed")
         try:

@@ -19,7 +19,7 @@ def _twiml_empty() -> Response:
     )
 
 
-def create_app(db, gateway, cfg: Config) -> FastAPI:
+def create_app(db, gateway, cfg: Config, pusher=None) -> FastAPI:
     app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
 
     async def _validated_form(request: Request, path: str) -> dict[str, str]:
@@ -55,6 +55,8 @@ def create_app(db, gateway, cfg: Config) -> FastAPI:
         )
         grace_seconds = conv.get("grace_seconds") or cfg.grace_default_seconds
         db.apply_state(conv["id"], on_inbound(current, now, grace_seconds), last_inbound_at=now)
+        if pusher is not None:
+            pusher.notify_inbound(db.get_conversation(conv["id"]) or conv, msg.body)
         return _twiml_empty()
 
     @app.post("/twilio/status")
@@ -70,6 +72,10 @@ def create_app(db, gateway, cfg: Config) -> FastAPI:
             if row is not None:
                 db.flag_conversation_for_meg(row["conversation_id"])
                 logger.warning("delivery failed for message %s; conversation flagged for Meg", sid)
+                if pusher is not None:
+                    failed_conv = db.get_conversation(row["conversation_id"])
+                    if failed_conv is not None:
+                        pusher.notify_send_failure(failed_conv)
         return _twiml_empty()
 
     return app

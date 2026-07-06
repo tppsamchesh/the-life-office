@@ -61,3 +61,16 @@ def test_gateway_error_is_swallowed():
             raise RuntimeError("twilio api down")
 
     assert reconcile_once(db, BrokenGateway(), CFG, NOW) == 0
+
+
+def test_reconcile_pushes_at_most_once_per_conversation():
+    from tests.fakes import FakePusher
+    db, _ = make_db()
+    gw = FakeGateway()
+    gw.inbound_history = [
+        InboundMessage("whatsapp", "+447700900123", "first", "SM910"),
+        InboundMessage("whatsapp", "+447700900123", "second", "SM911"),
+    ]
+    pusher = FakePusher()
+    assert reconcile_once(db, gw, CFG, NOW, pusher=pusher) == 2
+    assert len(pusher.inbound) == 1
