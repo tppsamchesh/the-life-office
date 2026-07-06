@@ -1,9 +1,8 @@
 """ISO 8601 <-> timezone-aware datetime helpers. The only sanctioned conversion path."""
 from datetime import datetime, timezone
-from typing import Union
 
 
-def parse_ts(value: Union[str, datetime, None]) -> Union[datetime, None]:
+def parse_ts(value: str | datetime | None) -> datetime | None:
     if value is None:
         return None
     if isinstance(value, datetime):

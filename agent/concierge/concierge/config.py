@@ -1,7 +1,6 @@
 """Environment-driven configuration for the concierge daemon."""
 import os
 from dataclasses import dataclass
-from typing import Union
 
 
 @dataclass(frozen=True)
@@ -19,7 +18,7 @@ class Config:
     max_send_attempts: int = 5
 
 
-def load_config(env: Union[dict[str, str], None] = None) -> Config:
+def load_config(env: dict[str, str] | None = None) -> Config:
     e: dict[str, str] = dict(os.environ) if env is None else env
     return Config(
         supabase_url=e["SUPABASE_URL"],
