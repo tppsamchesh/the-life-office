@@ -2,6 +2,7 @@ import { normalizeAiBrief } from "@/lib/triage/ai-brief";
 import { formatGBP, timeAgo } from "@/lib/triage/format";
 import { taskTitle, type InboxTask } from "@/lib/triage/queries";
 
+import { ConversationChips } from "./ConversationChips";
 import { TaskActions } from "./TaskActions";
 
 const LABEL = "text-[10px] tracking-[0.14em] uppercase text-[#A39E94]";
@@ -12,6 +13,7 @@ export function TaskCard({ task }: { task: InboxTask }) {
 
   return (
     <div className="rounded-xl border border-[#E4DFD6] bg-white p-6 shadow-sm">
+      <ConversationChips requestType={task.request_type} conversationId={task.conversation_id} />
       <div className="mb-4 flex items-center justify-between">
         <span
           className={`rounded-full px-3 py-1 text-[10px] font-bold tracking-[0.12em] ${
