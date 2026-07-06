@@ -1,6 +1,5 @@
 from types import SimpleNamespace
 
-import pytest
 from pywebpush import WebPushException
 
 import concierge.push as push_module
@@ -70,3 +69,46 @@ def test_other_push_errors_never_raise(monkeypatch):
     db.add_push_subscription("https://push.example/abc")
     Pusher(db, "key", "mailto:x@y.z").notify_send_failure(conv)  # must not raise
     assert len(db.push_subscriptions) == 1
+
+
+def test_label_failure_never_raises(monkeypatch):
+    calls: list[dict] = []
+    monkeypatch.setattr(push_module, "webpush", lambda **kw: calls.append(kw))
+    db, conv = make_db_with_conv()
+    db.add_push_subscription("https://push.example/abc")
+
+    def boom(conversation):
+        raise RuntimeError("db down")
+
+    monkeypatch.setattr(db, "conversation_label", boom)
+    p = Pusher(db, "key", "mailto:x@y.z")
+    p.notify_inbound(conv, "hi")        # must not raise
+    p.notify_send_failure(conv)         # must not raise
+
+
+def test_subscription_list_failure_never_raises(monkeypatch):
+    monkeypatch.setattr(push_module, "webpush", lambda **kw: None)
+    db, conv = make_db_with_conv()
+
+    def boom():
+        raise RuntimeError("db down")
+
+    monkeypatch.setattr(db, "list_push_subscriptions", boom)
+    Pusher(db, "key", "mailto:x@y.z").notify_inbound(conv, "hi")  # must not raise
+
+
+def test_prune_failure_never_raises(monkeypatch):
+    from types import SimpleNamespace
+    from pywebpush import WebPushException
+
+    def gone(**kw):
+        raise WebPushException("gone", response=SimpleNamespace(status_code=410))
+    monkeypatch.setattr(push_module, "webpush", gone)
+    db, conv = make_db_with_conv()
+    db.add_push_subscription("https://push.example/dead")
+
+    def boom(endpoint):
+        raise RuntimeError("db down")
+
+    monkeypatch.setattr(db, "delete_push_subscription", boom)
+    Pusher(db, "key", "mailto:x@y.z").notify_inbound(conv, "hi")  # must not raise

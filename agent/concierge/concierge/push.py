@@ -24,7 +24,13 @@ class Pusher:
             return 0
         sent = 0
         body = json.dumps(payload)
-        for sub in self._db.list_push_subscriptions():
+        subscriptions = []
+        try:
+            subscriptions = self._db.list_push_subscriptions()
+        except Exception:
+            logger.exception("failed to fetch push subscriptions")
+            return 0
+        for sub in subscriptions:
             try:
                 webpush(
                     subscription_info={
@@ -39,8 +45,11 @@ class Pusher:
             except WebPushException as exc:
                 status = getattr(getattr(exc, "response", None), "status_code", None)
                 if status in (404, 410):
-                    self._db.delete_push_subscription(sub["endpoint"])
-                    logger.info("removed dead push subscription")
+                    try:
+                        self._db.delete_push_subscription(sub["endpoint"])
+                        logger.info("removed dead push subscription")
+                    except Exception:
+                        logger.exception("failed to remove dead push subscription")
                 else:
                     logger.warning("push delivery failed: %s", exc)
             except Exception:
@@ -48,17 +57,23 @@ class Pusher:
         return sent
 
     def notify_inbound(self, conversation: dict, body: str) -> None:
-        preview = body if len(body) <= _PREVIEW_LIMIT else body[:_PREVIEW_LIMIT - 3] + "..."
-        self._send_all({
-            "title": self._db.conversation_label(conversation),
-            "body": preview,
-            "url": f"/dashboard/conversations?conversation={conversation['id']}",
-        })
+        try:
+            preview = body if len(body) <= _PREVIEW_LIMIT else body[:_PREVIEW_LIMIT - 3] + "..."
+            self._send_all({
+                "title": self._db.conversation_label(conversation),
+                "body": preview,
+                "url": f"/dashboard/conversations?conversation={conversation['id']}",
+            })
+        except Exception:
+            logger.exception("failed to send inbound push notification")
 
     def notify_send_failure(self, conversation: dict) -> None:
-        label = self._db.conversation_label(conversation)
-        self._send_all({
-            "title": "Delivery problem",
-            "body": f"A message to {label} couldn't be delivered",
-            "url": f"/dashboard/conversations?conversation={conversation['id']}",
-        })
+        try:
+            label = self._db.conversation_label(conversation)
+            self._send_all({
+                "title": "Delivery problem",
+                "body": f"A message to {label} couldn't be delivered",
+                "url": f"/dashboard/conversations?conversation={conversation['id']}",
+            })
+        except Exception:
+            logger.exception("failed to send send-failure push notification")
