@@ -87,6 +87,7 @@ export async function getQuarantined(): Promise<QuarantinedRow[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("quarantined_messages").select("*")
+    .is("claimed_client_id", null)
     .order("received_at", { ascending: false });
   if (error) throw new Error(`Failed to load quarantine: ${error.message}`);
   return data ?? [];
