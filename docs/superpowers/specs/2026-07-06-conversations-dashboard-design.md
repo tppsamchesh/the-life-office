@@ -71,7 +71,7 @@ New route `/dashboard/conversations`, added to the sidebar between Triage and Cl
 ## 8. Quarantine claiming
 
 Section beneath the thread list (or its own sub-view) listing `quarantined_messages`: number, text, received time. Actions per row:
-- **Claim**: pick client (searchable select), optionally family member, then create the `client_channels` row, create/find the conversation, move the quarantined message into `messages` (as a normal inbound, `received` status, arming the grace state via the same TS transition on the conversation row), delete the quarantine row.
+- **Claim**: pick client (searchable select), optionally family member, then create the `client_channels` row (`is_primary: false`, so the household's primary number is never usurped) and mark all matching unclaimed quarantine rows with `claimed_client_id`. This registers the number going forward only: no conversation is created and the historical quarantined message is not moved into `messages` or replayed through the grace state (arming a grace timer from wall-clock `now` against a message that may be hours old was judged worse than simply letting future messages from that number resolve normally). The claim UI tells Meg this explicitly. A concurrent claim on the same number (unique `(channel, address)` violation) is treated as already-claimed, not an error.
 - **Ignore**: delete the row.
 
 ## 9. Triage and agents page additions
