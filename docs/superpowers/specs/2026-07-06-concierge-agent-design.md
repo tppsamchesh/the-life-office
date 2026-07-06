@@ -17,7 +17,7 @@ Separately, the agent is proactive **to Meg only**: it surfaces upcoming client 
 | Launch channels | WhatsApp (UK) + SMS (US East Coast/Central), both via Twilio. iMessage deferred (needs third-party gateway). |
 | Identity | The agent speaks **as Meg**. Clients are not told it is an AI. Mitigations: service-agreement line that Meg's communications "may be assisted by her office and digital tools"; human-realistic pacing; escalation on "is this really you?" probes. Known legal exposure (e.g. California bot-disclosure law) accepted by owner. |
 | Initiative | Reactive to clients (reply-only). Proactive to Meg (nudges from lifecycle data + memory). |
-| Meg-first flow | Client message notifies Meg; she has a grace window (default 4 min, configurable) to reply herself. Only if she does not respond does the agent pick up. |
+| Meg-first flow | Client message notifies Meg; she has a grace window (global default 4 min, per-client override) to reply herself. Only if she does not respond does the agent pick up. |
 | Agent scope | Conversation only. No booking, no spending, no external research, no action claims. Output is a gathered brief for Meg. |
 | Scale | Under ~25 clients at launch. |
 | Hosting | Agent runs on the TPP VPS (Hetzner, `openclaw` host) as a systemd service, per established TPP agent-hosting practice. Supabase "TLO Dashboard" project remains the data spine; dashboard stays on Vercel. |
@@ -98,7 +98,7 @@ New tables joining existing `clients`, `family_members`, `lifecycle_dates`, `tas
 - **Conversations view** in the existing dashboard shell: thread list, unread badges, state chips (`agent active` / `awaiting you` / `handled`). Thread view shows full transcript with an authorship glyph on agent messages (visible only to Meg), and a toggle between transcript and rolling summary.
 - **Notification flow:** push on inbound ("Sarah H: 'Can you look at flights to Boston for half term?'"); tap opens the PWA thread; replying kills the grace timer. If ignored, the agent picks up and the chip flips; no second notification. Briefs notify via triage.
 - **Takeover/hand-back:** one "I've got this" toggle per thread header; any manual Meg reply also auto-silences the agent (belt and braces).
-- **PWA + web push**, no native app. Quiet hours configurable; escalations override.
+- **PWA + web push**, no native app. Push is sent by the daemon directly (VAPID web push), so notifications work even if Vercel is unreachable. Quiet hours configurable; escalations override.
 - **Client profile addition:** editable memory panel (one line per fact, delete and correct controls).
 - **Triage addition:** `brief` and `nudge` task types with conversation/client chips.
 - **Agents page addition:** concierge card (daemon heartbeat, messages handled, escalations, briefs produced).
