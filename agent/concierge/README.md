@@ -28,6 +28,8 @@ Runs as `tlo-concierge.service` (systemd) on the TPP VPS, port 8090, behind
 cloudflared (`tlo-concierge.sitbacksystems.com`). Env lives in
 `/etc/tlo-concierge.env` (populated from the VPS secrets manager, never
 committed). Heartbeat row: `service_heartbeats.service = 'tlo-concierge'`.
+Startup also sweeps any messages stranded in `sending` from a prior crash back
+into the send queue.
 
     systemctl status tlo-concierge
     journalctl -u tlo-concierge -n 100 --no-pager

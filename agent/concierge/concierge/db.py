@@ -131,6 +131,11 @@ class ConciergeDB:
     def mark_cancelled(self, message_id: str) -> None:
         self._client.table("messages").update({"status": "cancelled"}).eq("id", message_id).execute()
 
+    def reset_stranded_sending(self) -> int:
+        res = (self._client.table("messages").update({"status": "queued"})
+               .eq("status", "sending").execute())
+        return len(res.data or [])
+
     def meg_activity_since(self, conversation_id: str, since: str) -> bool:
         res = (self._client.table("messages").select("id")
                .eq("conversation_id", conversation_id).eq("author", "meg")

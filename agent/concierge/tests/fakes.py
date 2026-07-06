@@ -158,6 +158,14 @@ class FakeDB:
     def mark_cancelled(self, message_id: str) -> None:
         self.messages[message_id]["status"] = "cancelled"
 
+    def reset_stranded_sending(self) -> int:
+        count = 0
+        for m in self.messages.values():
+            if m["status"] == "sending":
+                m["status"] = "queued"
+                count += 1
+        return count
+
     def meg_activity_since(self, conversation_id: str, since: str) -> bool:
         cutoff = parse_ts(since)
         for m in self.messages.values():

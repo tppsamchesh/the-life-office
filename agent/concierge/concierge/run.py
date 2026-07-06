@@ -28,6 +28,9 @@ def main() -> None:
     recovered = reconcile_once(db, gateway, cfg, datetime.now(timezone.utc))
     logger.info("startup reconciliation recovered %d message(s)", recovered)
 
+    stranded = db.reset_stranded_sending()
+    logger.info("startup sweep requeued %d stranded sending message(s)", stranded)
+
     app = create_app(db, gateway, cfg)
 
     @asynccontextmanager

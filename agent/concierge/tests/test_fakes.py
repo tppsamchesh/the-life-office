@@ -129,6 +129,23 @@ def test_latest_inbound_at():
     assert db.latest_inbound_at() == NOW
 
 
+def test_reset_stranded_sending_requeues_and_counts():
+    db = make_db()
+    conv = db.get_or_create_conversation("client-1", "whatsapp")
+    stranded_id = db.queue_outbound(conv["id"], author="meg", body="stuck mid-send")
+    queued_id = db.queue_outbound(conv["id"], author="meg", body="still queued")
+    sent_id = db.queue_outbound(conv["id"], author="meg", body="already sent")
+    db.messages[stranded_id]["status"] = "sending"
+    db.mark_sent(sent_id, "SM500", NOW)
+
+    count = db.reset_stranded_sending()
+
+    assert count == 1
+    assert db.get_message(stranded_id)["status"] == "queued"
+    assert db.get_message(queued_id)["status"] == "queued"
+    assert db.get_message(sent_id)["status"] == "sent"
+
+
 def test_fake_gateway_send_and_failure_modes():
     gw = FakeGateway()
     sid = gw.send("whatsapp", "+447700900123", "hello", "https://x/twilio/status")
