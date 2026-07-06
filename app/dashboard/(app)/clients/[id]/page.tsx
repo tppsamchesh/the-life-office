@@ -188,7 +188,7 @@ export default async function ClientPage({ params }: { params: Promise<{ id: str
         </div>
       </div>
 
-      <HouseholdThreads clientId={id} />
+      <HouseholdThreads clientId={id} client={{ first_name: client.first_name, last_name: client.last_name }} />
     </div>
   );
 }

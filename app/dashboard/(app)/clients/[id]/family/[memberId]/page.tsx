@@ -132,7 +132,11 @@ export default async function FamilyMemberPage({
         </div>
       </div>
 
-      <HouseholdThreads clientId={id} familyMemberId={memberId} />
+      <HouseholdThreads
+        clientId={id}
+        familyMemberId={memberId}
+        client={{ first_name: client.first_name, last_name: client.last_name }}
+      />
     </div>
   );
 }

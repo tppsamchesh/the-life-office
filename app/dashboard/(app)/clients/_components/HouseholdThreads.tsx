@@ -1,15 +1,16 @@
 import Link from "next/link";
 
-import { relativeTime } from "@/lib/conversations/format";
+import { relativeTime, threadTitle } from "@/lib/conversations/format";
 import { createClient } from "@/lib/supabase/server";
 
 import { addChannel } from "../actions";
 
 export async function HouseholdThreads({
-  clientId, familyMemberId,
+  clientId, familyMemberId, client: householdClient,
 }: {
   clientId: string;
   familyMemberId?: string;
+  client: { first_name: string; last_name: string | null };
 }) {
   const supabase = await createClient();
   let channelQuery = supabase
@@ -38,8 +39,9 @@ export async function HouseholdThreads({
               <li key={ch.id} className="flex items-center justify-between rounded-lg border border-[#E7E2D9] bg-white px-3 py-2.5">
                 <div>
                   <span className="text-sm font-medium">
-                    {familyMember?.first_name ?? "Main"} · {ch.address}
+                    {threadTitle(householdClient, familyMember ? { first_name: familyMember.first_name } : null)}
                   </span>
+                  <span className="ml-2 text-xs text-[#8A857B]">{ch.address}</span>
                   <span className="ml-2 text-[10px] uppercase text-[#A39E94]">{ch.channel}</span>
                 </div>
                 {conv ? (
