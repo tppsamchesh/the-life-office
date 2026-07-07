@@ -95,4 +95,11 @@ describe("sortThreads", () => {
     ]);
     expect(sorted.map((t) => t.id)).toEqual(["unread-new", "unread-old", "read-new"]);
   });
+  it("does not throw and keeps both threads when last-activity timestamps tie", () => {
+    const sorted = sortThreads([
+      thread("tie-a", { last: "2026-07-06T12:00:00.000Z" }),
+      thread("tie-b", { last: "2026-07-06T12:00:00.000Z" }),
+    ]);
+    expect(sorted.map((t) => t.id).sort()).toEqual(["tie-a", "tie-b"]);
+  });
 });

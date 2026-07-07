@@ -58,6 +58,7 @@ export function sortThreads<T extends SortableThread>(items: T[]): T[] {
     if (a.unread !== b.unread) return a.unread ? -1 : 1;
     const aT = a.lastMessage?.created_at ?? a.conversation.updated_at;
     const bT = b.lastMessage?.created_at ?? b.conversation.updated_at;
+    if (aT === bT) return 0;
     return aT < bT ? 1 : -1;
   });
 }
