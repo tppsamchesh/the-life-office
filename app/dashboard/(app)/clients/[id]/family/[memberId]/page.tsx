@@ -5,7 +5,7 @@ import { ageFromDob } from "@/lib/clients/dates";
 import { jsonbToFacts } from "@/lib/clients/preferences";
 import { getFamilyMember, householdName } from "@/lib/clients/queries";
 
-import { Card, Empty } from "../../../_components/ui";
+import { BackLink, Card, Chip, Empty } from "../../../../_components/ui";
 import { HouseholdThreads } from "../../../_components/HouseholdThreads";
 
 export default async function FamilyMemberPage({
@@ -27,49 +27,44 @@ export default async function FamilyMemberPage({
 
   return (
     <div>
-      <Link
-        href={`/dashboard/clients/${client.id}`}
-        className="text-xs text-[#8A857B] hover:underline"
-      >
-        ← {householdName(client)}
-      </Link>
+      <BackLink href={`/dashboard/clients/${client.id}`}>{householdName(client)}</BackLink>
 
       <h1 className="mt-2 font-serif text-2xl">
         {member.first_name} {member.last_name ?? ""}
       </h1>
-      <p className="mb-6 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#A39E94]">
+      <p className="mb-6 text-[11px] font-medium uppercase tracking-wide text-muted">
         {roleLabel}
       </p>
 
       <div className="grid gap-4 lg:grid-cols-[1.4fr_1fr]">
         <div className="flex flex-col gap-4">
           <Card title="Details">
-            <dl className="flex flex-col gap-1.5 text-[13px]">
+            <dl className="flex flex-col gap-1.5 text-sm">
               {member.date_of_birth ? (
                 <div className="flex justify-between gap-3">
-                  <dt className="text-[#8A857B]">Date of birth</dt>
+                  <dt className="text-muted">Date of birth</dt>
                   <dd>{member.date_of_birth}</dd>
                 </div>
               ) : null}
               {member.phone ? (
                 <div className="flex justify-between gap-3">
-                  <dt className="text-[#8A857B]">Phone</dt>
+                  <dt className="text-muted">Phone</dt>
                   <dd>{member.phone}</dd>
                 </div>
               ) : null}
               {member.email ? (
                 <div className="flex justify-between gap-3">
-                  <dt className="text-[#8A857B]">Email</dt>
+                  <dt className="text-muted">Email</dt>
                   <dd className="truncate">{member.email}</dd>
                 </div>
               ) : null}
               {facts.map((f) => (
                 <div key={f.label} className="flex justify-between gap-3">
-                  <dt className="text-[#8A857B]">{f.label}</dt>
+                  <dt className="text-muted">{f.label}</dt>
                   <dd>{f.value}</dd>
                 </div>
               ))}
-              {member.notes ? <p className="mt-1 text-[#3A372F]">{member.notes}</p> : null}
+              {member.notes ? <p className="mt-1 text-ink">{member.notes}</p> : null}
               {!member.date_of_birth && !member.phone && !member.email && !facts.length && !member.notes ? (
                 <Empty>No details recorded yet.</Empty>
               ) : null}
@@ -80,7 +75,7 @@ export default async function FamilyMemberPage({
             {activity.length ? (
               <ul className="flex flex-col">
                 {activity.map((a) => (
-                  <li key={a.id} className="border-b border-[#F1EDE6] py-1.5 text-[12px] last:border-0">
+                  <li key={a.id} className="border-b border-hairline py-1.5 text-xs last:border-0">
                     {a.description}
                   </li>
                 ))}
@@ -94,12 +89,12 @@ export default async function FamilyMemberPage({
         <div className="flex flex-col gap-4">
           <Card title="Important dates">
             {lifecycle.length ? (
-              <ul className="flex flex-col gap-1.5 text-[12px]">
+              <ul className="flex flex-col gap-1.5 text-xs">
                 {lifecycle.map((d) => (
                   <li key={d.id} className="flex items-center gap-2">
-                    <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#A8B2A1]" />
+                    <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-sage-deep" />
                     <span>{d.item}</span>
-                    <span className="ml-auto text-[#A39E94]">{d.date}</span>
+                    <span className="ml-auto text-muted">{d.date}</span>
                   </li>
                 ))}
               </ul>
@@ -110,16 +105,14 @@ export default async function FamilyMemberPage({
 
           <Card title="Open tasks">
             {tasks.length ? (
-              <ul className="flex flex-col gap-1.5 text-[12px]">
+              <ul className="flex flex-col gap-1.5 text-xs">
                 {tasks.map((t) => (
                   <li key={t.id}>
                     <Link
                       href={`/dashboard/triage?task=${t.id}`}
                       className="flex items-center gap-2 hover:underline"
                     >
-                      <span className="rounded-full bg-[#A8B2A1] px-2 py-0.5 text-[9px]">
-                        {t.request_type}
-                      </span>
+                      <Chip tone="sage">{t.request_type}</Chip>
                       <span className="truncate">{t.request_summary ?? "—"}</span>
                     </Link>
                   </li>
