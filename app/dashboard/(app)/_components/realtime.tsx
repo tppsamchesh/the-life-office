@@ -25,9 +25,17 @@ export function useRealtimeChannel(
     onChangeRef.current = onChange;
   });
   const tablesKey = tables.join(",");
+  // A fresh id per mount so two instances (e.g. across a Strict Mode
+  // mount/unmount/remount cycle) never build the same topic string, even if
+  // both start at attempt 0.
+  const instanceIdRef = useRef<string | null>(null);
+  if (instanceIdRef.current === null) {
+    instanceIdRef.current = Math.random().toString(36).slice(2);
+  }
 
   useEffect(() => {
     const supabase = createClient();
+    const instanceId = instanceIdRef.current;
     let disposed = false;
     let channel: RealtimeChannel | null = null;
     let retryTimer: ReturnType<typeof setTimeout> | null = null;
@@ -35,14 +43,20 @@ export function useRealtimeChannel(
 
     function connect() {
       if (disposed) return;
-      // A unique topic per attempt avoids "already subscribed" collisions.
-      const ch = supabase.channel(`${channelName}-${attempt}`);
+      // A unique topic per attempt (and per mount instance) avoids "already
+      // subscribed" collisions.
+      const ch = supabase.channel(`${channelName}-${instanceId}-${attempt}`);
       channel = ch;
       for (const table of tablesKey.split(",")) {
         ch.on(
           "postgres_changes",
           { event: "*", schema: "public", table },
-          () => onChangeRef.current(),
+          () => {
+            // Guard: ignore events delivered to a channel we already
+            // replaced/removed or after unmount.
+            if (disposed || channel !== ch) return;
+            onChangeRef.current();
+          },
         );
       }
       ch.subscribe((s) => {
@@ -82,9 +96,17 @@ export function useRealtimeChannel(
 // Refetch the server-rendered tree whenever the tab becomes visible again.
 export function useRefreshOnFocus(): void {
   const router = useRouter();
+  const lastRefreshRef = useRef(0);
   useEffect(() => {
     const refresh = () => {
-      if (document.visibilityState === "visible") router.refresh();
+      if (document.visibilityState !== "visible") return;
+      // The focus and visibilitychange events typically both fire back-to-back
+      // when a backgrounded tab becomes active again; coalesce them into a
+      // single refresh instead of firing twice for one "tab came back" event.
+      const now = Date.now();
+      if (now - lastRefreshRef.current < 250) return;
+      lastRefreshRef.current = now;
+      router.refresh();
     };
     window.addEventListener("focus", refresh);
     document.addEventListener("visibilitychange", refresh);
