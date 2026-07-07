@@ -15,6 +15,31 @@
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --font-serif: var(--font-playfair);
+
+  /* ── Dashboard design tokens (shared contract — do not rename) ──
+     text: ink (primary), muted (floor for informational text),
+           faint (decoration only, never informational text)
+     surfaces: canvas (page) > surface (cards) > inset (nested panels/hovers)
+     borders: hairline (default) < edge (inputs) < edge-strong (emphasis)
+     greens: sage (action/selection only), sage-tint+sage-deep (status chips),
+             positive (live/health)
+     signals: alert (errors/urgent), amber (awaiting/attention) */
+  --color-ink: #1F1F1F;
+  --color-muted: #6B665D;
+  --color-faint: #A39E94;
+  --color-canvas: #F7F5F2;
+  --color-surface: #FFFFFF;
+  --color-inset: #EFEBE4;
+  --color-hairline: #E7E2D9;
+  --color-edge: #D8D2C8;
+  --color-edge-strong: #C9C2B5;
+  --color-sage-deep: #5F6B58;
+  --color-sage-tint: #E7EBE3;
+  --color-positive: #6F8F5E;
+  --color-alert: #B65C40;
+  --color-alert-tint: #F6E7E0;
+  --color-amber: #9A6B2F;
+  --color-amber-tint: #F5E9D6;
 }
 
 html {
