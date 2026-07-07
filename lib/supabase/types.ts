@@ -382,6 +382,7 @@ export type Database = {
           grace_seconds: number
           id: string
           last_inbound_at: string | null
+          last_read_at: string | null
           rolling_summary: string | null
           state: string
           updated_at: string
@@ -396,6 +397,7 @@ export type Database = {
           grace_seconds?: number
           id?: string
           last_inbound_at?: string | null
+          last_read_at?: string | null
           rolling_summary?: string | null
           state?: string
           updated_at?: string
@@ -410,6 +412,7 @@ export type Database = {
           grace_seconds?: number
           id?: string
           last_inbound_at?: string | null
+          last_read_at?: string | null
           rolling_summary?: string | null
           state?: string
           updated_at?: string
