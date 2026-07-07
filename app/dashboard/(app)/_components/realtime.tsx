@@ -1,0 +1,105 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import type { RealtimeChannel } from "@supabase/supabase-js";
+
+import { createClient } from "@/lib/supabase/client";
+
+export type RealtimeStatus = "connecting" | "live" | "reconnecting";
+
+// Subscribes to postgres_changes on the given public-schema tables and calls
+// onChange for every event. Unlike a bare .subscribe(), it handles the status
+// callback: on CHANNEL_ERROR / TIMED_OUT / CLOSED it tears the channel down and
+// re-subscribes with capped exponential backoff (1s, 2s, 4s ... 30s max), and on
+// a successful re-subscribe it fires onChange once so the page catches up on
+// anything missed while disconnected.
+export function useRealtimeChannel(
+  channelName: string,
+  tables: readonly string[],
+  onChange: () => void,
+): RealtimeStatus {
+  const [status, setStatus] = useState<RealtimeStatus>("connecting");
+  const onChangeRef = useRef(onChange);
+  useEffect(() => {
+    onChangeRef.current = onChange;
+  });
+  const tablesKey = tables.join(",");
+
+  useEffect(() => {
+    const supabase = createClient();
+    let disposed = false;
+    let channel: RealtimeChannel | null = null;
+    let retryTimer: ReturnType<typeof setTimeout> | null = null;
+    let attempt = 0;
+
+    function connect() {
+      if (disposed) return;
+      // A unique topic per attempt avoids "already subscribed" collisions.
+      const ch = supabase.channel(`${channelName}-${attempt}`);
+      channel = ch;
+      for (const table of tablesKey.split(",")) {
+        ch.on(
+          "postgres_changes",
+          { event: "*", schema: "public", table },
+          () => onChangeRef.current(),
+        );
+      }
+      ch.subscribe((s) => {
+        // Guard: ignore callbacks from a channel we already replaced/removed
+        // (removeChannel itself emits CLOSED) and after unmount.
+        if (disposed || channel !== ch) return;
+        if (s === "SUBSCRIBED") {
+          const wasReconnect = attempt > 0;
+          attempt = 0;
+          setStatus("live");
+          if (wasReconnect) onChangeRef.current();
+        } else if (s === "CHANNEL_ERROR" || s === "TIMED_OUT" || s === "CLOSED") {
+          setStatus("reconnecting");
+          channel = null;
+          supabase.removeChannel(ch);
+          attempt += 1;
+          const delay = Math.min(30_000, 1_000 * 2 ** Math.min(attempt, 5));
+          if (retryTimer) clearTimeout(retryTimer);
+          retryTimer = setTimeout(connect, delay);
+        }
+      });
+    }
+
+    connect();
+    return () => {
+      disposed = true;
+      if (retryTimer) clearTimeout(retryTimer);
+      if (channel) supabase.removeChannel(channel);
+      channel = null;
+    };
+  }, [channelName, tablesKey]);
+
+  return status;
+}
+
+// A resumed iOS PWA tab has a dead websocket and a stale server render.
+// Refetch the server-rendered tree whenever the tab becomes visible again.
+export function useRefreshOnFocus(): void {
+  const router = useRouter();
+  useEffect(() => {
+    const refresh = () => {
+      if (document.visibilityState === "visible") router.refresh();
+    };
+    window.addEventListener("focus", refresh);
+    document.addEventListener("visibilitychange", refresh);
+    return () => {
+      window.removeEventListener("focus", refresh);
+      document.removeEventListener("visibilitychange", refresh);
+    };
+  }, [router]);
+}
+
+// Quiet staleness signal shown while a realtime channel is re-subscribing.
+export function ReconnectPill() {
+  return (
+    <div className="pointer-events-none fixed bottom-4 right-4 z-50 rounded-full bg-amber-tint px-3 py-1.5 text-xs font-medium text-amber shadow-sm">
+      Reconnecting, may be stale
+    </div>
+  );
+}

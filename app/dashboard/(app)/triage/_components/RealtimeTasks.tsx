@@ -1,29 +1,20 @@
 "use client";
 
-import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-import { createClient } from "@/lib/supabase/client";
+import {
+  ReconnectPill,
+  useRealtimeChannel,
+  useRefreshOnFocus,
+} from "../../_components/realtime";
 
-// Subscribes to task changes and re-fetches the server-rendered inbox when they occur.
+// Re-fetches the server-rendered inbox on task changes, with auto-resubscribe
+// and a staleness pill while the channel is down.
 export function RealtimeTasks() {
   const router = useRouter();
-
-  useEffect(() => {
-    const supabase = createClient();
-    const channel = supabase
-      .channel("triage-tasks")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "tasks" },
-        () => router.refresh(),
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [router]);
-
-  return null;
+  useRefreshOnFocus();
+  const status = useRealtimeChannel("triage-tasks", ["tasks"], () =>
+    router.refresh(),
+  );
+  return status === "reconnecting" ? <ReconnectPill /> : null;
 }

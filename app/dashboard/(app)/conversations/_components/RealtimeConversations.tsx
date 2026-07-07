@@ -1,28 +1,22 @@
 "use client";
 
-import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-import { createClient } from "@/lib/supabase/client";
+import {
+  ReconnectPill,
+  useRealtimeChannel,
+  useRefreshOnFocus,
+} from "../../_components/realtime";
 
-// Re-fetches the server-rendered view whenever conversations or messages change.
+// Re-fetches the server-rendered view whenever conversations or messages
+// change, with auto-resubscribe and a staleness pill while the channel is down.
 export function RealtimeConversations() {
   const router = useRouter();
-
-  useEffect(() => {
-    const supabase = createClient();
-    const channel = supabase
-      .channel("conversations-live")
-      .on("postgres_changes", { event: "*", schema: "public", table: "conversations" },
-        () => router.refresh())
-      .on("postgres_changes", { event: "*", schema: "public", table: "messages" },
-        () => router.refresh())
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [router]);
-
-  return null;
+  useRefreshOnFocus();
+  const status = useRealtimeChannel(
+    "conversations-live",
+    ["conversations", "messages"],
+    () => router.refresh(),
+  );
+  return status === "reconnecting" ? <ReconnectPill /> : null;
 }
