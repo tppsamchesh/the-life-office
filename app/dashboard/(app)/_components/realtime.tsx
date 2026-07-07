@@ -25,17 +25,21 @@ export function useRealtimeChannel(
     onChangeRef.current = onChange;
   });
   const tablesKey = tables.join(",");
-  // A fresh id per mount so two instances (e.g. across a Strict Mode
-  // mount/unmount/remount cycle) never build the same topic string, even if
-  // both start at attempt 0.
-  const instanceIdRef = useRef<string | null>(null);
-  if (instanceIdRef.current === null) {
-    instanceIdRef.current = Math.random().toString(36).slice(2);
-  }
 
   useEffect(() => {
     const supabase = createClient();
-    const instanceId = instanceIdRef.current;
+    // A fresh id per *effect invocation* (every mount, and every Strict Mode
+    // synthetic remount) so two connection attempts never build the same
+    // topic string, even if both start at attempt 0. This must be generated
+    // here, inside the effect body, rather than via a lazily-initialized
+    // useRef read at render time: Strict Mode's double-invoke reuses the
+    // same fiber/ref storage across its effect -> cleanup -> effect cycle,
+    // so a ref that only sets itself once (`if (ref.current === null) ...`)
+    // is already non-null by the second run and never regenerates, letting
+    // both runs collide on the same "unique" id. Declaring it here means
+    // it's recomputed on every effect run, and reused as-is across retries
+    // within that same run (retries are already distinguished by `attempt`).
+    const instanceId = Math.random().toString(36).slice(2);
     let disposed = false;
     let channel: RealtimeChannel | null = null;
     let retryTimer: ReturnType<typeof setTimeout> | null = null;
