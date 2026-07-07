@@ -86,7 +86,7 @@ export function Chip({
   );
 }
 
-const FIELD_BASE = `rounded-md border border-edge bg-surface px-3 py-2 text-ink placeholder:text-faint ${FOCUS_RING}`;
+const FIELD_BASE = `rounded-md border border-edge bg-surface px-3 py-2 text-ink placeholder:text-faint hover:border-edge-strong ${FOCUS_RING}`;
 
 export function Input({
   className = "",
