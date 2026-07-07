@@ -4,7 +4,7 @@ import { relativeTime } from "@/lib/conversations/format";
 import { getThread, getThreads, type ThreadListItem } from "@/lib/conversations/queries";
 import { createClient } from "@/lib/supabase/server";
 
-import { Chip } from "../_components/ui";
+import { Chip, EmptyCard } from "../_components/ui";
 import { GraceChip } from "./_components/GraceChip";
 import { PushBanner } from "./_components/PushBanner";
 import { RealtimeConversations } from "./_components/RealtimeConversations";
@@ -76,9 +76,7 @@ export default async function ConversationsPage({
       </div>
 
       {threads.length === 0 ? (
-        <div className="rounded-xl border border-edge bg-surface px-6 py-12 text-center text-sm text-muted">
-          No conversations yet.
-        </div>
+        <EmptyCard>No conversations yet.</EmptyCard>
       ) : (
         <div className="flex min-h-0 flex-1 gap-6">
           {/* Mobile: full-screen list until a thread is explicitly selected; thread replaces it. */}
