@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { Chip } from "../../_components/ui";
+
 export function ConversationChips({
   requestType, conversationId,
 }: {
@@ -10,15 +12,11 @@ export function ConversationChips({
   if (!typed && !conversationId) return null;
   return (
     <div className="mb-3 flex items-center gap-2">
-      {typed ? (
-        <span className="rounded-full border border-[#D8D2C8] bg-[#EFEBE4] px-2.5 py-0.5 text-[11px] uppercase tracking-wide text-[#6B665D]">
-          {requestType}
-        </span>
-      ) : null}
+      {typed ? <Chip>{requestType}</Chip> : null}
       {conversationId ? (
         <Link
           href={`/dashboard/conversations?conversation=${conversationId}`}
-          className="text-xs text-[#6B665D] underline hover:text-[#1F1F1F]"
+          className="text-xs text-muted underline hover:text-ink"
         >
           View conversation
         </Link>
