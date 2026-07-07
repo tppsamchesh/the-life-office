@@ -56,7 +56,7 @@ export async function getThreads(): Promise<ThreadListItem[]> {
     channel: conversation.channel,
     address: conversation.channel_row?.address ?? null,
     lastMessage: lastByConv.get(conversation.id) ?? null,
-    unread: isUnread(messages, conversation.id),
+    unread: isUnread(messages, conversation.id, conversation.last_read_at),
   }));
 
   items.sort((a, b) => {
