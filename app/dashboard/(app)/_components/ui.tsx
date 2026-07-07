@@ -3,12 +3,12 @@
 import Link from "next/link";
 import { useFormStatus } from "react-dom";
 
-/* Shared dashboard primitives — the single source for button, chip, input,
+/* Shared dashboard primitives: the single source for button, chip, input,
    label, and empty-state recipes. Import from here instead of redefining
    per-file BTN/FIELD/LABEL constants.
 
    className is for LAYOUT ONLY (flex-1, self-start, max-w-xs, mt-2…).
-   Never pass color, size, or state classes — use a variant/tone instead. */
+   Never pass color, size, or state classes; use a variant/tone instead. */
 
 const FOCUS_RING =
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage focus-visible:ring-offset-1";
@@ -115,9 +115,17 @@ export function Select({
   );
 }
 
-export function SectionLabel({ children }: { children: React.ReactNode }) {
+export function SectionLabel({
+  className = "",
+  children,
+}: {
+  className?: string;
+  children: React.ReactNode;
+}) {
   return (
-    <p className="text-[11px] font-medium uppercase tracking-wide text-muted">{children}</p>
+    <p className={`text-[11px] font-medium uppercase tracking-wide text-muted ${className}`}>
+      {children}
+    </p>
   );
 }
 
