@@ -27,7 +27,7 @@ export function PipelineBoard({ leads }: { leads: LeadRow[] }) {
                 <Link
                   key={lead.id}
                   href={`/dashboard/leads/${lead.id}`}
-                  className="block rounded-xl border border-hairline bg-surface px-3.5 py-3 transition-colors hover:border-sage"
+                  className="block rounded-xl border border-hairline bg-surface px-3.5 py-3 transition-colors hover:border-sage focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage focus-visible:ring-offset-1"
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">

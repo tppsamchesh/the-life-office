@@ -32,7 +32,7 @@ export function ContactChip({
       type="button"
       onClick={copy}
       aria-label={`Copy ${value}`}
-      className="group inline-flex items-center gap-2 rounded-md border border-hairline bg-surface px-2.5 py-1 text-xs text-ink transition-colors hover:border-sage"
+      className="group inline-flex items-center gap-2 rounded-md border border-hairline bg-surface px-2.5 py-1 text-xs text-ink transition-colors hover:border-sage focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage focus-visible:ring-offset-1"
     >
       <span className="max-w-[220px] truncate">{value}</span>
       <span className="text-[11px] uppercase tracking-wide text-muted group-hover:text-ink">

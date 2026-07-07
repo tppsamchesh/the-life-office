@@ -20,7 +20,7 @@ export function LeadsWorkspace({
   );
 
   function seg(active: boolean) {
-    return `rounded-md px-3.5 py-1.5 text-sm transition-colors ${
+    return `rounded-md px-3.5 py-1.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage focus-visible:ring-offset-1 ${
       active ? "bg-sage text-ink" : "text-muted hover:text-ink"
     }`;
   }
