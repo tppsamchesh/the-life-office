@@ -55,7 +55,7 @@ export default async function ConversationsPage({
     .is("claimed_client_id", null);
 
   return (
-    <div className="flex h-[calc(100vh-6rem)] flex-col">
+    <div className="flex h-[calc(100dvh-6rem)] flex-col">
       <RealtimeConversations />
       <PushBanner />
       <div className="mb-4 flex items-baseline justify-between">
@@ -68,9 +68,13 @@ export default async function ConversationsPage({
         {quarantineCount ? (
           <Link
             href="/dashboard/conversations/quarantine"
-            className="text-sm text-alert underline"
+            className="inline-flex min-h-11 items-center"
           >
-            {quarantineCount} unknown {quarantineCount === 1 ? "number" : "numbers"}
+            <Chip tone="neutral">
+              <span className="mr-1 inline-block h-1.5 w-1.5 rounded-full bg-alert" />
+              {quarantineCount} unknown{" "}
+              {quarantineCount === 1 ? "number" : "numbers"}
+            </Chip>
           </Link>
         ) : null}
       </div>
@@ -134,9 +138,9 @@ export default async function ConversationsPage({
             {selectedId ? (
               <Link
                 href="/dashboard/conversations"
-                className="mb-2 inline-block text-xs text-muted underline md:hidden"
+                className="mb-1 inline-flex min-h-11 items-center text-sm text-muted underline md:hidden"
               >
-                Back to all conversations
+                ← All conversations
               </Link>
             ) : null}
             {thread ? (
