@@ -4,15 +4,14 @@ import { relativeTime } from "@/lib/conversations/format";
 import { getThread, getThreads } from "@/lib/conversations/queries";
 import { createClient } from "@/lib/supabase/server";
 
+import { Chip, EmptyCard } from "../_components/ui";
 import { PushBanner } from "./_components/PushBanner";
 import { RealtimeConversations } from "./_components/RealtimeConversations";
 import { ThreadView } from "./_components/ThreadView";
 
 function StateChip({ state }: { state: string }) {
-  if (state === "awaiting_meg")
-    return <span className="rounded-full bg-[#F5E9D6] px-2 py-0.5 text-[10px] font-medium text-[#C77D2B]">awaiting you</span>;
-  if (state === "agent_active")
-    return <span className="rounded-full bg-[#DFE5DA] px-2 py-0.5 text-[10px] font-medium text-[#5F6B58]">agent active</span>;
+  if (state === "awaiting_meg") return <Chip tone="amber">awaiting you</Chip>;
+  if (state === "agent_active") return <Chip tone="sage">agent active</Chip>;
   return null;
 }
 
@@ -39,14 +38,14 @@ export default async function ConversationsPage({
       <div className="mb-4 flex items-baseline justify-between">
         <div>
           <h1 className="font-serif text-2xl mb-1">Conversations</h1>
-          <p className="text-sm text-[#8A857B]">
+          <p className="text-sm text-muted">
             {threads.length} {threads.length === 1 ? "thread" : "threads"}
           </p>
         </div>
         {quarantineCount ? (
           <Link
             href="/dashboard/conversations/quarantine"
-            className="text-sm text-[#C0392B] underline"
+            className="text-sm text-alert underline"
           >
             {quarantineCount} unknown {quarantineCount === 1 ? "number" : "numbers"}
           </Link>
@@ -54,9 +53,7 @@ export default async function ConversationsPage({
       </div>
 
       {threads.length === 0 ? (
-        <div className="rounded-xl border border-[#E4DFD6] bg-white px-6 py-12 text-center text-sm text-[#8A857B]">
-          No conversations yet.
-        </div>
+        <EmptyCard>No conversations yet.</EmptyCard>
       ) : (
         <div className="flex min-h-0 flex-1 gap-6">
           {/* Mobile: full-screen list until a thread is explicitly selected; thread replaces it. */}
@@ -67,21 +64,21 @@ export default async function ConversationsPage({
                 <li key={t.conversation.id}>
                   <Link
                     href={`/dashboard/conversations?conversation=${t.conversation.id}`}
-                    className={`block rounded-lg border px-3 py-2.5 transition-colors ${
-                      active ? "border-[#A8B2A1] bg-white" : "border-[#E7E2D9] bg-white/60 hover:bg-white"
+                    className={`block rounded-xl border px-3 py-2.5 transition-colors ${
+                      active ? "border-sage bg-surface" : "border-hairline bg-surface/60 hover:bg-surface"
                     }`}
                   >
                     <div className="flex items-center justify-between gap-2">
                       <span className={`truncate text-sm ${t.unread ? "font-semibold" : "font-medium"}`}>
                         {t.title}
                       </span>
-                      <span className="shrink-0 text-[10px] uppercase text-[#A39E94]">{t.channel}</span>
+                      <span className="shrink-0 text-[11px] uppercase text-muted">{t.channel}</span>
                     </div>
                     <div className="mt-0.5 flex items-center justify-between gap-2">
-                      <span className="truncate text-xs text-[#8A857B]">
+                      <span className="truncate text-xs text-muted">
                         {t.lastMessage?.body ?? "No messages"}
                       </span>
-                      <span className="shrink-0 text-[10px] text-[#A39E94]">
+                      <span className="shrink-0 text-[11px] text-muted">
                         {t.lastMessage ? relativeTime(t.lastMessage.created_at) : ""}
                       </span>
                     </div>
@@ -96,7 +93,7 @@ export default async function ConversationsPage({
 
           <div className={`min-w-0 flex-1 ${selectedId ? "" : "hidden md:block"}`}>
             {selectedId ? (
-              <Link href="/dashboard/conversations" className="mb-2 inline-block text-xs text-[#6B665D] underline md:hidden">
+              <Link href="/dashboard/conversations" className="mb-2 inline-block text-xs text-muted underline md:hidden">
                 Back to all conversations
               </Link>
             ) : null}

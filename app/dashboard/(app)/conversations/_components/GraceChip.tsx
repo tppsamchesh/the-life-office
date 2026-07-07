@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 
 import { graceCountdown } from "@/lib/conversations/format";
 
+import { Chip } from "../../_components/ui";
+
 // Live countdown to the grace deadline; renders nothing when there is no deadline.
 export function GraceChip({ deadline }: { deadline: string | null }) {
   const [label, setLabel] = useState<string | null>(() => graceCountdown(deadline));
@@ -17,9 +19,5 @@ export function GraceChip({ deadline }: { deadline: string | null }) {
   }, [deadline]);
 
   if (!label) return null;
-  return (
-    <span className="rounded-full bg-[#F5E9D6] px-2 py-0.5 text-[11px] font-medium text-[#C77D2B]">
-      awaiting you · {label}
-    </span>
-  );
+  return <Chip tone="amber">awaiting you · {label}</Chip>;
 }
