@@ -4,13 +4,18 @@ import { revalidatePath } from "next/cache";
 
 import { createClient } from "@/lib/supabase/server";
 
-export async function addChannel(formData: FormData) {
+export type ChannelActionState = { error?: string; address?: string };
+
+export async function addChannel(
+  _prev: ChannelActionState,
+  formData: FormData,
+): Promise<ChannelActionState> {
   const clientId = String(formData.get("clientId"));
   const familyMemberId = String(formData.get("familyMemberId") ?? "");
   const channel = String(formData.get("channel"));
   const address = String(formData.get("address") ?? "").trim();
   if (!address.startsWith("+") || !["whatsapp", "sms"].includes(channel)) {
-    throw new Error("Number must be E.164 (+44...) and channel whatsapp or sms");
+    return { error: "Number must be E.164 (+44...) and channel WhatsApp or SMS.", address };
   }
   const supabase = await createClient();
   const { error } = await supabase.from("client_channels").insert({
@@ -20,6 +25,7 @@ export async function addChannel(formData: FormData) {
     family_member_id: familyMemberId || null,
     is_primary: false,
   });
-  if (error) throw new Error(`Failed to add number: ${error.message}`);
+  if (error) return { error: `Failed to add number: ${error.message}`, address };
   revalidatePath(`/dashboard/clients/${clientId}`);
+  return {};
 }
