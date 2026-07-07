@@ -58,7 +58,7 @@ export function dayDividerLabel(iso: string, now: Date = new Date()): string {
   const key = londonDayKey(iso);
   const todayKey = LONDON_DAY_KEY.format(now);
   if (key === todayKey) return "Today";
-  // Don't subtract a fixed 24h from `now` — a London calendar day can be 23h
+  // Don't subtract a fixed 24h from `now`: a London calendar day can be 23h
   // (spring-forward) or 25h (fall-back), so that overshoots or undershoots
   // the true previous day. Instead take today's London Y/M/D and step back
   // one calendar day, anchored at noon UTC so the +/-1h DST offset can never
