@@ -57,6 +57,24 @@ describe("dayDividerLabel", () => {
   it("labels older days with weekday, day and month", () => {
     expect(dayDividerLabel("2026-07-01T12:00:00.000Z", now)).toBe("Wednesday 1 July");
   });
+
+  // 2026 UK spring-forward: clocks go 01:00 -> 02:00 UTC on 29 March, so
+  // 29 March is only a 23-hour London calendar day. A fixed 24h subtraction
+  // from "now" can overshoot past the start of the previous London day.
+  it("labels the previous London day Yesterday across the spring-forward transition", () => {
+    // now: 29 March 23:30 UTC == 30 March 00:30 BST (just after midnight, day after the transition).
+    const springNow = new Date("2026-03-29T23:30:00.000Z");
+    // message: 29 March 00:30 UTC == 29 March 00:30 GMT, the true previous London day.
+    expect(dayDividerLabel("2026-03-29T00:30:00.000Z", springNow)).toBe("Yesterday");
+  });
+
+  it("does not regress across the autumn fall-back transition", () => {
+    // 2026 UK fall-back: clocks go 02:00 -> 01:00 BST on 25 October, so
+    // 25 October is a 25-hour London calendar day.
+    const autumnNow = new Date("2026-10-26T00:30:00.000Z"); // 26 October 00:30 GMT
+    expect(dayDividerLabel("2026-10-25T23:30:00.000Z", autumnNow)).toBe("Yesterday");
+    expect(dayDividerLabel("2026-10-25T00:30:00.000Z", autumnNow)).toBe("Yesterday");
+  });
 });
 
 describe("londonTime", () => {
