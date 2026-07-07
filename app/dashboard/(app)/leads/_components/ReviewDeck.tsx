@@ -6,25 +6,13 @@ import type { LeadRow } from "@/lib/leads/queries";
 
 import { approveLeadInline, noteLeadInline, rejectLeadInline } from "../actions";
 import { LeadDossier } from "./LeadDossier";
+import { AllClear, Button, Textarea } from "../../_components/ui";
 
 function Kbd({ children }: { children: React.ReactNode }) {
   return (
-    <kbd className="mx-0.5 rounded border border-[#E0DACF] bg-white px-1.5 py-0.5 font-sans text-[10px] text-[#7A766E]">
+    <kbd className="mx-0.5 rounded border border-edge bg-surface px-1.5 py-0.5 font-sans text-[11px] text-muted">
       {children}
     </kbd>
-  );
-}
-
-function AllCaughtUp({ reviewed }: { reviewed: number }) {
-  return (
-    <div className="deck-card mx-auto max-w-xl rounded-2xl border border-[#E7E2D9] bg-white px-8 py-16 text-center">
-      <p className="font-serif text-[28px] text-[#1F1F1F]">All caught up</p>
-      <p className="mt-2 text-sm text-[#8A857B]">
-        {reviewed > 0
-          ? `${reviewed} ${reviewed === 1 ? "lead" : "leads"} reviewed. Nothing left in the queue.`
-          : "Nothing waiting for review."}
-      </p>
-    </div>
   );
 }
 
@@ -45,28 +33,22 @@ function NoteForm({
 
   return (
     <div className="mt-6 flex flex-col gap-2">
-      <textarea
+      <Textarea
         autoFocus
         rows={3}
         value={value}
         onChange={(e) => setValue(e.target.value)}
         placeholder="Add a private note for this lead…"
         aria-label="Lead note"
-        className="w-full rounded-lg border border-[#D8D2C8] bg-white px-3 py-2 text-sm"
+        className="w-full"
       />
       <div className="flex gap-2">
-        <button
-          onClick={save}
-          className="rounded-lg bg-[#A8B2A1] px-4 py-2 text-sm font-medium text-[#1F1F1F] transition-colors hover:bg-[#96a08f]"
-        >
+        <Button type="button" variant="primary" onClick={save}>
           Save note
-        </button>
-        <button
-          onClick={onClose}
-          className="rounded-lg border border-[#E4DFD6] bg-white px-4 py-2 text-sm text-[#8A857B] transition-colors hover:bg-[#FBFAF8]"
-        >
+        </Button>
+        <Button type="button" variant="secondary" onClick={onClose}>
           Cancel
-        </button>
+        </Button>
       </div>
     </div>
   );
@@ -116,36 +98,48 @@ export function ReviewDeck({ leads }: { leads: LeadRow[] }) {
     return () => window.removeEventListener("keydown", onKey);
   }, [decide, showNote, total]);
 
-  if (!current) return <AllCaughtUp reviewed={reviewed} />;
+  if (!current)
+    return (
+      <div className="deck-card">
+        <AllClear
+          title="All caught up"
+          hint={
+            reviewed > 0
+              ? `${reviewed} ${reviewed === 1 ? "lead" : "leads"} reviewed. Nothing left in the queue.`
+              : "Nothing waiting for review."
+          }
+        />
+      </div>
+    );
 
   const remaining = total - index;
 
   return (
     <div className="mx-auto max-w-xl">
       <div className="mb-4 flex items-center gap-4">
-        <span className="text-[12px] text-[#8A857B]">
+        <span className="text-xs text-muted">
           {index + 1} of {total}
         </span>
-        <div className="h-1 flex-1 overflow-hidden rounded-full bg-[#E7E2D9]">
+        <div className="h-1 flex-1 overflow-hidden rounded-full bg-hairline">
           <div
-            className="h-full rounded-full bg-[#A8B2A1] transition-all duration-500"
+            className="h-full rounded-full bg-sage transition-all duration-500"
             style={{ width: `${(index / total) * 100}%` }}
           />
         </div>
-        <span className="text-[12px] text-[#A39E94]">{remaining} left</span>
+        <span className="text-xs text-muted">{remaining} left</span>
       </div>
 
       <div className="relative">
         {remaining > 2 ? (
-          <div className="absolute inset-x-4 -bottom-3 h-full rounded-2xl border border-[#ECE7DE] bg-[#FBFAF7]" />
+          <div className="absolute inset-x-4 -bottom-3 h-full rounded-xl border border-hairline bg-inset" />
         ) : null}
         {remaining > 1 ? (
-          <div className="absolute inset-x-2 -bottom-1.5 h-full rounded-2xl border border-[#EBE6DC] bg-[#FCFBF9]" />
+          <div className="absolute inset-x-2 -bottom-1.5 h-full rounded-xl border border-hairline bg-surface" />
         ) : null}
 
         <div
           key={current.id}
-          className={`deck-card relative rounded-2xl border border-[#E4DFD6] bg-white p-7 ${
+          className={`deck-card relative rounded-xl border border-hairline bg-surface p-7 ${
             leaving === "approve" ? "deck-approve" : ""
           } ${leaving === "reject" ? "deck-reject" : ""}`}
         >
@@ -154,31 +148,24 @@ export function ReviewDeck({ leads }: { leads: LeadRow[] }) {
           {showNote ? (
             <NoteForm leadId={current.id} onClose={() => setShowNote(false)} />
           ) : (
-            <div className="mt-7 flex items-center gap-2.5">
-              <button
-                onClick={() => decide("approve")}
-                className="flex-1 rounded-lg bg-[#A8B2A1] px-4 py-2.5 text-sm font-medium text-[#1F1F1F] transition-colors hover:bg-[#96a08f]"
-              >
+            <div
+              className={`mt-7 flex items-center gap-2.5 ${leaving ? "pointer-events-none opacity-60" : ""}`}
+            >
+              <Button type="button" variant="primary" className="flex-1" onClick={() => decide("approve")}>
                 Approve
-              </button>
-              <button
-                onClick={() => decide("reject")}
-                className="rounded-lg border border-[#D8D2C8] bg-white px-4 py-2.5 text-sm text-[#6B665D] transition-colors hover:bg-[#FBFAF8]"
-              >
+              </Button>
+              <Button type="button" variant="secondary" onClick={() => decide("reject")}>
                 Reject
-              </button>
-              <button
-                onClick={() => setShowNote(true)}
-                className="rounded-lg border border-[#E4DFD6] bg-white px-3.5 py-2.5 text-sm text-[#8A857B] transition-colors hover:bg-[#FBFAF8]"
-              >
+              </Button>
+              <Button type="button" variant="secondary" onClick={() => setShowNote(true)}>
                 Note
-              </button>
+              </Button>
             </div>
           )}
         </div>
       </div>
 
-      <p className="mt-5 text-center text-[11.5px] text-[#A39E94]">
+      <p className="mt-5 text-center text-[11px] text-muted">
         <Kbd>A</Kbd> approve · <Kbd>R</Kbd> reject · <Kbd>N</Kbd> note · <Kbd>←</Kbd>
         <Kbd>→</Kbd> skip
       </p>

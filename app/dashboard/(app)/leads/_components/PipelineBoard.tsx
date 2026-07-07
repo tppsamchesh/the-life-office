@@ -16,22 +16,22 @@ export function PipelineBoard({ leads }: { leads: LeadRow[] }) {
         const items = groups[s.key];
         return (
           <div key={s.key} className="w-64 shrink-0">
-            <div className="mb-2.5 flex items-center justify-between border-b border-[#A8B2A1]/40 px-1 pb-1.5">
-              <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#7A766E]">
+            <div className="mb-2.5 flex items-center justify-between border-b border-sage/40 px-1 pb-1.5">
+              <span className="text-[11px] font-medium uppercase tracking-wide text-muted">
                 {s.label}
               </span>
-              <span className="text-[11px] text-[#A39E94]">{items.length}</span>
+              <span className="text-[11px] text-muted">{items.length}</span>
             </div>
             <div className="flex flex-col gap-2">
               {items.map((lead) => (
                 <Link
                   key={lead.id}
                   href={`/dashboard/leads/${lead.id}`}
-                  className="block rounded-xl border border-[#E7E2D9] bg-white px-3.5 py-3 transition-colors hover:border-[#A8B2A1]"
+                  className="block rounded-xl border border-hairline bg-surface px-3.5 py-3 transition-colors hover:border-sage"
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
-                      <div className="truncate font-serif text-[15px] text-[#1F1F1F]">
+                      <div className="truncate font-serif text-lg text-ink">
                         {leadName(lead)}
                       </div>
                       <div className="mt-1.5">
@@ -43,14 +43,14 @@ export function PipelineBoard({ leads }: { leads: LeadRow[] }) {
                     ) : null}
                   </div>
                   {lead.ai_summary ? (
-                    <p className="mt-2.5 line-clamp-2 text-[12px] leading-snug text-[#8A857B]">
+                    <p className="mt-2.5 line-clamp-2 text-xs leading-snug text-muted">
                       {lead.ai_summary}
                     </p>
                   ) : null}
                 </Link>
               ))}
               {items.length === 0 ? (
-                <p className="px-1 py-2 text-xs text-[#C4BEB2]">—</p>
+                <p className="px-1 py-2 text-xs text-faint">—</p>
               ) : null}
             </div>
           </div>

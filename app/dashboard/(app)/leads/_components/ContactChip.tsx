@@ -14,7 +14,7 @@ export function ContactChip({
   const [copied, setCopied] = useState(false);
 
   if (!value) {
-    return <span className="text-[12px] text-[#A39E94]">No contact yet</span>;
+    return <span className="text-xs text-muted">No contact yet</span>;
   }
 
   async function copy() {
@@ -32,10 +32,10 @@ export function ContactChip({
       type="button"
       onClick={copy}
       aria-label={`Copy ${value}`}
-      className="group inline-flex items-center gap-2 rounded-md border border-[#E4DFD6] bg-white px-2.5 py-1 text-[12px] text-[#3A372F] transition-colors hover:border-[#A8B2A1]"
+      className="group inline-flex items-center gap-2 rounded-md border border-hairline bg-surface px-2.5 py-1 text-xs text-ink transition-colors hover:border-sage"
     >
       <span className="max-w-[220px] truncate">{value}</span>
-      <span className="text-[10px] uppercase tracking-[0.08em] text-[#A39E94] group-hover:text-[#7A766E]">
+      <span className="text-[11px] uppercase tracking-wide text-muted group-hover:text-ink">
         {copied ? "copied" : "copy"}
       </span>
     </button>

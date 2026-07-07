@@ -23,7 +23,7 @@ export function FitRing({
           cy={size / 2}
           r={r}
           fill="none"
-          stroke="#E7E2D9"
+          stroke="var(--color-hairline)"
           strokeWidth={stroke}
           strokeDasharray={has ? undefined : "2.5 4"}
         />
@@ -33,7 +33,7 @@ export function FitRing({
             cy={size / 2}
             r={r}
             fill="none"
-            stroke="#94A089"
+            stroke="var(--color-sage-deep)"
             strokeWidth={stroke}
             strokeLinecap="round"
             strokeDasharray={circumference}
@@ -44,7 +44,7 @@ export function FitRing({
       </svg>
       <div className="absolute inset-0 flex items-center justify-center">
         <span
-          className="font-serif leading-none text-[#3A372F]"
+          className="font-serif leading-none text-ink"
           style={{ fontSize: Math.round(size * 0.32) }}
         >
           {has ? score : "–"}

@@ -4,6 +4,7 @@ import { useState } from "react";
 
 import type { LeadStage } from "@/lib/leads/stages";
 
+import { Button, Input, Textarea } from "../../_components/ui";
 import {
   approveLead,
   approveOutreach,
@@ -15,12 +16,6 @@ import {
 } from "../actions";
 
 type Panel = "none" | "edit" | "reject" | "note";
-
-const BTN =
-  "rounded-md border border-[#C9C2B5] bg-white px-4 py-2 text-sm hover:bg-[#FBFAF8] transition-colors";
-const PRIMARY =
-  "rounded-md bg-[#A8B2A1] px-4 py-2 text-sm font-medium text-[#1F1F1F] hover:bg-[#96a08f] transition-colors";
-const FIELD = "w-full border border-[#D8D2C8] rounded-md px-3 py-2 bg-white text-sm";
 
 function Hidden({ leadId }: { leadId: string }) {
   return <input type="hidden" name="leadId" value={leadId} />;
@@ -46,7 +41,7 @@ export function LeadActions({
         {stage === "needs_reviewing" ? (
           <form action={approveLead}>
             <Hidden leadId={leadId} />
-            <button type="submit" className={PRIMARY}>Approve</button>
+            <Button type="submit" variant="primary" pendingLabel="Approving…">Approve</Button>
           </form>
         ) : null}
 
@@ -54,60 +49,70 @@ export function LeadActions({
           <>
             <form action={approveOutreach}>
               <Hidden leadId={leadId} />
-              <button type="submit" className={PRIMARY}>Approve outreach</button>
+              <Button type="submit" variant="primary" pendingLabel="Approving…">
+                Approve outreach
+              </Button>
             </form>
-            <button type="button" className={BTN} onClick={() => setPanel(panel === "edit" ? "none" : "edit")}>
+            <Button type="button" variant="secondary" onClick={() => setPanel(panel === "edit" ? "none" : "edit")}>
               Edit &amp; approve
-            </button>
+            </Button>
           </>
         ) : null}
 
         {stage === "contacted" ? (
           <form action={markQualified}>
             <Hidden leadId={leadId} />
-            <button type="submit" className={PRIMARY}>Mark qualified</button>
+            <Button type="submit" variant="primary" pendingLabel="Saving…">Mark qualified</Button>
           </form>
         ) : null}
 
         {stage === "qualified" ? (
           <form action={convertLead}>
             <Hidden leadId={leadId} />
-            <button type="submit" className={PRIMARY}>Convert to client</button>
+            <Button type="submit" variant="primary" pendingLabel="Converting…">
+              Convert to client
+            </Button>
           </form>
         ) : null}
 
         {!terminal ? (
-          <button type="button" className={BTN} onClick={() => setPanel(panel === "reject" ? "none" : "reject")}>
+          <Button type="button" variant="secondary" onClick={() => setPanel(panel === "reject" ? "none" : "reject")}>
             Reject
-          </button>
+          </Button>
         ) : null}
 
-        <button type="button" className={BTN} onClick={() => setPanel(panel === "note" ? "none" : "note")}>
+        <Button type="button" variant="secondary" onClick={() => setPanel(panel === "note" ? "none" : "note")}>
           Note
-        </button>
+        </Button>
       </div>
 
       {panel === "edit" ? (
         <form action={editApproveOutreach} className="mt-4 flex flex-col gap-2">
           <Hidden leadId={leadId} />
-          <textarea name="message" rows={5} defaultValue={draftMessage} aria-label="Edited outreach" className={FIELD} />
-          <button type="submit" className={`${PRIMARY} self-start`}>Save &amp; approve</button>
+          <Textarea name="message" rows={5} defaultValue={draftMessage} aria-label="Edited outreach" />
+          <Button type="submit" variant="primary" pendingLabel="Approving…" className="self-start">
+            Save &amp; approve
+          </Button>
         </form>
       ) : null}
 
       {panel === "reject" ? (
         <form action={rejectLead} className="mt-4 flex flex-col gap-2">
           <Hidden leadId={leadId} />
-          <input name="reason" placeholder="Reason (optional)" aria-label="Reject reason" className={FIELD} />
-          <button type="submit" className={`${BTN} self-start`}>Confirm reject</button>
+          <Input name="reason" placeholder="Reason (optional)" aria-label="Reject reason" />
+          <Button type="submit" variant="secondary" pendingLabel="Rejecting…" className="self-start">
+            Confirm reject
+          </Button>
         </form>
       ) : null}
 
       {panel === "note" ? (
         <form action={noteLead} className="mt-4 flex flex-col gap-2">
           <Hidden leadId={leadId} />
-          <textarea name="note" rows={3} defaultValue={notes ?? ""} aria-label="Lead note" className={FIELD} />
-          <button type="submit" className={`${BTN} self-start`}>Save note</button>
+          <Textarea name="note" rows={3} defaultValue={notes ?? ""} aria-label="Lead note" />
+          <Button type="submit" variant="secondary" pendingLabel="Saving…" className="self-start">
+            Save note
+          </Button>
         </form>
       ) : null}
     </div>

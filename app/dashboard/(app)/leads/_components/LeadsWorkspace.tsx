@@ -21,19 +21,19 @@ export function LeadsWorkspace({
 
   function seg(active: boolean) {
     return `rounded-md px-3.5 py-1.5 text-sm transition-colors ${
-      active ? "bg-[#A8B2A1] text-[#1F1F1F]" : "text-[#7A766E] hover:text-[#3A372F]"
+      active ? "bg-sage text-ink" : "text-muted hover:text-ink"
     }`;
   }
 
   return (
     <div>
-      <div className="mb-7 inline-flex items-center gap-0.5 rounded-lg border border-[#E4DFD6] bg-white p-0.5">
+      <div className="mb-7 inline-flex items-center gap-0.5 rounded-md border border-hairline bg-surface p-0.5">
         <button type="button" onClick={() => setTab("review")} className={seg(tab === "review")}>
           Review
           {needsReviewing.length > 0 ? (
             <span
-              className={`ml-1.5 rounded-full px-1.5 py-0.5 text-[10px] ${
-                tab === "review" ? "bg-white/40 text-[#2C2C28]" : "bg-[#EBEFE8] text-[#46503E]"
+              className={`ml-1.5 rounded-full px-1.5 py-0.5 text-[11px] ${
+                tab === "review" ? "bg-surface/40 text-ink" : "bg-sage-tint text-sage-deep"
               }`}
             >
               {needsReviewing.length}
