@@ -1,18 +1,38 @@
 import Link from "next/link";
 
 import { relativeTime } from "@/lib/conversations/format";
-import { getThread, getThreads } from "@/lib/conversations/queries";
+import { getThread, getThreads, type ThreadListItem } from "@/lib/conversations/queries";
 import { createClient } from "@/lib/supabase/server";
 
-import { Chip, EmptyCard } from "../_components/ui";
+import { Chip } from "../_components/ui";
+import { GraceChip } from "./_components/GraceChip";
 import { PushBanner } from "./_components/PushBanner";
 import { RealtimeConversations } from "./_components/RealtimeConversations";
 import { ThreadView } from "./_components/ThreadView";
 
-function StateChip({ state }: { state: string }) {
-  if (state === "awaiting_meg") return <Chip tone="amber">awaiting you</Chip>;
-  if (state === "agent_active") return <Chip tone="sage">agent active</Chip>;
-  return null;
+// State/delivery badges for a list row. The paused chip is what makes a
+// thread with no concierge coverage visibly different from a healthy idle one.
+function RowChips({ item }: { item: ThreadListItem }) {
+  const c = item.conversation;
+  const hasAny =
+    c.state === "awaiting_meg" || c.state === "agent_active" || c.agent_paused || item.failedSend;
+  if (!hasAny) return null;
+  return (
+    <div className="mt-1 flex flex-wrap items-center gap-1.5">
+      {c.state === "awaiting_meg" ? <GraceChip deadline={c.grace_deadline} /> : null}
+      {c.state === "agent_active" ? <Chip tone="sage">agent active</Chip> : null}
+      {c.agent_paused ? (
+        <Chip tone="neutral" dot>
+          assistant paused
+        </Chip>
+      ) : null}
+      {item.failedSend ? (
+        <Chip tone="alert" dot>
+          send failed
+        </Chip>
+      ) : null}
+    </div>
+  );
 }
 
 export default async function ConversationsPage({
@@ -24,6 +44,9 @@ export default async function ConversationsPage({
   const threads = await getThreads();
   const activeId = selectedId ?? threads[0]?.conversation.id ?? null;
   const thread = activeId ? await getThread(activeId) : null;
+  const activeItem = thread
+    ? threads.find((t) => t.conversation.id === thread.conversation.id) ?? null
+    : null;
 
   const supabase = await createClient();
   const { count: quarantineCount } = await supabase
@@ -37,7 +60,7 @@ export default async function ConversationsPage({
       <PushBanner />
       <div className="mb-4 flex items-baseline justify-between">
         <div>
-          <h1 className="font-serif text-2xl mb-1">Conversations</h1>
+          <h1 className="mb-1 font-serif text-2xl">Conversations</h1>
           <p className="text-sm text-muted">
             {threads.length} {threads.length === 1 ? "thread" : "threads"}
           </p>
@@ -53,38 +76,56 @@ export default async function ConversationsPage({
       </div>
 
       {threads.length === 0 ? (
-        <EmptyCard>No conversations yet.</EmptyCard>
+        <div className="rounded-xl border border-edge bg-surface px-6 py-12 text-center text-sm text-muted">
+          No conversations yet.
+        </div>
       ) : (
         <div className="flex min-h-0 flex-1 gap-6">
           {/* Mobile: full-screen list until a thread is explicitly selected; thread replaces it. */}
-          <ul className={`w-full space-y-2 overflow-y-auto md:w-72 md:shrink-0 ${selectedId ? "hidden md:block" : ""}`}>
+          <ul
+            className={`w-full space-y-2 overflow-y-auto md:w-72 md:shrink-0 ${
+              selectedId ? "hidden md:block" : ""
+            }`}
+          >
             {threads.map((t) => {
               const active = t.conversation.id === activeId;
               return (
                 <li key={t.conversation.id}>
                   <Link
                     href={`/dashboard/conversations?conversation=${t.conversation.id}`}
-                    className={`block rounded-xl border px-3 py-2.5 transition-colors ${
-                      active ? "border-sage bg-surface" : "border-hairline bg-surface/60 hover:bg-surface"
+                    className={`block rounded-lg border px-3 py-2.5 transition-colors ${
+                      active
+                        ? "border-edge border-l-2 border-l-sage bg-surface shadow-sm"
+                        : "border-hairline bg-surface/60 hover:bg-surface"
                     }`}
                   >
                     <div className="flex items-center justify-between gap-2">
-                      <span className={`truncate text-sm ${t.unread ? "font-semibold" : "font-medium"}`}>
-                        {t.title}
+                      <span className="flex min-w-0 items-center gap-1.5">
+                        {t.unread ? (
+                          <span
+                            className="h-1.5 w-1.5 shrink-0 rounded-full bg-sage-deep"
+                            aria-label="Unread"
+                          />
+                        ) : null}
+                        <span
+                          className={`truncate text-sm ${
+                            t.unread ? "font-semibold text-ink" : "font-medium text-muted"
+                          }`}
+                        >
+                          {t.title}
+                        </span>
                       </span>
-                      <span className="shrink-0 text-[11px] uppercase text-muted">{t.channel}</span>
+                      <span className="shrink-0 text-[11px] uppercase text-faint">{t.channel}</span>
                     </div>
                     <div className="mt-0.5 flex items-center justify-between gap-2">
                       <span className="truncate text-xs text-muted">
                         {t.lastMessage?.body ?? "No messages"}
                       </span>
-                      <span className="shrink-0 text-[11px] text-muted">
+                      <span className="shrink-0 text-[11px] tabular-nums text-faint">
                         {t.lastMessage ? relativeTime(t.lastMessage.created_at) : ""}
                       </span>
                     </div>
-                    <div className="mt-1">
-                      <StateChip state={t.conversation.state} />
-                    </div>
+                    <RowChips item={t} />
                   </Link>
                 </li>
               );
@@ -93,7 +134,10 @@ export default async function ConversationsPage({
 
           <div className={`min-w-0 flex-1 ${selectedId ? "" : "hidden md:block"}`}>
             {selectedId ? (
-              <Link href="/dashboard/conversations" className="mb-2 inline-block text-xs text-muted underline md:hidden">
+              <Link
+                href="/dashboard/conversations"
+                className="mb-2 inline-block text-xs text-muted underline md:hidden"
+              >
                 Back to all conversations
               </Link>
             ) : null}
@@ -102,9 +146,10 @@ export default async function ConversationsPage({
                 key={thread.conversation.id}
                 conversation={thread.conversation}
                 messages={thread.messages}
-                title={
-                  threads.find((t) => t.conversation.id === thread.conversation.id)?.title ?? "Conversation"
-                }
+                pendingTask={thread.pendingTask}
+                siblings={thread.siblings}
+                unread={activeItem?.unread ?? false}
+                title={activeItem?.title ?? "Conversation"}
                 view={view === "summary" ? "summary" : "transcript"}
               />
             ) : null}
