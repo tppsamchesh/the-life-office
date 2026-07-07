@@ -91,7 +91,9 @@ export function Transcript({ messages }: { messages: MessageRow[] }) {
 
   useEffect(() => {
     scrollToBottom();
-    // Mount only: the whole component remounts per thread via ThreadView's key.
+    // Mount only: page.tsx keys ThreadView by conversation id, so this whole
+    // component (and the rest of ThreadView's stateful subtree) remounts
+    // whenever the active conversation changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

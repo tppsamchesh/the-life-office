@@ -99,6 +99,7 @@ export default async function ConversationsPage({
             ) : null}
             {thread ? (
               <ThreadView
+                key={thread.conversation.id}
                 conversation={thread.conversation}
                 messages={thread.messages}
                 title={

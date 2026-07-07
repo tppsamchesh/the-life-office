@@ -39,12 +39,18 @@ async function applyTransition(
 // Dismiss it (conditionally) and journal the auto-resolution.
 async function resolveOpenTasks(conversationId: string): Promise<void> {
   const supabase = await createClient();
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("tasks")
     .update({ status: "dismissed", dismissed_reason: "Meg replied in the thread directly" })
     .eq("conversation_id", conversationId)
     .in("status", ["pending", "snoozed"])
     .select("id, client_id, family_member_id");
+  if (error) {
+    console.error(
+      `resolveOpenTasks: failed to auto-dismiss open tasks for conversation ${conversationId}: ${error.message}`,
+    );
+    return;
+  }
   if (data && data.length > 0) {
     await supabase.from("activity_log").insert(
       data.map((t) => ({
