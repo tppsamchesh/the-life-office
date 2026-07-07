@@ -6,11 +6,16 @@ import { createClient } from "@/lib/supabase/server";
 
 const ALREADY_CLAIMED = "23505";
 
-export async function claimQuarantined(formData: FormData) {
+export type QuarantineActionState = { error?: string };
+
+export async function claimQuarantined(
+  _prev: QuarantineActionState,
+  formData: FormData,
+): Promise<QuarantineActionState> {
   const quarantineId = String(formData.get("quarantineId") ?? "");
   const clientId = String(formData.get("clientId") ?? "");
   const familyMemberId = String(formData.get("familyMemberId") ?? "");
-  if (!quarantineId || !clientId) return;
+  if (!quarantineId || !clientId) return { error: "Choose a client to claim this number." };
 
   const supabase = await createClient();
 
@@ -20,8 +25,8 @@ export async function claimQuarantined(formData: FormData) {
     .eq("id", quarantineId)
     .is("claimed_client_id", null)
     .maybeSingle();
-  if (qError) throw new Error(`Quarantined message not found: ${qError.message}`);
-  if (!q) return;
+  if (qError) return { error: `Quarantined message not found: ${qError.message}` };
+  if (!q) return { error: "This number was already claimed or removed." };
 
   const { error: chError } = await supabase
     .from("client_channels")
@@ -36,7 +41,7 @@ export async function claimQuarantined(formData: FormData) {
   // The number is registered either way, so treat it as success and still
   // clear the quarantine rows below.
   if (chError && chError.code !== ALREADY_CLAIMED) {
-    throw new Error(`Failed to register number: ${chError.message}`);
+    return { error: `Failed to register number: ${chError.message}` };
   }
 
   const { error: updError } = await supabase
@@ -45,21 +50,26 @@ export async function claimQuarantined(formData: FormData) {
     .eq("channel", q.channel)
     .eq("address", q.address)
     .is("claimed_client_id", null);
-  if (updError) throw new Error(`Failed to clear quarantine: ${updError.message}`);
+  if (updError) return { error: `Failed to clear quarantine: ${updError.message}` };
 
   revalidatePath("/dashboard/conversations");
   revalidatePath("/dashboard/conversations/quarantine");
+  return {};
 }
 
-export async function ignoreQuarantined(formData: FormData) {
+export async function ignoreQuarantined(
+  _prev: QuarantineActionState,
+  formData: FormData,
+): Promise<QuarantineActionState> {
   const quarantineId = String(formData.get("quarantineId") ?? "");
-  if (!quarantineId) return;
+  if (!quarantineId) return { error: "Missing quarantine id." };
   const supabase = await createClient();
   const { error } = await supabase
     .from("quarantined_messages")
     .delete()
     .eq("id", quarantineId);
-  if (error) throw new Error(`Failed to delete: ${error.message}`);
+  if (error) return { error: `Failed to delete: ${error.message}` };
   revalidatePath("/dashboard/conversations");
   revalidatePath("/dashboard/conversations/quarantine");
+  return {};
 }
