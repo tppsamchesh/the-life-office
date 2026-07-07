@@ -19,7 +19,7 @@ export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="w-56 shrink-0 bg-[#EFEBE4] border-r border-[#D8D2C8] flex flex-col">
+    <aside className="w-56 shrink-0 bg-inset border-r border-edge flex flex-col">
       <div className="px-5 py-6">
         <span className="font-serif text-lg tracking-wide">The Life Office</span>
       </div>
@@ -31,10 +31,10 @@ export function Sidebar() {
             <Link
               key={item.href}
               href={item.href}
-              className={`rounded-md px-3 py-2 text-sm transition-colors ${
+              className={`rounded-md px-3 py-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage focus-visible:ring-offset-1 ${
                 active
-                  ? "bg-white text-[#1F1F1F] font-medium border-l-2 border-[#A8B2A1]"
-                  : "text-[#6B665D] hover:bg-white/60"
+                  ? "bg-surface text-ink font-medium border-l-2 border-sage"
+                  : "text-muted hover:bg-surface/60"
               }`}
             >
               {item.label}
@@ -46,7 +46,7 @@ export function Sidebar() {
       <form action={signOut} className="mt-auto px-3 pb-5">
         <button
           type="submit"
-          className="w-full text-left rounded-md px-3 py-2 text-sm text-[#8A857B] hover:bg-white/60"
+          className="w-full text-left rounded-md px-3 py-2 text-sm text-muted hover:bg-surface/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage focus-visible:ring-offset-1"
         >
           Sign out
         </button>

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 
+import { Button } from "../../_components/ui";
 import { toSubscriptionPayload, urlBase64ToUint8Array } from "@/lib/push/format";
 
 import { removePushSubscription, savePushSubscription } from "../push-actions";
@@ -70,33 +71,30 @@ export function PushBanner() {
   if (status === "loading" || status === "unsupported") return null;
 
   return (
-    <div className="mb-4 flex items-center justify-between rounded-lg border border-[#E7E2D9] bg-white px-4 py-2.5 text-sm">
+    <div className="mb-4 flex items-center justify-between rounded-xl border border-hairline bg-surface px-4 py-2.5 text-sm">
       {status === "ios-install" ? (
-        <span className="text-[#6B665D]">
+        <span className="text-muted">
           To get notifications on iPhone: tap Share, then Add to Home Screen, then open the app from there.
         </span>
       ) : status === "denied" ? (
-        <span className="text-[#6B665D]">
+        <span className="text-muted">
           Notifications are blocked in your browser settings for this site.
         </span>
       ) : status === "error" ? (
-        <span className="text-[#C0392B]">Could not set up notifications. Try again later.</span>
+        <span className="text-alert">Could not set up notifications. Try again later.</span>
       ) : status === "subscribed" ? (
         <>
-          <span className="text-[#6B665D]">Notifications are on for this device.</span>
-          <button onClick={unsubscribe} className="text-xs underline text-[#8A857B]">
+          <span className="text-muted">Notifications are on for this device.</span>
+          <Button type="button" variant="quiet" onClick={unsubscribe}>
             Turn off
-          </button>
+          </Button>
         </>
       ) : (
         <>
-          <span className="text-[#6B665D]">Get notified when clients message.</span>
-          <button
-            onClick={subscribe}
-            className="rounded-md bg-[#A8B2A1] px-3 py-1.5 text-xs font-medium text-white hover:opacity-90"
-          >
+          <span className="text-muted">Get notified when clients message.</span>
+          <Button type="button" variant="primary" onClick={subscribe}>
             Enable notifications
-          </button>
+          </Button>
         </>
       )}
     </div>
