@@ -95,12 +95,13 @@ export function Input({
   return <input {...props} className={`${FIELD_BASE} text-sm ${className}`} />;
 }
 
-// text-base on mobile keeps iOS Safari from auto-zooming on focus.
+// text-base through 767px keeps iOS Safari from auto-zooming on focus at any
+// realistic phone/phablet width; md: (768px) is this app's breakpoint for it.
 export function Textarea({
   className = "",
   ...props
 }: React.TextareaHTMLAttributes<HTMLTextAreaElement>) {
-  return <textarea {...props} className={`${FIELD_BASE} text-base sm:text-sm ${className}`} />;
+  return <textarea {...props} className={`${FIELD_BASE} text-base md:text-sm ${className}`} />;
 }
 
 export function Select({

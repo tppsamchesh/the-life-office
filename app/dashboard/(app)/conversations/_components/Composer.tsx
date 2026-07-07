@@ -25,7 +25,7 @@ export function Composer({ conversationId }: { conversationId: string }) {
           required
           placeholder="Reply as Meg..."
           defaultValue={state.body ?? ""}
-          className="flex-1 resize-none text-base md:text-sm"
+          className="flex-1 resize-none"
         />
         <div className="flex flex-col items-stretch gap-1.5 self-end">
           <Button
