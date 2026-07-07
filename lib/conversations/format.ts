@@ -17,11 +17,42 @@ export function relativeTime(iso: string, now: Date = new Date()): string {
   return `${Math.floor(hours / 24)}d`;
 }
 
-export function graceCountdown(deadlineIso: string | null, now: Date = new Date()): string | null {
+export type GraceStatus = { label: string; overdue: boolean };
+
+// Minute-granular grace countdown. Past the deadline it keeps counting up as
+// "overdue Xm" instead of freezing, so a lapsed grace window is visibly
+// different from a healthy one.
+export function graceCountdown(deadlineIso: string | null, now: Date = new Date()): GraceStatus | null {
   if (!deadlineIso) return null;
   const ms = new Date(deadlineIso).getTime() - now.getTime();
-  if (ms <= 0) return "now";
-  const minutes = Math.floor(ms / 60_000);
-  const seconds = Math.floor((ms % 60_000) / 1000);
-  return minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`;
+  if (ms <= 0) {
+    const overdueMin = Math.floor(-ms / 60_000);
+    return { label: overdueMin < 1 ? "overdue" : `overdue ${overdueMin}m`, overdue: true };
+  }
+  return { label: `${Math.ceil(ms / 60_000)}m`, overdue: false };
+}
+
+// en-CA gives ISO-style YYYY-MM-DD, which we use as a stable London-day key.
+const LONDON_DAY_KEY = new Intl.DateTimeFormat("en-CA", {
+  timeZone: "Europe/London", year: "numeric", month: "2-digit", day: "2-digit",
+});
+const LONDON_DAY_LABEL = new Intl.DateTimeFormat("en-GB", {
+  timeZone: "Europe/London", weekday: "long", day: "numeric", month: "long",
+});
+
+export function londonDayKey(iso: string): string {
+  return LONDON_DAY_KEY.format(new Date(iso));
+}
+
+export function dayDividerLabel(iso: string, now: Date = new Date()): string {
+  const key = londonDayKey(iso);
+  if (key === LONDON_DAY_KEY.format(now)) return "Today";
+  if (key === LONDON_DAY_KEY.format(new Date(now.getTime() - 86_400_000))) return "Yesterday";
+  return LONDON_DAY_LABEL.format(new Date(iso));
+}
+
+export function londonTime(iso: string): string {
+  return new Date(iso).toLocaleTimeString("en-GB", {
+    hour: "2-digit", minute: "2-digit", timeZone: "Europe/London",
+  });
 }
