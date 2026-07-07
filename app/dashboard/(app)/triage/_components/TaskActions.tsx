@@ -1,20 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { useActionState, useState } from "react";
 
+import { Button, FormError, Input, Textarea } from "../../_components/ui";
 import {
   approveTask,
   dismissTask,
   editApproveTask,
   noteTask,
   snoozeTask,
+  type TaskActionState,
 } from "../actions";
 
 type Panel = "none" | "edit" | "dismiss" | "snooze" | "note";
 
-const BTN =
-  "rounded-md border border-[#C9C2B5] bg-white px-4 py-2 text-sm hover:bg-[#FBFAF8] transition-colors";
-const FIELD = "w-full border border-[#D8D2C8] rounded-md px-3 py-2 bg-white text-sm";
+const INITIAL: TaskActionState = {};
 
 export function TaskActions({
   taskId,
@@ -26,74 +26,104 @@ export function TaskActions({
   notes: string | null;
 }) {
   const [panel, setPanel] = useState<Panel>("none");
+  const [approveState, approveAction] = useActionState(approveTask, INITIAL);
+  const [editState, editAction] = useActionState(editApproveTask, INITIAL);
+  const [dismissState, dismissAction] = useActionState(dismissTask, INITIAL);
+  const [snoozeState, snoozeAction] = useActionState(snoozeTask, INITIAL);
+  const [noteState, noteAction] = useActionState(noteTask, INITIAL);
+
+  function toggle(next: Panel) {
+    setPanel(panel === next ? "none" : next);
+  }
 
   return (
     <div className="mt-5">
       <div className="flex flex-wrap gap-2.5">
-        <form action={approveTask}>
+        <form action={approveAction}>
           <input type="hidden" name="taskId" value={taskId} />
-          <button
-            type="submit"
-            className="rounded-md bg-[#A8B2A1] px-4 py-2 text-sm font-medium text-[#1F1F1F] hover:bg-[#96a08f] transition-colors"
-          >
+          <Button type="submit" variant="primary" pendingLabel="Approving…">
             Approve
-          </button>
+          </Button>
+          <FormError message={approveState.error} />
         </form>
-        <button type="button" className={BTN} onClick={() => setPanel(panel === "edit" ? "none" : "edit")}>
+        <Button type="button" variant="secondary" onClick={() => toggle("edit")}>
           Edit &amp; Approve
-        </button>
-        <button type="button" className={BTN} onClick={() => setPanel(panel === "dismiss" ? "none" : "dismiss")}>
+        </Button>
+        <Button type="button" variant="secondary" onClick={() => toggle("dismiss")}>
           Dismiss
-        </button>
-        <button type="button" className={BTN} onClick={() => setPanel(panel === "snooze" ? "none" : "snooze")}>
+        </Button>
+        <Button type="button" variant="secondary" onClick={() => toggle("snooze")}>
           Snooze
-        </button>
-        <button type="button" className={BTN} onClick={() => setPanel(panel === "note" ? "none" : "note")}>
+        </Button>
+        <Button type="button" variant="secondary" onClick={() => toggle("note")}>
           Note
-        </button>
+        </Button>
       </div>
 
       {panel === "edit" ? (
-        <form action={editApproveTask} className="mt-4 flex flex-col gap-2">
+        <form action={editAction} className="mt-4 flex flex-col gap-2">
           <input type="hidden" name="taskId" value={taskId} />
-          <textarea name="message" rows={5} defaultValue={draftMessage} aria-label="Edited reply" className={FIELD} />
-          <button
-            type="submit"
-            className="self-start rounded-md bg-[#A8B2A1] px-4 py-2 text-sm font-medium text-[#1F1F1F] hover:bg-[#96a08f]"
-          >
+          <Textarea
+            name="message"
+            rows={5}
+            defaultValue={editState.value ?? draftMessage}
+            aria-label="Edited reply"
+          />
+          <FormError message={editState.error} />
+          <Button type="submit" variant="primary" pendingLabel="Approving…" className="self-start">
             Save &amp; Approve
-          </button>
+          </Button>
         </form>
       ) : null}
 
       {panel === "dismiss" ? (
-        <form action={dismissTask} className="mt-4 flex flex-col gap-2">
+        <form action={dismissAction} className="mt-4 flex flex-col gap-2">
           <input type="hidden" name="taskId" value={taskId} />
-          <input name="reason" placeholder="Reason (optional)" aria-label="Dismiss reason" className={FIELD} />
-          <button type="submit" className={`${BTN} self-start`}>Confirm dismiss</button>
+          <Input
+            name="reason"
+            placeholder="Reason (optional)"
+            aria-label="Dismiss reason"
+            defaultValue={dismissState.value ?? ""}
+          />
+          <FormError message={dismissState.error} />
+          <Button type="submit" variant="secondary" pendingLabel="Dismissing…" className="self-start">
+            Confirm dismiss
+          </Button>
         </form>
       ) : null}
 
       {panel === "snooze" ? (
-        <form action={snoozeTask} className="mt-4 flex flex-col gap-2">
+        <form action={snoozeAction} className="mt-4 flex flex-col gap-2">
           <input type="hidden" name="taskId" value={taskId} />
-          <input type="date" name="until" required aria-label="Snooze until" className={`${FIELD} max-w-xs`} />
-          <button type="submit" className={`${BTN} self-start`}>Confirm snooze</button>
+          <Input
+            type="date"
+            name="until"
+            required
+            aria-label="Snooze until"
+            defaultValue={snoozeState.value ?? ""}
+            className="max-w-xs"
+          />
+          <FormError message={snoozeState.error} />
+          <Button type="submit" variant="secondary" pendingLabel="Snoozing…" className="self-start">
+            Confirm snooze
+          </Button>
         </form>
       ) : null}
 
       {panel === "note" ? (
-        <form action={noteTask} className="mt-4 flex flex-col gap-2">
+        <form action={noteAction} className="mt-4 flex flex-col gap-2">
           <input type="hidden" name="taskId" value={taskId} />
-          <textarea
+          <Textarea
             name="note"
             rows={3}
-            defaultValue={notes ?? ""}
+            defaultValue={noteState.value ?? notes ?? ""}
             placeholder="Private note for this task"
             aria-label="Private note"
-            className={FIELD}
           />
-          <button type="submit" className={`${BTN} self-start`}>Save note</button>
+          <FormError message={noteState.error} />
+          <Button type="submit" variant="secondary" pendingLabel="Saving…" className="self-start">
+            Save note
+          </Button>
         </form>
       ) : null}
     </div>
