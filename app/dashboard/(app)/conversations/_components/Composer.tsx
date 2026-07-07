@@ -25,10 +25,17 @@ export function Composer({ conversationId }: { conversationId: string }) {
           required
           placeholder="Reply as Meg..."
           defaultValue={state.body ?? ""}
-          className="flex-1 resize-none"
+          className="flex-1 resize-none text-base md:text-sm"
         />
         <div className="flex flex-col items-stretch gap-1.5 self-end">
-          <Button type="submit" variant="primary" name="intent" value="send" pendingLabel="Sending...">
+          <Button
+            type="submit"
+            variant="primary"
+            name="intent"
+            value="send"
+            pendingLabel="Sending..."
+            className="min-h-11 md:min-h-0"
+          >
             Send
           </Button>
           <Button
@@ -37,6 +44,7 @@ export function Composer({ conversationId }: { conversationId: string }) {
             name="intent"
             value="send_hand_back"
             pendingLabel="Sending..."
+            className="min-h-11 md:min-h-0"
           >
             Send &amp; hand back
           </Button>

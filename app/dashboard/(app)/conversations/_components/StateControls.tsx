@@ -22,7 +22,12 @@ export function StateControls({ conversationId, paused }: { conversationId: stri
     <form action={formAction} className="flex items-center gap-2">
       <FormError message={state.error} />
       <input type="hidden" name="conversationId" value={conversationId} />
-      <Button type="submit" variant="secondary" pendingLabel={paused ? "Handing back..." : "Taking over..."}>
+      <Button
+        type="submit"
+        variant="secondary"
+        pendingLabel={paused ? "Handing back..." : "Taking over..."}
+        className="min-h-11 md:min-h-0"
+      >
         {paused ? "Hand back to assistant" : "I've got this"}
       </Button>
     </form>
