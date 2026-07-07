@@ -1,146 +1,117 @@
-"use client";
-
 import Link from "next/link";
-import { useActionState } from "react";
 
+import type { PendingTask, SiblingThread } from "@/lib/conversations/queries";
 import type { Database } from "@/lib/supabase/types";
 
-import { Button, Chip, FormError, Textarea } from "../../_components/ui";
-import {
-  handBackConversation,
-  sendReply,
-  takeOverConversation,
-  type ConversationActionState,
-} from "../actions";
+import { Chip } from "../../_components/ui";
+import { Composer } from "./Composer";
+import { DraftPanel } from "./DraftPanel";
 import { GraceChip } from "./GraceChip";
+import { MarkRead } from "./MarkRead";
+import { StateControls } from "./StateControls";
+import { Transcript } from "./Transcript";
 
 type MessageRow = Database["public"]["Tables"]["messages"]["Row"];
 
-const STATUS_LABEL: Record<string, string> = {
-  queued: "queued", sending: "sending", sent: "sent",
-  delivered: "delivered", failed: "failed", cancelled: "cancelled",
-};
-
-const INITIAL: ConversationActionState = {};
-
-function Bubble({ message }: { message: MessageRow }) {
-  const inbound = message.direction === "inbound";
-  const fromAgent = message.author === "agent";
-  return (
-    <div className={`flex ${inbound ? "justify-start" : "justify-end"}`}>
-      <div
-        className={`max-w-[75%] rounded-xl px-3.5 py-2 text-sm ${
-          inbound
-            ? "bg-surface border border-hairline"
-            : fromAgent
-              ? "bg-sage-tint border border-sage-deep/20"
-              : "bg-sage text-white"
-        }`}
-      >
-        {fromAgent ? (
-          <div className="mb-0.5 text-[11px] uppercase tracking-wide text-sage-deep">
-            assistant · sent as Meg
-          </div>
-        ) : null}
-        <p className="whitespace-pre-wrap">{message.body}</p>
-        <div className={`mt-1 text-[11px] ${inbound ? "text-muted" : fromAgent ? "text-sage-deep" : "text-white/70"}`}>
-          {new Date(message.created_at).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}
-          {!inbound && STATUS_LABEL[message.status] ? ` · ${STATUS_LABEL[message.status]}` : ""}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// Take-over / hand-back control. Keyed by mode at the call site so
-// useActionState resets when the conversation flips.
-function ControlForm({ conversationId, paused }: { conversationId: string; paused: boolean }) {
-  const [state, formAction] = useActionState(
-    paused ? handBackConversation : takeOverConversation,
-    INITIAL,
-  );
-  return (
-    <form action={formAction} className="flex items-center gap-2">
-      <input type="hidden" name="conversationId" value={conversationId} />
-      <FormError message={state.error} />
-      <Button type="submit" variant="secondary" pendingLabel="Saving…">
-        {paused ? "Hand back to assistant" : "I've got this"}
-      </Button>
-    </form>
-  );
-}
-
-// Reply composer. On failure the action returns { error, body } and the
-// textarea's defaultValue restores the draft; on success state is {} and
-// the field clears.
-function Composer({ conversationId }: { conversationId: string }) {
-  const [state, formAction] = useActionState(sendReply, INITIAL);
-  return (
-    <form action={formAction} className="border-t border-hairline px-4 py-3">
-      <div className="flex gap-2">
-        <input type="hidden" name="conversationId" value={conversationId} />
-        <Textarea
-          name="body"
-          rows={2}
-          required
-          placeholder="Reply as Meg..."
-          aria-label="Reply as Meg"
-          defaultValue={state.body ?? ""}
-          className="flex-1 resize-none"
-        />
-        <Button type="submit" variant="primary" pendingLabel="Sending…" className="self-end">
-          Send
-        </Button>
-      </div>
-      <FormError message={state.error} />
-    </form>
-  );
-}
-
 export function ThreadView({
-  conversation, messages, title, view,
+  conversation,
+  messages,
+  title,
+  view,
+  pendingTask = null,
+  siblings = [],
+  unread = false,
 }: {
-  conversation: { id: string; state: string; agent_paused: boolean;
-    grace_deadline: string | null; rolling_summary: string | null };
+  conversation: {
+    id: string;
+    client_id: string;
+    state: string;
+    agent_paused: boolean;
+    grace_deadline: string | null;
+    rolling_summary: string | null;
+  };
   messages: MessageRow[];
   title: string;
   view: "transcript" | "summary";
+  pendingTask?: PendingTask | null;
+  siblings?: SiblingThread[];
+  unread?: boolean;
 }) {
   const paused = conversation.agent_paused;
+  const latestMessageAt = messages.length > 0 ? messages[messages.length - 1].created_at : null;
+
   return (
-    <div className="flex h-full flex-col rounded-xl border border-hairline bg-surface">
-      <div className="flex items-center justify-between gap-3 border-b border-hairline px-4 py-3">
-        <div className="flex items-center gap-3">
-          <h2 className="font-serif text-lg">{title}</h2>
-          <GraceChip deadline={conversation.state === "awaiting_meg" ? conversation.grace_deadline : null} />
-          {conversation.state === "agent_active" ? <Chip tone="sage">agent active</Chip> : null}
+    <div className="flex h-full flex-col rounded-xl border border-edge bg-surface">
+      <MarkRead conversationId={conversation.id} unread={unread} latestMessageAt={latestMessageAt} />
+
+      <div className="border-b border-hairline px-4 py-3">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex min-w-0 items-center gap-3">
+            <h2 className="truncate font-serif text-lg">{title}</h2>
+            <GraceChip
+              deadline={conversation.state === "awaiting_meg" ? conversation.grace_deadline : null}
+            />
+            {conversation.state === "agent_active" ? <Chip tone="sage">agent active</Chip> : null}
+            {paused ? (
+              <Chip tone="neutral" dot>
+                assistant paused
+              </Chip>
+            ) : null}
+          </div>
+          <div className="flex shrink-0 items-center gap-3">
+            <Link
+              href={`/dashboard/conversations?conversation=${conversation.id}&view=${
+                view === "summary" ? "transcript" : "summary"
+              }`}
+              className="text-xs text-muted underline hover:text-ink"
+            >
+              {view === "summary" ? "Show transcript" : "Show summary"}
+            </Link>
+            <StateControls conversationId={conversation.id} paused={paused} />
+          </div>
         </div>
-        <div className="flex items-center gap-3">
+
+        <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs">
           <Link
-            href={`/dashboard/conversations?conversation=${conversation.id}&view=${view === "summary" ? "transcript" : "summary"}`}
-            className="text-xs text-muted underline hover:text-ink"
+            href={`/dashboard/clients/${conversation.client_id}`}
+            className="text-muted underline hover:text-ink"
           >
-            {view === "summary" ? "Show transcript" : "Show summary"}
+            Client profile
           </Link>
-          <ControlForm
-            key={paused ? "handback" : "takeover"}
-            conversationId={conversation.id}
-            paused={paused}
-          />
+          {pendingTask ? (
+            <Link
+              href={`/dashboard/triage?task=${pendingTask.id}`}
+              className="text-muted underline hover:text-ink"
+            >
+              Pending task
+            </Link>
+          ) : null}
+          {siblings.length > 0 ? (
+            <span className="flex flex-wrap items-center gap-1.5">
+              <span className="text-faint">Household:</span>
+              {siblings.map((s) => (
+                <Link key={s.id} href={`/dashboard/conversations?conversation=${s.id}`}>
+                  <Chip tone={s.state === "awaiting_meg" ? "amber" : "neutral"}>{s.title}</Chip>
+                </Link>
+              ))}
+            </span>
+          ) : null}
         </div>
       </div>
 
-      <div className="flex-1 space-y-3 overflow-y-auto px-4 py-4">
-        {view === "summary" ? (
-          <p className="text-sm text-muted">
-            {conversation.rolling_summary ?? "No summary yet."}
-          </p>
-        ) : messages.length === 0 ? (
+      {view === "summary" ? (
+        <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4">
+          <p className="text-sm text-muted">{conversation.rolling_summary ?? "No summary yet."}</p>
+        </div>
+      ) : messages.length === 0 ? (
+        <div className="min-h-0 flex-1 px-4 py-4">
           <p className="text-sm text-muted">No messages yet.</p>
-        ) : (
-          messages.map((m) => <Bubble key={m.id} message={m} />)
-        )}
-      </div>
+        </div>
+      ) : (
+        <Transcript messages={messages} />
+      )}
+
+      {view === "transcript" && pendingTask ? <DraftPanel task={pendingTask} /> : null}
 
       <Composer conversationId={conversation.id} />
     </div>
