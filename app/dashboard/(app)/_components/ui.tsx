@@ -123,7 +123,7 @@ export function SectionLabel({ children }: { children: React.ReactNode }) {
 
 export function BackLink({ href, children }: { href: string; children: React.ReactNode }) {
   return (
-    <Link href={href} className="text-sm text-muted transition-colors hover:text-ink">
+    <Link href={href} className={`text-sm text-muted transition-colors hover:text-ink ${FOCUS_RING}`}>
       ← {children}
     </Link>
   );

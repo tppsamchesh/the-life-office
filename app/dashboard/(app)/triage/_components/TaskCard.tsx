@@ -103,7 +103,7 @@ export function TaskCard({ task }: { task: InboxTask }) {
           <p className="font-mono text-sm leading-relaxed text-ink whitespace-pre-wrap">
             {task.meg_edited_message ?? task.draft_message}
           </p>
-          <div className="mt-2 text-right text-[11px] text-faint">
+          <div className="mt-2 text-right text-[11px] text-muted">
             {(task.meg_edited_message ?? task.draft_message).length} chars
           </div>
         </div>
