@@ -10,7 +10,7 @@ import {
   type InboxTask,
 } from "@/lib/triage/queries";
 
-import { Chip, EmptyCard, SectionLabel } from "../_components/ui";
+import { AllClear, Chip, EmptyCard, SectionLabel } from "../_components/ui";
 import { RealtimeTasks } from "./_components/RealtimeTasks";
 import { SnoozedList } from "./_components/SnoozedList";
 import { TaskCard } from "./_components/TaskCard";
@@ -97,16 +97,20 @@ export default async function TriagePage({
       : "",
   }));
 
+  const isEmpty = tasks.length === 0 && snoozed.length === 0;
+
   return (
-    <div>
+    <div className="flex h-[calc(100dvh-6rem)] flex-col">
       <RealtimeTasks />
-      <h1 className="mb-1 font-serif text-2xl">Triage</h1>
-      <p className="mb-6 text-sm text-muted">
-        {tasks.length} pending {tasks.length === 1 ? "task" : "tasks"}
-      </p>
+      <div className="mb-4 shrink-0">
+        <h1 className="mb-1 font-serif text-2xl">Triage</h1>
+        <p className="text-sm text-muted">
+          {tasks.length} pending {tasks.length === 1 ? "task" : "tasks"}
+        </p>
+      </div>
 
       {approved.length > 0 ? (
-        <div className="mb-6 rounded-xl border border-hairline bg-surface px-4 py-3">
+        <div className="mb-4 shrink-0 rounded-xl border border-hairline bg-surface px-4 py-3">
           <SectionLabel>Approved · last 24h</SectionLabel>
           <ul className="mt-2 space-y-1.5">
             {approved.map(({ task, delivery }) => (
@@ -136,11 +140,21 @@ export default async function TriagePage({
         </div>
       ) : null}
 
-      {tasks.length === 0 && snoozed.length === 0 ? (
-        <EmptyCard>Nothing to triage right now.</EmptyCard>
+      {isEmpty ? (
+        <AllClear
+          title="All clear"
+          hint="Nothing needs you right now. New client requests and nudges land here the moment they arrive."
+        />
       ) : (
-        <div className="flex gap-6">
-          <div className="flex w-64 shrink-0 flex-col gap-5">
+        <div className="flex min-h-0 flex-1 gap-6">
+          {/* Mobile: full-width list until a task is explicitly selected; the
+              detail replaces it (same pattern as Conversations). Desktop: both
+              columns pinned, each scrolling internally. */}
+          <div
+            className={`w-full space-y-5 overflow-y-auto md:w-64 md:shrink-0 ${
+              selectedId ? "hidden md:block" : ""
+            }`}
+          >
             {groups.map((group) => (
               <div key={group.key}>
                 <SectionLabel className="mb-2 px-1">
@@ -161,7 +175,19 @@ export default async function TriagePage({
             ) : null}
           </div>
 
-          <div className="min-w-0 flex-1">
+          <div
+            className={`min-w-0 flex-1 overflow-y-auto pb-2 ${
+              selectedId ? "" : "hidden md:block"
+            }`}
+          >
+            {selectedId ? (
+              <Link
+                href="/dashboard/triage"
+                className="mb-2 inline-flex min-h-11 items-center text-sm text-muted underline md:hidden"
+              >
+                ← All tasks
+              </Link>
+            ) : null}
             {selectionMissing ? (
               <EmptyCard>
                 That task is no longer in the queue. It may have been approved, dismissed, or
