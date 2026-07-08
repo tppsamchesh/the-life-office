@@ -39,7 +39,7 @@ function LinkChip({ href, label }: { href: string; label: string }) {
   );
 }
 
-// The shared "dossier" — one design for a lead, used by both the Review Deck and the
+// The shared "dossier": one design for a lead, used by both the Review Deck and the
 // detail page. Surfaces what gives Meg confidence: who (named person + role), their fit,
 // the why, and real ways to verify and reach them (email quality + LinkedIn).
 export function LeadDossier({ lead }: { lead: LeadRow }) {

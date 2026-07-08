@@ -13,7 +13,7 @@ export type NormalizedBrief = {
   noteForMeg?: string;
 };
 
-// Keys handled specially — excluded from the generic "facts" list.
+// Keys handled specially, excluded from the generic "facts" list.
 const RESERVED = new Set([
   "options",
   "recommendation",

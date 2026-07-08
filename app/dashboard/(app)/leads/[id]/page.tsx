@@ -27,7 +27,7 @@ export default async function LeadPage({ params }: { params: Promise<{ id: strin
 
   const stage = (lead.stage ?? "new") as LeadStage;
   const stageLabel = STAGES.find((s) => s.key === stage)?.label ?? stage;
-  // Drafting is a post-approval step — only show outreach once one actually exists.
+  // Drafting is a post-approval step: only show outreach once one actually exists.
   const outreach = lead.meg_edited_message ?? lead.draft_message;
 
   return (
@@ -54,7 +54,7 @@ export default async function LeadPage({ params }: { params: Promise<{ id: strin
 
         {lead.rejected_reason ? (
           <p className="mt-5 text-xs text-muted">
-            <span className={LABEL}>Rejected</span> — {lead.rejected_reason}
+            <span className={LABEL}>Rejected</span> · {lead.rejected_reason}
           </p>
         ) : null}
         {lead.notes ? (

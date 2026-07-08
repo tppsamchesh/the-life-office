@@ -7,7 +7,7 @@ import { FitRing } from "./FitRing";
 import { HScroll } from "./HScroll";
 import { TypeBadge } from "./TypeBadge";
 
-// The full pipeline as an enriched Kanban — every card now carries type, fit, and the why.
+// The full pipeline as an enriched Kanban: every card now carries type, fit, and the why.
 export function PipelineBoard({ leads }: { leads: LeadRow[] }) {
   const groups = groupByStage(leads);
 
@@ -51,7 +51,7 @@ export function PipelineBoard({ leads }: { leads: LeadRow[] }) {
                 </Link>
               ))}
               {items.length === 0 ? (
-                <p className="px-1 py-2 text-xs text-faint">—</p>
+                <p className="px-1 py-2 text-xs text-faint">–</p>
               ) : null}
             </div>
           </div>

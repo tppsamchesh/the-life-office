@@ -28,7 +28,7 @@ export default async function ClientsPage() {
               <Chip tone={c.status === "active" ? "sage" : "neutral"}>{c.status ?? "active"}</Chip>
             </div>
             <p className="mt-1 text-xs text-muted">
-              {c.first_name} {c.last_name} · prefers {c.preferred_channel ?? "—"}
+              {c.first_name} {c.last_name} · prefers {c.preferred_channel ?? "–"}
             </p>
             <div className="mt-3 flex gap-2">
               <Chip>{c.memberCount} family</Chip>
