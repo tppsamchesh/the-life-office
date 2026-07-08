@@ -2,7 +2,7 @@ import { getQuarantined } from "@/lib/conversations/queries";
 import { relativeTime } from "@/lib/conversations/format";
 import { createClient } from "@/lib/supabase/server";
 
-import { BackLink, EmptyCard } from "../../_components/ui";
+import { AllClear, Chip, DetailHeader } from "../../_components/ui";
 import { QuarantineActions, type ClientOption } from "./_components/QuarantineActions";
 
 export default async function QuarantinePage() {
@@ -22,16 +22,29 @@ export default async function QuarantinePage() {
 
   return (
     <div>
-      <BackLink href="/dashboard/conversations">Conversations</BackLink>
-      <h1 className="font-serif text-2xl mb-1 mt-2">Unknown numbers</h1>
-      <p className="text-sm text-muted mb-6">
+      <DetailHeader
+        back={{ href: "/dashboard/conversations", label: "Conversations" }}
+        title="Unknown numbers"
+        chip={
+          rows.length ? (
+            <Chip tone="neutral">
+              <span aria-hidden className="mr-1 inline-block h-1.5 w-1.5 rounded-full bg-alert" />
+              {rows.length}
+            </Chip>
+          ) : undefined
+        }
+      />
+      <p className="mb-6 max-w-2xl text-sm text-muted">
         Messages from numbers not registered to any client. Claim to attach the number to a
         person. Claiming only registers the number going forward. These historical messages
         stay here for reference and are not moved into that client&apos;s conversation.
       </p>
 
       {rows.length === 0 ? (
-        <EmptyCard>Nothing in quarantine.</EmptyCard>
+        <AllClear
+          title="All clear, no unknown numbers"
+          hint="Messages from unrecognised numbers wait here for you to claim or ignore."
+        />
       ) : (
         <ul className="max-w-2xl space-y-3">
           {rows.map((q) => (

@@ -5,7 +5,7 @@ import { ageFromDob } from "@/lib/clients/dates";
 import { jsonbToFacts } from "@/lib/clients/preferences";
 import { getFamilyMember, householdName } from "@/lib/clients/queries";
 
-import { BackLink, Card, Chip, Empty } from "../../../../_components/ui";
+import { Card, Chip, DetailHeader, Empty } from "../../../../_components/ui";
 import { HouseholdThreads } from "../../../_components/HouseholdThreads";
 
 export default async function FamilyMemberPage({
@@ -27,14 +27,15 @@ export default async function FamilyMemberPage({
 
   return (
     <div>
-      <BackLink href={`/dashboard/clients/${client.id}`}>{householdName(client)}</BackLink>
-
-      <h1 className="mt-2 font-serif text-2xl">
-        {member.first_name} {member.last_name ?? ""}
-      </h1>
-      <p className="mb-6 text-[11px] font-medium uppercase tracking-wide text-muted">
-        {roleLabel}
-      </p>
+      <DetailHeader
+        back={{
+          href: `/dashboard/clients/${client.id}`,
+          label: householdName(client),
+        }}
+        title={`${member.first_name} ${member.last_name ?? ""}`.trim()}
+        chip={<Chip tone="neutral">{roleLabel}</Chip>}
+      />
+      <div className="mb-6" />
 
       <div className="grid gap-4 lg:grid-cols-[1.4fr_1fr]">
         <div className="flex flex-col gap-4">

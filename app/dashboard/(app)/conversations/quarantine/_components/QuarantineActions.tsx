@@ -33,13 +33,24 @@ export function QuarantineActions({
       <div className="flex flex-wrap items-center gap-2">
         <form action={claimAction} className="flex flex-wrap items-center gap-2">
           <input type="hidden" name="quarantineId" value={quarantineId} />
-          <Select name="clientId" required defaultValue="" aria-label="Choose client">
+          <Select
+            name="clientId"
+            required
+            defaultValue=""
+            aria-label="Choose client"
+            className="min-h-11 md:min-h-0"
+          >
             <option value="" disabled>Choose client...</option>
             {clients.map((c) => (
               <option key={c.id} value={c.id}>{c.last_name}, {c.first_name}</option>
             ))}
           </Select>
-          <Select name="familyMemberId" defaultValue="" aria-label="Family member">
+          <Select
+            name="familyMemberId"
+            defaultValue=""
+            aria-label="Family member"
+            className="min-h-11 md:min-h-0"
+          >
             <option value="">The client themself</option>
             {clients.flatMap((c) =>
               c.family_members.map((m) => (
@@ -47,13 +58,23 @@ export function QuarantineActions({
               )),
             )}
           </Select>
-          <Button type="submit" variant="primary" pendingLabel="Claiming…">
+          <Button
+            type="submit"
+            variant="primary"
+            pendingLabel="Claiming…"
+            className="min-h-11 md:min-h-0"
+          >
             Claim
           </Button>
         </form>
         <form action={ignoreAction}>
           <input type="hidden" name="quarantineId" value={quarantineId} />
-          <Button type="submit" variant="quiet" pendingLabel="Removing…">
+          <Button
+            type="submit"
+            variant="quiet"
+            pendingLabel="Removing…"
+            className="min-h-11 md:min-h-0"
+          >
             Ignore
           </Button>
         </form>

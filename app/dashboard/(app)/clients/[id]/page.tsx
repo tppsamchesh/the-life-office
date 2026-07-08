@@ -5,7 +5,7 @@ import { ageFromDob, buildDateEntries } from "@/lib/clients/dates";
 import { jsonbToFacts } from "@/lib/clients/preferences";
 import { getClient, householdName } from "@/lib/clients/queries";
 
-import { Card, Chip, Empty } from "../../_components/ui";
+import { Card, Chip, DetailHeader, Empty } from "../../_components/ui";
 import { ActivityList } from "../_components/ActivityList";
 import { HouseholdThreads } from "../_components/HouseholdThreads";
 
@@ -39,24 +39,23 @@ export default async function ClientPage({ params }: { params: Promise<{ id: str
 
   return (
     <div>
-      <div className="mb-6 rounded-xl border border-edge bg-inset px-6 py-5">
-        <div className="flex items-start gap-4">
-          <div className="flex h-12 w-12 items-center justify-center rounded-md bg-sage font-serif text-xl text-ink">
-            {client.last_name.charAt(0)}
-          </div>
-          <div className="flex-1">
-            <h1 className="font-serif text-2xl">{householdName(client)}</h1>
-            <p className="mt-0.5 text-xs text-muted">
-              {client.first_name} {client.last_name} · prefers {client.preferred_channel ?? "—"}
-              {client.budget_sensitivity ? ` · budget ${client.budget_sensitivity}` : ""}
-            </p>
-            <div className="mt-3 flex flex-wrap gap-2">
-              <Chip tone={client.status === "active" ? "sage" : "neutral"}>{client.status ?? "active"}</Chip>
-              <Chip>{members.length} family</Chip>
-              <Chip>{openTasks.length} open {openTasks.length === 1 ? "task" : "tasks"}</Chip>
-            </div>
-          </div>
-        </div>
+      <DetailHeader
+        back={{ href: "/dashboard/clients", label: "Clients" }}
+        title={householdName(client)}
+        chip={
+          <Chip tone={client.status === "active" ? "sage" : "neutral"}>
+            {client.status ?? "active"}
+          </Chip>
+        }
+        meta={`${client.first_name} ${client.last_name} · prefers ${client.preferred_channel ?? "–"}${
+          client.budget_sensitivity ? ` · budget ${client.budget_sensitivity}` : ""
+        }`}
+      />
+      <div className="mb-6 mt-3 flex flex-wrap gap-2">
+        <Chip>{members.length} family</Chip>
+        <Chip>
+          {openTasks.length} open {openTasks.length === 1 ? "task" : "tasks"}
+        </Chip>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-[1.6fr_1fr]">
