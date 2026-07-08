@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -19,6 +20,16 @@ const PREF_FIELDS = [
 function memberRole(type: string, dob: string | null, ageFn: (d: string) => number): string {
   if (type === "child" && dob) return `Child · ${ageFn(dob)}`;
   return type.charAt(0).toUpperCase() + type.slice(1);
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const detail = await getClient(id);
+  return { title: detail ? householdName(detail.client) : "Client" };
 }
 
 export default async function ClientPage({ params }: { params: Promise<{ id: string }> }) {

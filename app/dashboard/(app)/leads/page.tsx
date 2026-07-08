@@ -3,6 +3,8 @@ import { getLeads } from "@/lib/leads/queries";
 import { LeadsWorkspace } from "./_components/LeadsWorkspace";
 import { RealtimeLeads } from "./_components/RealtimeLeads";
 
+export const metadata = { title: "Leads" };
+
 export default async function LeadsPage() {
   const leads = await getLeads();
   const needsReviewing = leads.filter((l) => (l.stage ?? "new") === "needs_reviewing");

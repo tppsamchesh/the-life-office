@@ -1,13 +1,24 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { getLead } from "@/lib/leads/queries";
-import { STAGES, type LeadStage } from "@/lib/leads/stages";
+import { leadName, STAGES, type LeadStage } from "@/lib/leads/stages";
 
 import { LeadActions } from "../_components/LeadActions";
 import { LeadDossier } from "../_components/LeadDossier";
 import { BackLink, Chip } from "../../_components/ui";
 
 const LABEL = "text-[11px] font-medium uppercase tracking-wide text-muted";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const lead = await getLead(id);
+  return { title: lead ? leadName(lead) : "Lead" };
+}
 
 export default async function LeadPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;

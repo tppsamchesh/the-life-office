@@ -1,3 +1,5 @@
+import { cache } from "react";
+
 import { createClient } from "@/lib/supabase/server";
 import type { Database } from "@/lib/supabase/types";
 
@@ -47,31 +49,33 @@ export type ClientDetail = {
   activity: ActivityRow[];
 };
 
-export async function getClient(id: string): Promise<ClientDetail | null> {
-  const supabase = await createClient();
-  const [clientRes, membersRes, datesRes, tasksRes, activityRes] = await Promise.all([
-    supabase.from("clients").select("*").eq("id", id).maybeSingle(),
-    supabase.from("family_members").select("*").eq("client_id", id).order("type"),
-    supabase.from("lifecycle_dates").select("*").eq("client_id", id),
-    supabase.from("tasks").select("*").eq("client_id", id).eq("status", "pending"),
-    supabase
-      .from("activity_log")
-      .select("*")
-      .eq("client_id", id)
-      .order("created_at", { ascending: false })
-      .limit(50),
-  ]);
+export const getClient = cache(
+  async (id: string): Promise<ClientDetail | null> => {
+    const supabase = await createClient();
+    const [clientRes, membersRes, datesRes, tasksRes, activityRes] = await Promise.all([
+      supabase.from("clients").select("*").eq("id", id).maybeSingle(),
+      supabase.from("family_members").select("*").eq("client_id", id).order("type"),
+      supabase.from("lifecycle_dates").select("*").eq("client_id", id),
+      supabase.from("tasks").select("*").eq("client_id", id).eq("status", "pending"),
+      supabase
+        .from("activity_log")
+        .select("*")
+        .eq("client_id", id)
+        .order("created_at", { ascending: false })
+        .limit(50),
+    ]);
 
-  if (!clientRes.data) return null;
+    if (!clientRes.data) return null;
 
-  return {
-    client: clientRes.data,
-    members: membersRes.data ?? [],
-    lifecycle: datesRes.data ?? [],
-    openTasks: tasksRes.data ?? [],
-    activity: activityRes.data ?? [],
-  };
-}
+    return {
+      client: clientRes.data,
+      members: membersRes.data ?? [],
+      lifecycle: datesRes.data ?? [],
+      openTasks: tasksRes.data ?? [],
+      activity: activityRes.data ?? [],
+    };
+  },
+);
 
 export type FamilyMemberDetail = {
   client: Pick<ClientRow, "id" | "first_name" | "last_name">;
@@ -81,39 +85,38 @@ export type FamilyMemberDetail = {
   activity: ActivityRow[];
 };
 
-export async function getFamilyMember(
-  clientId: string,
-  memberId: string,
-): Promise<FamilyMemberDetail | null> {
-  const supabase = await createClient();
-  const memberRes = await supabase
-    .from("family_members")
-    .select("*")
-    .eq("id", memberId)
-    .eq("client_id", clientId)
-    .maybeSingle();
-
-  if (!memberRes.data) return null;
-
-  const [clientRes, datesRes, tasksRes, activityRes] = await Promise.all([
-    supabase.from("clients").select("id, first_name, last_name").eq("id", clientId).maybeSingle(),
-    supabase.from("lifecycle_dates").select("*").eq("family_member_id", memberId),
-    supabase.from("tasks").select("*").eq("family_member_id", memberId).eq("status", "pending"),
-    supabase
-      .from("activity_log")
+export const getFamilyMember = cache(
+  async (clientId: string, memberId: string): Promise<FamilyMemberDetail | null> => {
+    const supabase = await createClient();
+    const memberRes = await supabase
+      .from("family_members")
       .select("*")
-      .eq("family_member_id", memberId)
-      .order("created_at", { ascending: false })
-      .limit(8),
-  ]);
+      .eq("id", memberId)
+      .eq("client_id", clientId)
+      .maybeSingle();
 
-  if (!clientRes.data) return null;
+    if (!memberRes.data) return null;
 
-  return {
-    client: clientRes.data,
-    member: memberRes.data,
-    lifecycle: datesRes.data ?? [],
-    tasks: tasksRes.data ?? [],
-    activity: activityRes.data ?? [],
-  };
-}
+    const [clientRes, datesRes, tasksRes, activityRes] = await Promise.all([
+      supabase.from("clients").select("id, first_name, last_name").eq("id", clientId).maybeSingle(),
+      supabase.from("lifecycle_dates").select("*").eq("family_member_id", memberId),
+      supabase.from("tasks").select("*").eq("family_member_id", memberId).eq("status", "pending"),
+      supabase
+        .from("activity_log")
+        .select("*")
+        .eq("family_member_id", memberId)
+        .order("created_at", { ascending: false })
+        .limit(8),
+    ]);
+
+    if (!clientRes.data) return null;
+
+    return {
+      client: clientRes.data,
+      member: memberRes.data,
+      lifecycle: datesRes.data ?? [],
+      tasks: tasksRes.data ?? [],
+      activity: activityRes.data ?? [],
+    };
+  },
+);

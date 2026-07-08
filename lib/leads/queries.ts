@@ -1,3 +1,5 @@
+import { cache } from "react";
+
 import { createClient } from "@/lib/supabase/server";
 import type { Database } from "@/lib/supabase/types";
 
@@ -13,8 +15,8 @@ export async function getLeads(): Promise<LeadRow[]> {
   return data ?? [];
 }
 
-export async function getLead(id: string): Promise<LeadRow | null> {
+export const getLead = cache(async (id: string): Promise<LeadRow | null> => {
   const supabase = await createClient();
   const { data } = await supabase.from("leads").select("*").eq("id", id).maybeSingle();
   return data ?? null;
-}
+});

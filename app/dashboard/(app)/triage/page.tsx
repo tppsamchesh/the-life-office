@@ -15,6 +15,8 @@ import { RealtimeTasks } from "./_components/RealtimeTasks";
 import { SnoozedList } from "./_components/SnoozedList";
 import { TaskCard } from "./_components/TaskCard";
 
+export const metadata = { title: "Triage" };
+
 const DELIVERY_TONE: Record<DeliveryState, "neutral" | "sage" | "alert"> = {
   waiting: "neutral", queued: "neutral", sending: "neutral",
   sent: "sage", delivered: "sage", failed: "alert", cancelled: "alert",

@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -7,6 +8,19 @@ import { getFamilyMember, householdName } from "@/lib/clients/queries";
 
 import { Card, Chip, DetailHeader, Empty } from "../../../../_components/ui";
 import { HouseholdThreads } from "../../../_components/HouseholdThreads";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string; memberId: string }>;
+}): Promise<Metadata> {
+  const { id, memberId } = await params;
+  const detail = await getFamilyMember(id, memberId);
+  if (!detail) return { title: "Family member" };
+  return {
+    title: `${detail.member.first_name} ${detail.member.last_name ?? ""}`.trim(),
+  };
+}
 
 export default async function FamilyMemberPage({
   params,

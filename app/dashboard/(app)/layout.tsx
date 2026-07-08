@@ -1,9 +1,18 @@
+import type { Metadata } from "next";
+
 import { fetchShellCounts } from "@/lib/dashboard/counts";
 import { createClient } from "@/lib/supabase/server";
 
 import { MobileNav } from "./_components/MobileNav";
 import { ShellCountsProvider } from "./_components/ShellCountsProvider";
 import { Sidebar } from "./_components/Sidebar";
+
+export const metadata: Metadata = {
+  title: {
+    template: "%s · The Life Office",
+    default: "Dashboard · The Life Office",
+  },
+};
 
 export default async function DashboardAppLayout({
   children,

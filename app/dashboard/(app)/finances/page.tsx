@@ -1,5 +1,7 @@
 import { EmptyCard } from "../_components/ui";
 
+export const metadata = { title: "Finances" };
+
 export default function FinancesPage() {
   return (
     <div>

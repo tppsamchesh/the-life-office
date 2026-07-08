@@ -10,6 +10,8 @@ import { PushBanner } from "./_components/PushBanner";
 import { RealtimeConversations } from "./_components/RealtimeConversations";
 import { ThreadView } from "./_components/ThreadView";
 
+export const metadata = { title: "Conversations" };
+
 // State/delivery badges for a list row. The paused chip is what makes a
 // thread with no concierge coverage visibly different from a healthy idle one.
 function RowChips({ item }: { item: ThreadListItem }) {

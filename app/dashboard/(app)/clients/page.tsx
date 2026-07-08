@@ -4,6 +4,8 @@ import { getClients, householdName } from "@/lib/clients/queries";
 
 import { Chip } from "../_components/ui";
 
+export const metadata = { title: "Clients" };
+
 export default async function ClientsPage() {
   const clients = await getClients();
 

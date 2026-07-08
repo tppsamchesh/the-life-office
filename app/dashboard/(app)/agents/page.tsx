@@ -1,5 +1,7 @@
 import { ConciergeCard } from "./_components/ConciergeCard";
 
+export const metadata = { title: "Agents" };
+
 export default function AgentsPage() {
   return (
     <div>

@@ -9,6 +9,8 @@ import type { DateEntry } from "@/lib/clients/dates";
 
 import { Chip, EmptyCard, SectionLabel } from "../_components/ui";
 
+export const metadata = { title: "Calendar" };
+
 // Category → chip tone. Insurance moves to the terracotta/alert family
 // (formerly fire-alarm #C0392B); birthdays stay in the sage family; anything
 // unmapped reads neutral.

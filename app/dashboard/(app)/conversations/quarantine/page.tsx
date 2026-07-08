@@ -5,6 +5,8 @@ import { createClient } from "@/lib/supabase/server";
 import { AllClear, Chip, DetailHeader } from "../../_components/ui";
 import { QuarantineActions, type ClientOption } from "./_components/QuarantineActions";
 
+export const metadata = { title: "Unknown numbers" };
+
 export default async function QuarantinePage() {
   const rows = await getQuarantined();
   const supabase = await createClient();
