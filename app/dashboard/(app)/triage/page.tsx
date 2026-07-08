@@ -35,7 +35,7 @@ function TaskItem({ task, active }: { task: InboxTask; active: boolean }) {
     <li>
       <Link
         href={`/dashboard/triage?task=${task.id}`}
-        className={`block rounded-lg border px-3 py-2.5 transition-colors ${accent}`}
+        className={`block rounded-xl border px-3 py-2.5 transition-colors ${accent}`}
       >
         <div className="flex items-center justify-between gap-2">
           <span className="truncate text-sm font-medium">{taskTitle(task)}</span>

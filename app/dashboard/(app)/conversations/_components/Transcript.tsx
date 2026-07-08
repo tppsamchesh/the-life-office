@@ -42,7 +42,7 @@ function Bubble({ message }: { message: MessageRow }) {
   return (
     <div className={`flex flex-col ${inbound ? "items-start" : "items-end"}`}>
       <div
-        className={`max-w-[75%] rounded-2xl px-3.5 py-2 text-sm ${
+        className={`max-w-[75%] rounded-xl px-3.5 py-2 text-sm ${
           inbound
             ? "border border-hairline bg-surface"
             : failed

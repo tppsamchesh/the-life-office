@@ -25,7 +25,7 @@ export function DraftPanel({ task }: { task: PendingTask }) {
   const draft = task.meg_edited_message ?? task.draft_message ?? "";
 
   return (
-    <div className="mx-4 mb-3 rounded-lg border border-edge border-l-2 border-l-sage bg-surface p-4">
+    <div className="mx-4 mb-3 rounded-xl border border-edge border-l-2 border-l-sage bg-surface p-4">
       <div className="mb-2 flex items-center justify-between gap-2">
         <SectionLabel>Assistant draft · awaiting your approval</SectionLabel>
         <div className="flex items-center gap-2">

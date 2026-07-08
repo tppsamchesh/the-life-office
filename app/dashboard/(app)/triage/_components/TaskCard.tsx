@@ -54,7 +54,7 @@ export function TaskCard({
       </div>
 
       {brief.options.length ? (
-        <div className="mb-5 overflow-hidden rounded-lg border border-hairline">
+        <div className="mb-5 overflow-hidden rounded-xl border border-hairline">
           <SectionLabel className="bg-inset px-4 py-2">Research findings</SectionLabel>
           {brief.options.map((o) => (
             <div
@@ -87,7 +87,7 @@ export function TaskCard({
       ) : null}
 
       {brief.recommendationReasoning ? (
-        <div className="mb-3 rounded-lg bg-canvas px-4 py-3">
+        <div className="mb-3 rounded-xl bg-canvas px-4 py-3">
           <SectionLabel>Recommendation</SectionLabel>
           <p className="mt-1 text-sm leading-relaxed">{brief.recommendationReasoning}</p>
         </div>
@@ -97,7 +97,7 @@ export function TaskCard({
       ) : null}
 
       {task.draft_message ? (
-        <div className="rounded-lg border border-edge p-4">
+        <div className="rounded-xl border border-edge p-4">
           <div className="mb-2 flex items-center justify-between">
             <SectionLabel>Draft message</SectionLabel>
             {task.draft_channel ? <Chip tone="neutral">{task.draft_channel}</Chip> : null}

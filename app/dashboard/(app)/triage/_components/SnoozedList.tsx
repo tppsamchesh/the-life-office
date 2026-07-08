@@ -22,7 +22,7 @@ export function SnoozedList({
         {items.map((item) => (
           <li
             key={item.id}
-            className="flex items-center justify-between gap-2 rounded-lg border border-hairline bg-surface/60 px-3 py-2"
+            className="flex items-center justify-between gap-2 rounded-xl border border-hairline bg-surface/60 px-3 py-2"
           >
             <span className="min-w-0">
               <span className="block truncate text-sm text-muted">{item.title}</span>

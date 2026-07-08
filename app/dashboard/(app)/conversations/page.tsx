@@ -95,7 +95,7 @@ export default async function ConversationsPage({
                 <li key={t.conversation.id}>
                   <Link
                     href={`/dashboard/conversations?conversation=${t.conversation.id}`}
-                    className={`block rounded-lg border px-3 py-2.5 transition-colors ${
+                    className={`block rounded-xl border px-3 py-2.5 transition-colors ${
                       active
                         ? "border-edge border-l-2 border-l-sage bg-surface shadow-sm"
                         : "border-hairline bg-surface/60 hover:bg-surface"
