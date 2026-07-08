@@ -19,7 +19,7 @@ export default function DashboardError({
     <div className="mx-auto max-w-md rounded-xl border border-hairline bg-surface px-6 py-12 text-center">
       <h2 className="font-serif text-lg">Something went wrong</h2>
       <p className="mt-2 text-sm text-muted">
-        That didn&apos;t save. Nothing has been sent to a client, try again.
+        That didn&apos;t save. Nothing has been sent to a client. Try again.
       </p>
       <Button
         type="button"
