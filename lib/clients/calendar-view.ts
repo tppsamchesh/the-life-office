@@ -54,3 +54,35 @@ export function formatCalendarDate(iso: string): string {
   const d = new Date(`${iso}T00:00:00Z`);
   return `${WEEKDAYS[d.getUTCDay()]} ${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]}`;
 }
+
+export type MonthCell = { date: string; inMonth: boolean };
+
+// Builds a Mon-Sun, 6-week (42-day) grid for the given year/month (month is
+// 0-indexed, matching Date's convention), including leading/trailing days
+// from adjacent months so every week row is full.
+export function buildMonthGrid(year: number, month: number): MonthCell[] {
+  const first = new Date(Date.UTC(year, month, 1));
+  const firstWeekday = (first.getUTCDay() + 6) % 7; // Mon=0 .. Sun=6
+  const start = new Date(first.getTime() - firstWeekday * DAY_MS);
+  const cells: MonthCell[] = [];
+  for (let i = 0; i < 42; i++) {
+    const d = new Date(start.getTime() + i * DAY_MS);
+    cells.push({ date: d.toISOString().slice(0, 10), inMonth: d.getUTCMonth() === first.getUTCMonth() });
+  }
+  return cells;
+}
+
+export function entriesForDate(entries: DateEntry[], date: string): DateEntry[] {
+  return entries.filter((e) => e.date === date);
+}
+
+export function earliestEntry(entries: DateEntry[]): DateEntry | null {
+  if (entries.length === 0) return null;
+  return entries.reduce((min, e) => (e.date < min.date ? e : min));
+}
+
+// Shared "today" for the calendar page and its grid, so both sides of a
+// server/client render agree on the same instant's date-only value.
+export function todayIso(now: Date = new Date()): string {
+  return dateOnlyUTC(now).toISOString().slice(0, 10);
+}
