@@ -4,6 +4,7 @@ import { groupByStage, leadName, STAGES } from "@/lib/leads/stages";
 import type { LeadRow } from "@/lib/leads/queries";
 
 import { FitRing } from "./FitRing";
+import { HScroll } from "./HScroll";
 import { TypeBadge } from "./TypeBadge";
 
 // The full pipeline as an enriched Kanban — every card now carries type, fit, and the why.
@@ -11,7 +12,7 @@ export function PipelineBoard({ leads }: { leads: LeadRow[] }) {
   const groups = groupByStage(leads);
 
   return (
-    <div className="flex gap-3 overflow-x-auto pb-2">
+    <HScroll>
       {STAGES.map((s) => {
         const items = groups[s.key];
         return (
@@ -56,6 +57,6 @@ export function PipelineBoard({ leads }: { leads: LeadRow[] }) {
           </div>
         );
       })}
-    </div>
+    </HScroll>
   );
 }
