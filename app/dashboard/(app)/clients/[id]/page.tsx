@@ -174,7 +174,7 @@ export default async function ClientPage({ params }: { params: Promise<{ id: str
                       className="flex items-center gap-2 hover:underline"
                     >
                       <Chip tone="sage">{t.request_type}</Chip>
-                      <span className="truncate">{t.request_summary ?? "—"}</span>
+                      <span className="truncate">{t.request_summary ?? "–"}</span>
                     </Link>
                   </li>
                 ))}
