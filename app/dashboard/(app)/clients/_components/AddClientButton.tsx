@@ -23,9 +23,12 @@ export function AddClientButton() {
       <dialog
         ref={dialogRef}
         aria-labelledby="add-client-title"
-        className="m-auto w-full max-w-md rounded-xl border border-hairline bg-surface p-6 backdrop:bg-ink/40"
+        onClick={(e) => {
+          if (e.target === dialogRef.current) dialogRef.current?.close();
+        }}
+        className="m-auto w-full max-w-md rounded-xl border border-hairline bg-surface p-0 backdrop:bg-ink/40"
       >
-        <form action={formAction} className="flex flex-col gap-3">
+        <form action={formAction} className="flex flex-col gap-3 p-6">
           <h2 id="add-client-title" className="font-serif text-lg">
             New client
           </h2>
