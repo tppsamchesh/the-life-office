@@ -84,7 +84,10 @@ export async function addClient(
     is_primary: true,
   });
   if (channelError) {
-    await supabase.from("clients").delete().eq("id", client.id);
+    const { error: rollbackError } = await supabase.from("clients").delete().eq("id", client.id);
+    if (rollbackError) {
+      console.error(`Failed to roll back orphaned client ${client.id} after channel-insert failure:`, rollbackError.message);
+    }
     return {
       error: `Failed to add the contact number: ${channelError.message}`,
       firstName,
