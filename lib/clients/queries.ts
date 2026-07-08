@@ -59,7 +59,7 @@ export async function getClient(id: string): Promise<ClientDetail | null> {
       .select("*")
       .eq("client_id", id)
       .order("created_at", { ascending: false })
-      .limit(8),
+      .limit(50),
   ]);
 
   if (!clientRes.data) return null;

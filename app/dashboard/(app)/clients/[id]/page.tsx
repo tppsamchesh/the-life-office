@@ -6,6 +6,7 @@ import { jsonbToFacts } from "@/lib/clients/preferences";
 import { getClient, householdName } from "@/lib/clients/queries";
 
 import { Card, Chip, Empty } from "../../_components/ui";
+import { ActivityList } from "../_components/ActivityList";
 import { HouseholdThreads } from "../_components/HouseholdThreads";
 
 const PREF_FIELDS = [
@@ -108,13 +109,13 @@ export default async function ClientPage({ params }: { params: Promise<{ id: str
 
           <Card title="Recent activity">
             {activity.length ? (
-              <ul className="flex flex-col">
-                {activity.map((a) => (
-                  <li key={a.id} className="border-b border-hairline py-1.5 text-xs last:border-0">
-                    <span className="text-ink">{a.description}</span>
-                  </li>
-                ))}
-              </ul>
+              <ActivityList
+                items={activity.map((a) => ({
+                  id: a.id,
+                  description: a.description,
+                  created_at: a.created_at,
+                }))}
+              />
             ) : (
               <Empty>No activity yet.</Empty>
             )}
