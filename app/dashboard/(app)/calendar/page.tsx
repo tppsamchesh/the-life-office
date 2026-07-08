@@ -2,16 +2,20 @@ import Link from "next/link";
 
 import { getCalendarEntries } from "@/lib/clients/calendar";
 import {
+  earliestEntry,
+  entriesForDate,
   formatCalendarDate,
   groupCalendarEntries,
+  todayIso,
 } from "@/lib/clients/calendar-view";
 import type { DateEntry } from "@/lib/clients/dates";
 
 import { Chip, EmptyCard, SectionLabel } from "../_components/ui";
+import { CalendarGrid } from "./_components/CalendarGrid";
 
 export const metadata = { title: "Calendar" };
 
-// Category → chip tone. Insurance moves to the terracotta/alert family
+// Category to chip tone. Insurance moved to the terracotta/alert family
 // (formerly fire-alarm #C0392B); birthdays stay in the sage family; anything
 // unmapped reads neutral.
 const CATEGORY_TONE: Record<string, "neutral" | "sage" | "amber" | "alert"> = {
@@ -42,9 +46,54 @@ function EntryRow({ e }: { e: DateEntry }) {
   );
 }
 
-export default async function CalendarPage() {
+function DayView({
+  selected,
+  dayEntries,
+  nextEntry,
+}: {
+  selected: string;
+  dayEntries: DateEntry[];
+  nextEntry: DateEntry | null;
+}) {
+  return (
+    <div>
+      <div className="mb-3 flex items-center justify-between">
+        <SectionLabel>{formatCalendarDate(selected)}</SectionLabel>
+        <Link href="/dashboard/calendar?date=all" className="text-xs text-muted hover:underline">
+          Show all upcoming
+        </Link>
+      </div>
+      {dayEntries.length === 0 ? (
+        <EmptyCard>
+          Nothing on {formatCalendarDate(selected)}.
+          {nextEntry ? (
+            <>
+              {" "}
+              Next: {nextEntry.label}, {formatCalendarDate(nextEntry.date)}.
+            </>
+          ) : null}
+        </EmptyCard>
+      ) : (
+        <ul className="flex flex-col gap-2">
+          {dayEntries.map((e) => (
+            <EntryRow key={e.id} e={e} />
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+export default async function CalendarPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ date?: string }>;
+}) {
+  const { date } = await searchParams;
   const entries = await getCalendarEntries();
-  const groups = groupCalendarEntries(entries);
+  const today = todayIso();
+  const selected =
+    date === "all" ? "all" : date && /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : today;
 
   return (
     <div>
@@ -59,18 +108,32 @@ export default async function CalendarPage() {
           they are on a client&apos;s file.
         </EmptyCard>
       ) : (
-        <div className="flex flex-col gap-6">
-          {groups.map((group) => (
-            <section key={group.key}>
-              <SectionLabel>{group.label}</SectionLabel>
-              <ul className="flex flex-col gap-2">
-                {group.items.map((e) => (
-                  <EntryRow key={e.id} e={e} />
+        <>
+          <CalendarGrid entries={entries} selected={selected} today={today} />
+
+          <div className="mt-6">
+            {selected === "all" ? (
+              <div className="flex flex-col gap-6">
+                {groupCalendarEntries(entries).map((group) => (
+                  <section key={group.key}>
+                    <SectionLabel>{group.label}</SectionLabel>
+                    <ul className="flex flex-col gap-2">
+                      {group.items.map((e) => (
+                        <EntryRow key={e.id} e={e} />
+                      ))}
+                    </ul>
+                  </section>
                 ))}
-              </ul>
-            </section>
-          ))}
-        </div>
+              </div>
+            ) : (
+              <DayView
+                selected={selected}
+                dayEntries={entriesForDate(entries, selected)}
+                nextEntry={earliestEntry(entries)}
+              />
+            )}
+          </div>
+        </>
       )}
     </div>
   );
