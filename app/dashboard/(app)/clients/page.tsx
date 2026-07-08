@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getClients, householdName } from "@/lib/clients/queries";
 
 import { Chip } from "../_components/ui";
+import { AddClientButton } from "./_components/AddClientButton";
 
 export const metadata = { title: "Clients" };
 
@@ -11,10 +12,15 @@ export default async function ClientsPage() {
 
   return (
     <div>
-      <h1 className="font-serif text-2xl mb-1">Clients</h1>
-      <p className="text-sm text-muted mb-6">
-        {clients.length} {clients.length === 1 ? "household" : "households"}
-      </p>
+      <div className="mb-6 flex items-baseline justify-between">
+        <div>
+          <h1 className="font-serif text-2xl mb-1">Clients</h1>
+          <p className="text-sm text-muted">
+            {clients.length} {clients.length === 1 ? "household" : "households"}
+          </p>
+        </div>
+        <AddClientButton />
+      </div>
 
       <div className="grid gap-3 sm:grid-cols-2">
         {clients.map((c) => (
@@ -32,7 +38,9 @@ export default async function ClientsPage() {
             </p>
             <div className="mt-3 flex gap-2">
               <Chip>{c.memberCount} family</Chip>
-              <Chip>{c.openTaskCount} open {c.openTaskCount === 1 ? "task" : "tasks"}</Chip>
+              <Chip>
+                {c.openTaskCount} open {c.openTaskCount === 1 ? "task" : "tasks"}
+              </Chip>
             </div>
           </Link>
         ))}
