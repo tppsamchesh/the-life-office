@@ -20,7 +20,7 @@ const CATEGORY_TONE: Record<string, "neutral" | "sage" | "amber" | "alert"> = {
 
 function EntryRow({ e }: { e: DateEntry }) {
   return (
-    <li className="flex items-center gap-3 rounded-lg border border-hairline bg-surface px-4 py-3">
+    <li className="flex items-center gap-3 rounded-xl border border-hairline bg-surface px-4 py-3">
       <div className="min-w-0 flex-1">
         <div className="truncate text-sm font-medium">{e.label}</div>
         <Link
