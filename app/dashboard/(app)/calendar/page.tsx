@@ -4,6 +4,7 @@ import { getCalendarEntries } from "@/lib/clients/calendar";
 import {
   earliestEntry,
   entriesForDate,
+  entriesFrom,
   formatCalendarDate,
   groupCalendarEntries,
   todayIso,
@@ -129,7 +130,7 @@ export default async function CalendarPage({
               <DayView
                 selected={selected}
                 dayEntries={entriesForDate(entries, selected)}
-                nextEntry={earliestEntry(entries)}
+                nextEntry={earliestEntry(entriesFrom(entries, selected))}
               />
             )}
           </div>

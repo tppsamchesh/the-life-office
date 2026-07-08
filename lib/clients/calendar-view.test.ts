@@ -5,6 +5,7 @@ import {
   buildMonthGrid,
   earliestEntry,
   entriesForDate,
+  entriesFrom,
   formatCalendarDate,
   groupCalendarEntries,
   todayIso,
@@ -112,6 +113,22 @@ describe("entriesForDate", () => {
 
   it("returns an empty array when nothing matches", () => {
     expect(entriesForDate([entry("a", "2026-07-07")], "2026-08-01")).toEqual([]);
+  });
+});
+
+describe("entriesFrom", () => {
+  it("returns only entries on or after the given date", () => {
+    const entries = [entry("a", "2026-07-07"), entry("b", "2026-07-08"), entry("c", "2026-07-20")];
+    expect(entriesFrom(entries, "2026-07-08").map((e) => e.id)).toEqual(["b", "c"]);
+  });
+
+  it("returns an empty array when everything is before the given date", () => {
+    expect(entriesFrom([entry("a", "2026-07-07")], "2026-08-01")).toEqual([]);
+  });
+
+  it("includes an entry whose date exactly equals the given date", () => {
+    const entries = [entry("a", "2026-07-07"), entry("b", "2026-07-08")];
+    expect(entriesFrom(entries, "2026-07-08").map((e) => e.id)).toEqual(["b"]);
   });
 });
 

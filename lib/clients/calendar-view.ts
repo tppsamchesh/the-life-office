@@ -76,6 +76,10 @@ export function entriesForDate(entries: DateEntry[], date: string): DateEntry[] 
   return entries.filter((e) => e.date === date);
 }
 
+export function entriesFrom(entries: DateEntry[], date: string): DateEntry[] {
+  return entries.filter((e) => e.date >= date);
+}
+
 export function earliestEntry(entries: DateEntry[]): DateEntry | null {
   if (entries.length === 0) return null;
   return entries.reduce((min, e) => (e.date < min.date ? e : min));
