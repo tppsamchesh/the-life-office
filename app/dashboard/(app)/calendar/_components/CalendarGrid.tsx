@@ -74,7 +74,7 @@ export function CalendarGrid({
               href={`/dashboard/calendar?date=${cell.date}`}
               className={`flex h-11 flex-col items-center justify-center gap-0.5 rounded-md text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sage focus-visible:ring-offset-1 ${
                 isSelected
-                  ? "bg-sage font-medium text-ink"
+                  ? "bg-sage font-medium text-white"
                   : isToday
                     ? "border border-sage-deep text-ink hover:bg-inset"
                     : cell.inMonth
