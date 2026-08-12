@@ -48,8 +48,8 @@ export function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
                 onClick={onNavigate}
                 className={`flex min-h-11 items-center justify-between rounded-md px-3 py-2 text-sm transition-colors ${
                   active
-                    ? "border-l-2 border-sage bg-surface font-medium text-ink"
-                    : "text-muted hover:bg-surface/60"
+                    ? "bg-sidebar-active font-medium text-sidebar-ink"
+                    : "text-sidebar-muted hover:bg-sidebar-active/50 hover:text-sidebar-ink"
                 }`}
               >
                 <span>{item.label}</span>
@@ -65,8 +65,8 @@ export function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
                   onClick={onNavigate}
                   className={`flex min-h-11 items-center justify-between rounded-md py-2 pl-6 pr-3 text-sm transition-colors ${
                     quarantineActive
-                      ? "border-l-2 border-sage bg-surface font-medium text-ink"
-                      : "text-muted hover:bg-surface/60"
+                      ? "bg-sidebar-active font-medium text-sidebar-ink"
+                      : "text-sidebar-muted hover:bg-sidebar-active/50 hover:text-sidebar-ink"
                   }`}
                 >
                   <span>Quarantine</span>
@@ -88,7 +88,7 @@ export function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
       <form action={signOut} className="mt-auto px-3 pb-5 pt-6">
         <button
           type="submit"
-          className="min-h-11 w-full rounded-md px-3 py-2 text-left text-sm text-muted hover:bg-surface/60"
+          className="min-h-11 w-full rounded-md px-3 py-2 text-left text-sm text-sidebar-muted hover:bg-sidebar-active/50 hover:text-sidebar-ink"
         >
           Sign out
         </button>

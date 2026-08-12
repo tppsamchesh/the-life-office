@@ -32,8 +32,8 @@ export function MobileNav() {
 
   return (
     <>
-      <header className="sticky top-0 z-40 flex h-12 shrink-0 items-center justify-between border-b border-edge bg-inset pl-4 pr-1 md:hidden">
-        <span className="font-serif text-base tracking-wide">
+      <header className="sticky top-0 z-40 flex h-12 shrink-0 items-center justify-between bg-sidebar pl-4 pr-1 md:hidden">
+        <span className="font-serif text-base tracking-wide text-sidebar-ink">
           The Life Office
         </span>
         <button
@@ -41,7 +41,7 @@ export function MobileNav() {
           aria-label="Open menu"
           aria-expanded={open}
           onClick={() => setOpen(true)}
-          className="relative flex h-11 w-11 items-center justify-center rounded-md text-ink"
+          className="relative flex h-11 w-11 items-center justify-center rounded-md text-sidebar-ink"
         >
           <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
             <path
@@ -65,16 +65,16 @@ export function MobileNav() {
             onClick={() => setOpen(false)}
             className="absolute inset-0 bg-ink/20"
           />
-          <div className="absolute inset-y-0 left-0 flex w-72 max-w-[85vw] flex-col bg-inset shadow-lg">
-            <div className="flex h-12 shrink-0 items-center justify-between border-b border-edge pl-4 pr-1">
-              <span className="font-serif text-base tracking-wide">
+          <div className="absolute inset-y-0 left-0 flex w-72 max-w-[85vw] flex-col bg-sidebar shadow-lg">
+            <div className="flex h-12 shrink-0 items-center justify-between border-b border-sidebar-active/40 pl-4 pr-1">
+              <span className="font-serif text-base tracking-wide text-sidebar-ink">
                 The Life Office
               </span>
               <button
                 type="button"
                 aria-label="Close menu"
                 onClick={() => setOpen(false)}
-                className="flex h-11 w-11 items-center justify-center rounded-md text-muted"
+                className="flex h-11 w-11 items-center justify-center rounded-md text-sidebar-muted hover:text-sidebar-ink"
               >
                 <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
                   <path

@@ -23,11 +23,13 @@
      borders: hairline (default) < edge (inputs) < edge-strong (emphasis)
      greens: sage (action/selection only), sage-tint+sage-deep (status chips),
              positive (live/health)
-     signals: alert (errors/urgent), amber (awaiting/attention) */
+     signals: alert (errors/urgent), amber (awaiting/attention)
+     sidebar: sidebar (rail bg) > sidebar-active (selected/hover pill),
+              sidebar-ink (primary label) > sidebar-muted (inactive label) */
   --color-ink: #1F1F1F;
   --color-muted: #6B665D;
   --color-faint: #A39E94;
-  --color-canvas: #F7F5F2;
+  --color-canvas: #FAF6EF;
   --color-surface: #FFFFFF;
   --color-inset: #EFEBE4;
   --color-hairline: #E7E2D9;
@@ -40,6 +42,10 @@
   --color-alert-tint: #F6E7E0;
   --color-amber: #9A6B2F;
   --color-amber-tint: #F5E9D6;
+  --color-sidebar: #7C8C74;
+  --color-sidebar-active: #8F9E86;
+  --color-sidebar-ink: #FFFFFF;
+  --color-sidebar-muted: #DCE2D6;
 }
 
 html {
