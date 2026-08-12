@@ -4,7 +4,7 @@
   --charcoal: #1F1F1F;
   --warm-white: #F7F5F2;
   --taupe: #D8D2C8;
-  --sage: #6B7A5E;
+  --sage: #8BA888;
 }
 
 @theme inline {
@@ -26,10 +26,10 @@
      signals: alert (errors/urgent), amber (awaiting/attention)
      sidebar: sidebar (rail bg) > sidebar-active (selected/hover pill),
               sidebar-ink (primary label) > sidebar-muted (inactive label) */
-  --color-ink: #1F1F1F;
+  --color-ink: #1C1C1C;
   --color-muted: #6B665D;
   --color-faint: #A39E94;
-  --color-canvas: #FAF6EF;
+  --color-canvas: #FDFAF7;
   --color-surface: #FFFFFF;
   --color-inset: #EFEBE4;
   --color-hairline: #E7E2D9;
@@ -42,10 +42,10 @@
   --color-alert-tint: #F6E7E0;
   --color-amber: #9A6B2F;
   --color-amber-tint: #F5E9D6;
-  --color-sidebar: #7C8C74;
-  --color-sidebar-active: #8F9E86;
+  --color-sidebar: #8BA888;
+  --color-sidebar-active: #9CB59A;
   --color-sidebar-ink: #FFFFFF;
-  --color-sidebar-muted: #DCE2D6;
+  --color-sidebar-muted: #E6EDE3;
 }
 
 html {

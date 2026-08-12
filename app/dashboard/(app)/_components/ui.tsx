@@ -16,7 +16,7 @@ const FOCUS_RING =
 type ButtonVariant = "primary" | "secondary" | "quiet" | "danger";
 
 const BUTTON_VARIANT: Record<ButtonVariant, string> = {
-  primary: "bg-sage text-white font-medium hover:bg-[#606E55] active:bg-[#58644D]",
+  primary: "bg-sage text-white font-medium hover:bg-[#7D977A] active:bg-[#6F866D]",
   secondary: "border border-edge bg-surface hover:bg-inset",
   quiet: "text-muted hover:bg-inset",
   danger: "border border-alert/40 text-alert hover:bg-alert-tint",
